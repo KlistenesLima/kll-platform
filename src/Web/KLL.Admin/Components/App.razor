@@ -1,0 +1,46 @@
+﻿@using MudBlazor
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="MudBlazor.Color.Primary">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudBlazor.Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ml-3">KLL Platform Admin</MudText>
+        <MudSpacer />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudNavMenu>
+            <MudNavLink Href="/admin" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="/admin/products" Icon="@Icons.Material.Filled.Inventory">Products</MudNavLink>
+            <MudNavLink Href="/admin/orders" Icon="@Icons.Material.Filled.ShoppingCart">Orders</MudNavLink>
+            <MudNavLink Href="/admin/shipments" Icon="@Icons.Material.Filled.LocalShipping">Shipments</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent Class="pt-16 px-4">
+        <Microsoft.AspNetCore.Components.Routing.Router AppAssembly="@typeof(App).Assembly">
+            <Found Context="routeData">
+                <Microsoft.AspNetCore.Components.RouteView RouteData="@routeData" />
+            </Found>
+            <NotFound>
+                <MudText Typo="Typo.h5">Page not found</MudText>
+            </NotFound>
+        </Microsoft.AspNetCore.Components.Routing.Router>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private readonly MudTheme _theme = new()
+    {
+        Palette = new PaletteLight
+        {
+            Primary = "#1976D2",
+            Secondary = "#FF6F00",
+            AppbarBackground = "#1976D2"
+        }
+    };
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

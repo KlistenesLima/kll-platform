@@ -1,0 +1,9 @@
+﻿@page "/admin/orders"
+
+<h3>Orders Management</h3>
+<p>Loading orders...</p>
+
+@code {
+    private List<OrderDto> orders = new();
+    public record OrderDto(Guid Id, string CustomerId, string CustomerEmail, decimal TotalAmount, string Status, string? TrackingCode, DateTime CreatedAt);
+}
