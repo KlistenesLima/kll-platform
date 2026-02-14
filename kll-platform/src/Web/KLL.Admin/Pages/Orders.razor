@@ -1,0 +1,47 @@
+@page "/admin/orders"
+@inject ApiService Api
+
+<MudText Typo="Typo.h4" Class="mb-4">Orders Management</MudText>
+
+<MudTable Items="@orders" Hover="true" Striped="true" Loading="@loading">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Customer</MudTh>
+        <MudTh>Total</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Date</MudTh>
+        <MudTh>Tracking</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd><MudText Typo="Typo.caption">@context.Id.ToString()[..8]</MudText></MudTd>
+        <MudTd>@context.CustomerEmail</MudTd>
+        <MudTd>R$ @context.TotalAmount.ToString("N2")</MudTd>
+        <MudTd><MudChip T="string" Color="GetStatusColor(context.Status)" Size="Size.Small">@context.Status</MudChip></MudTd>
+        <MudTd>@context.CreatedAt.ToString("dd/MM HH:mm")</MudTd>
+        <MudTd>@(context.TrackingCode ?? "-")</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<OrderDto> orders = new();
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await Api.GetAsync<List<OrderDto>>("store/api/v1/orders") ?? new();
+        loading = false;
+    }
+
+    private MudBlazor.Color GetStatusColor(string status) => status switch
+    {
+        "Pending" => MudBlazor.Color.Warning,
+        "Paid" => MudBlazor.Color.Success,
+        "Shipped" => MudBlazor.Color.Info,
+        "Delivered" => MudBlazor.Color.Primary,
+        "Cancelled" => MudBlazor.Color.Error,
+        _ => MudBlazor.Color.Default
+    };
+
+    public record OrderDto(Guid Id, string CustomerId, string CustomerEmail, decimal TotalAmount,
+        string Status, string? TrackingCode, DateTime CreatedAt);
+}

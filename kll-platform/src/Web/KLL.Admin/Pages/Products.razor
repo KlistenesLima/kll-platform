@@ -1,0 +1,40 @@
+@page "/products"
+@inject IHttpClientFactory HttpClientFactory
+
+<MudText Typo="Typo.h4" Class="mb-4">Product Management</MudText>
+
+<MudTable Items="@_products" Dense="true" Hover="true" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Category</MudTh>
+        <MudTh>Price</MudTh>
+        <MudTh>Stock</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Name</MudTd>
+        <MudTd><MudChip T="string" Size="Size.Small">@context.Category</MudChip></MudTd>
+        <MudTd>R$ @context.Price.ToString("N2")</MudTd>
+        <MudTd>@context.StockQuantity</MudTd>
+        <MudTd><MudChip T="string" Color="@(context.IsActive ? Color.Success : Color.Error)" Size="Size.Small">@(context.IsActive ? "Active" : "Inactive")</MudChip></MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" />
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private bool _loading = false;
+    private List<ProductDto> _products = new()
+    {
+        new("Smartphone Galaxy S24", "Electronics", 4999.90m, 45, true),
+        new("Notebook Dell Inspiron", "Computers", 3299.00m, 23, true),
+        new("Fone Bluetooth JBL", "Audio", 299.90m, 120, true),
+        new("Cadeira Gamer", "Furniture", 1899.00m, 8, true),
+        new("Mouse Logitech MX", "Peripherals", 449.90m, 67, true),
+    };
+
+    record ProductDto(string Name, string Category, decimal Price, int StockQuantity, bool IsActive);
+}

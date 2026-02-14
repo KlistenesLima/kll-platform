@@ -1,0 +1,9 @@
+﻿@page "/admin/products"
+
+<h3>Products Management</h3>
+<p>Loading products...</p>
+
+@code {
+    private List<ProductDto> products = new();
+    public record ProductDto(Guid Id, string Name, string Category, decimal Price, int Stock, bool Active);
+}

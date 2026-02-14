@@ -1,0 +1,68 @@
+{
+  "realm": "kll-platform",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      { "name": "customer", "description": "E-commerce customer" },
+      { "name": "admin", "description": "Platform administrator" },
+      { "name": "driver", "description": "Delivery driver" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "kll-platform-app",
+      "name": "KLL Platform App",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:5173/*", "http://localhost:5500/*"],
+      "webOrigins": ["http://localhost:5173", "http://localhost:5500"],
+      "defaultRoles": ["customer"]
+    },
+    {
+      "clientId": "kll-platform-api",
+      "name": "KLL Platform API",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true,
+      "standardFlowEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "cliente@kll.com",
+      "email": "cliente@kll.com",
+      "firstName": "João",
+      "lastName": "Silva",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "Senha@123", "temporary": false }],
+      "realmRoles": ["customer"]
+    },
+    {
+      "username": "admin@kll.com",
+      "email": "admin@kll.com",
+      "firstName": "Admin",
+      "lastName": "KLL",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "Admin@123", "temporary": false }],
+      "realmRoles": ["admin"]
+    },
+    {
+      "username": "motorista@kll.com",
+      "email": "motorista@kll.com",
+      "firstName": "Pedro",
+      "lastName": "Costa",
+      "enabled": true,
+      "credentials": [{ "type": "password", "value": "Senha@123", "temporary": false }],
+      "realmRoles": ["driver"]
+    }
+  ]
+}

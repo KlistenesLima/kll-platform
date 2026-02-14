@@ -1,0 +1,45 @@
+@page "/admin/shipments"
+@inject ApiService Api
+
+<MudText Typo="Typo.h4" Class="mb-4">Shipments Management</MudText>
+
+<MudTable Items="@shipments" Hover="true" Striped="true" Loading="@loading">
+    <HeaderContent>
+        <MudTh>Tracking</MudTh>
+        <MudTh>Order</MudTh>
+        <MudTh>Recipient</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>City</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd><MudText Typo="Typo.caption" Color="MudBlazor.Color.Primary">@context.TrackingCode</MudText></MudTd>
+        <MudTd>@context.OrderId.ToString()[..8]</MudTd>
+        <MudTd>@context.RecipientName</MudTd>
+        <MudTd><MudChip T="string" Color="GetShipmentColor(context.Status)" Size="Size.Small">@context.Status</MudChip></MudTd>
+        <MudTd>@context.City</MudTd>
+        <MudTd><MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" /></MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<ShipmentDto> shipments = new();
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        shipments = await Api.GetAsync<List<ShipmentDto>>("logistics/api/v1/shipments") ?? new();
+        loading = false;
+    }
+
+    private MudBlazor.Color GetShipmentColor(string status) => status switch
+    {
+        "Created" => MudBlazor.Color.Default,
+        "InTransit" => MudBlazor.Color.Info,
+        "Delivered" => MudBlazor.Color.Success,
+        _ => MudBlazor.Color.Warning
+    };
+
+    public record ShipmentDto(Guid Id, Guid OrderId, string TrackingCode, string RecipientName,
+        string Status, string City);
+}

@@ -1,0 +1,9 @@
+﻿@page "/admin/shipments"
+
+<h3>Shipments Management</h3>
+<p>Loading shipments...</p>
+
+@code {
+    private List<ShipmentDto> shipments = new();
+    public record ShipmentDto(Guid Id, Guid OrderId, string TrackingCode, string RecipientName, string Status, string City);
+}
