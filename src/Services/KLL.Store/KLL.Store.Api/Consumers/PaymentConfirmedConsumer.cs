@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Confluent.Kafka;
-using KLL.Store.Domain.Events;
+using KLL.BuildingBlocks.Domain.IntegrationEvents;
 using KLL.Store.Application.Interfaces;
 
 namespace KLL.Store.Api.Consumers;
@@ -27,7 +27,7 @@ public class PaymentConfirmedConsumer : BackgroundService
         using var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
         consumer.Subscribe("paymentconfirmed");
 
-        _logger.LogInformation("PaymentConfirmedConsumer started, listening on 'paymentconfirmed'");
+        _logger.LogInformation("PaymentConfirmedConsumer started");
 
         while (!ct.IsCancellationRequested)
         {
@@ -42,7 +42,7 @@ public class PaymentConfirmedConsumer : BackgroundService
                     using var scope = _serviceProvider.CreateScope();
                     var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
                     await orderService.ConfirmPaymentAsync(evt.OrderId, evt.ChargeId, ct);
-                    _logger.LogInformation("Order {OrderId} payment confirmed with charge {ChargeId}", evt.OrderId, evt.ChargeId);
+                    _logger.LogInformation("Order {OrderId} payment confirmed", evt.OrderId);
                     consumer.Commit(result);
                 }
             }

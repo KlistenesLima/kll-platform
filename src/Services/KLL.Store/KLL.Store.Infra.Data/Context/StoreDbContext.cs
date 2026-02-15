@@ -24,6 +24,7 @@ public class StoreDbContext : DbContext
             b.OwnsOne(x => x.Price, p => p.Property(m => m.Amount).HasColumnName("price").HasColumnType("decimal(18,2)"));
             b.HasIndex(x => x.Category);
             b.HasIndex(x => x.IsActive);
+            b.Ignore(x => x.DomainEvents);
         });
 
         modelBuilder.Entity<Order>(b =>
@@ -47,7 +48,8 @@ public class StoreDbContext : DbContext
             });
             b.HasMany(x => x.Items).WithOne().HasForeignKey("OrderId");
             b.HasIndex(x => x.CustomerId);
-            b.HasIndex(x => x.TrackingCode).IsUnique().HasFilter("tracking_code IS NOT NULL");
+            b.HasIndex(x => x.TrackingCode).IsUnique().HasFilter("\"TrackingCode\" IS NOT NULL");
+            b.Ignore(x => x.DomainEvents);
         });
 
         modelBuilder.Entity<OrderItem>(b =>
@@ -55,7 +57,7 @@ public class StoreDbContext : DbContext
             b.HasKey(x => x.Id);
             b.Property(x => x.ProductName).HasMaxLength(200);
             b.Property(x => x.UnitPrice).HasColumnType("decimal(18,2)");
-            b.Property(x => x.Total).HasColumnType("decimal(18,2)");
+            b.Ignore(x => x.Total); // Computed property - not persisted
         });
 
         modelBuilder.ConfigureOutbox();

@@ -34,7 +34,7 @@ public class OutboxProcessor : BackgroundService
                         var topic = msg.Type.Replace("IntegrationEvent", "").Replace("Event", "").ToLowerInvariant();
                         await eventBus.PublishAsync(topic, msg.Content, msg.Id.ToString(), ct);
                         await outboxRepo.MarkAsProcessedAsync(msg.Id, ct);
-                        _logger.LogInformation("Outbox message {Id} processed â†’ {Topic}", msg.Id, topic);
+                        _logger.LogInformation("Outbox message {Id} processed → {Topic}", msg.Id, topic);
                     }
                     catch (Exception ex)
                     {

@@ -1,4 +1,4 @@
-﻿using KLL.BuildingBlocks.Domain.Entities;
+using KLL.BuildingBlocks.Domain.Entities;
 using KLL.BuildingBlocks.Domain.ValueObjects;
 using KLL.Store.Domain.Events;
 
@@ -8,7 +8,7 @@ public class Product : BaseEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
-    public Money Price { get; private set; } = Money.Zero();
+    public Money Price { get; private set; } = Money.Zero;
     public int StockQuantity { get; private set; }
     public string Category { get; private set; } = string.Empty;
     public string? ImageUrl { get; private set; }
@@ -43,6 +43,12 @@ public class Product : BaseEntity
         AddDomainEvent(new ProductStockDeductedEvent(Id, quantity, StockQuantity));
     }
 
+    public void RestoreStock(int quantity)
+    {
+        StockQuantity += quantity;
+        SetUpdated();
+    }
+
     public void Update(string name, string description, decimal price, string category, string? imageUrl)
     {
         Name = name; Description = description;
@@ -50,9 +56,6 @@ public class Product : BaseEntity
         ImageUrl = imageUrl; SetUpdated();
     }
 
-    public void RestoreStock(int quantity)
-    {
-        StockQuantity += quantity;
-        SetUpdated();
-    }
+    public void Deactivate() { IsActive = false; SetUpdated(); }
+    public void Activate() { IsActive = true; SetUpdated(); }
 }

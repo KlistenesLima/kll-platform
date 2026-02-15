@@ -1,4 +1,4 @@
-﻿using KLL.BuildingBlocks.Outbox;
+using KLL.BuildingBlocks.Domain.Outbox;
 using Microsoft.EntityFrameworkCore;
 
 namespace KLL.BuildingBlocks.Infrastructure.Persistence;

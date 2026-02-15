@@ -40,7 +40,7 @@
     {
       "username": "cliente@kll.com",
       "email": "cliente@kll.com",
-      "firstName": "JoÃ£o",
+      "firstName": "João",
       "lastName": "Silva",
       "enabled": true,
       "credentials": [{ "type": "password", "value": "Senha@123", "temporary": false }],

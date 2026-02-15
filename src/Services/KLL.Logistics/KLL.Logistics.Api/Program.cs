@@ -1,5 +1,4 @@
-﻿using KLL.BuildingBlocks.EventBus.Interfaces;
-using KLL.BuildingBlocks.EventBus.Kafka;
+using KLL.BuildingBlocks.Infrastructure.Extensions;
 using KLL.BuildingBlocks.Infrastructure.Logging;
 using KLL.BuildingBlocks.Infrastructure.Middleware;
 using KLL.Logistics.Api.Consumers;
@@ -11,14 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Host.UseKllSerilog("KLL.Logistics");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "KLL Logistics API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "KLL Logistics API", Version = "v1", Description = "Shipment tracking & delivery microservice" });
 });
 
 builder.Services.AddDbContext<LogisticsDbContext>(opt =>
@@ -28,14 +26,11 @@ builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
 builder.Services.AddScoped<IDriverRepository, DriverRepository>();
 builder.Services.AddScoped<ShipmentService>();
 
-builder.Services.AddSingleton<IEventBus, KafkaEventBus>();
-builder.Services.AddSignalR();
-builder.Services.AddStackExchangeRedisCache(opt =>
-{
-    opt.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6381";
-    opt.InstanceName = "kll:";
-});
-builder.Services.AddHealthChecks();
+builder.Services.AddKafkaEventBus();
+builder.Services.AddRabbitMQNotifications();
+builder.Services.AddRedisCache(builder.Configuration);
+builder.Services.AddKLLHealthChecks(builder.Configuration);
+
 builder.Services.AddHostedService<ShipmentRequestedConsumer>();
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
@@ -43,8 +38,7 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
      .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
 var app = builder.Build();
-app.UseMiddleware<CorrelationIdMiddleware>();
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseKllInfrastructure();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors();

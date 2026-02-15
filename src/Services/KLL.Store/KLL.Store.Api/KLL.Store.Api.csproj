@@ -13,5 +13,6 @@
     <ProjectReference Include="..\KLL.Store.Application\KLL.Store.Application.csproj" />
     <ProjectReference Include="..\KLL.Store.Infra.Data\KLL.Store.Infra.Data.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Infrastructure\KLL.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.CQRS\KLL.BuildingBlocks.CQRS.csproj" />
   </ItemGroup>
 </Project>

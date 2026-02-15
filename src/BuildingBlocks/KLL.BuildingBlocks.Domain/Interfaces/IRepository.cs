@@ -1,4 +1,4 @@
-﻿namespace KLL.BuildingBlocks.Domain.Interfaces;
+namespace KLL.BuildingBlocks.Domain.Interfaces;
 
 public interface IRepository<T> where T : class
 {

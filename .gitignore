@@ -1,8 +1,32 @@
+## .NET
 bin/
 obj/
-.vs/
 *.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+.vs/
+[Dd]ebug/
+[Rr]elease/
+
+## Node
 node_modules/
 dist/
-.env
-appsettings.Development.json
+.env.local
+
+## IDE
+.idea/
+.vscode/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Docker
+docker-compose.override.yml
+
+## Misc
+*.log
+*.bak
+*.swp
