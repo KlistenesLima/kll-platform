@@ -1,9 +1,6 @@
-﻿using KLL.BuildingBlocks.EventBus.Interfaces;
-using KLL.BuildingBlocks.EventBus.Kafka;
+using KLL.BuildingBlocks.Infrastructure.Extensions;
 using KLL.BuildingBlocks.Infrastructure.Logging;
-using KLL.BuildingBlocks.Infrastructure.Middleware;
 using KLL.BuildingBlocks.Infrastructure.Resilience;
-using KLL.BuildingBlocks.Outbox;
 using KLL.Pay.Api.Consumers;
 using KLL.Pay.Application.Integration;
 using KLL.Pay.Application.Services;
@@ -14,42 +11,34 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Host.UseKllSerilog("KLL.Pay");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "KLL Pay API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "KLL Pay API", Version = "v1", Description = "Payment gateway with KRT Bank integration" });
 });
 
 builder.Services.AddDbContext<PayDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<PayDbContext>());
-
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(TransactionService).Assembly));
 
 builder.Services.AddScoped<IMerchantRepository, MerchantRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<MerchantService>();
 builder.Services.AddScoped<TransactionService>();
 
+// KRT Bank Integration with Polly
 builder.Services.AddHttpClient<KrtBankClient>(c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["KrtBank:BaseUrl"] ?? "http://localhost:5002");
     c.Timeout = TimeSpan.FromSeconds(30);
 }).AddResiliencePolicies();
 
-builder.Services.AddSingleton<IEventBus, KafkaEventBus>();
-builder.Services.AddSignalR();
-builder.Services.AddStackExchangeRedisCache(opt =>
-{
-    opt.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6381";
-    opt.InstanceName = "kll:";
-});
-builder.Services.AddHostedService<OutboxProcessor>();
-builder.Services.AddHealthChecks();
+builder.Services.AddKafkaEventBus();
+builder.Services.AddRabbitMQNotifications();
+builder.Services.AddRedisCache(builder.Configuration);
+builder.Services.AddKLLHealthChecks(builder.Configuration);
 
 builder.Services.AddHostedService<OrderCreatedConsumer>();
 builder.Services.AddHostedService<BankPaymentConfirmedConsumer>();
@@ -59,8 +48,7 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
      .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
 var app = builder.Build();
-app.UseMiddleware<CorrelationIdMiddleware>();
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseKllInfrastructure();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors();

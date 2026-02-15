@@ -1,4 +1,4 @@
-﻿using KLL.BuildingBlocks.EventBus.Interfaces;
+using KLL.BuildingBlocks.EventBus.Interfaces;
 using KLL.BuildingBlocks.Domain.ValueObjects;
 using KLL.Store.Application.DTOs.Requests;
 using KLL.Store.Application.DTOs.Responses;
@@ -35,7 +35,6 @@ public class OrderService : IOrderService
         await _orderRepo.AddAsync(order, ct);
         await _orderRepo.SaveChangesAsync(ct);
 
-        // Publish integration event for KLL Pay
         await _eventBus.PublishAsync(new OrderCreatedIntegrationEvent
         {
             OrderId = order.Id, CustomerId = order.CustomerId,
@@ -70,7 +69,6 @@ public class OrderService : IOrderService
         await _orderRepo.UpdateAsync(order, ct);
         await _orderRepo.SaveChangesAsync(ct);
 
-        // Request shipment from KLL Logistics
         await _eventBus.PublishAsync(new ShipmentRequestedIntegrationEvent
         {
             OrderId = order.Id, RecipientName = order.CustomerId,

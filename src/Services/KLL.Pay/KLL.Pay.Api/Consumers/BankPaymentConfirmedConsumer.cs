@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Confluent.Kafka;
+using KLL.BuildingBlocks.Domain.IntegrationEvents;
 using KLL.BuildingBlocks.EventBus.Interfaces;
 using KLL.Pay.Application.Services;
 
@@ -44,7 +45,12 @@ public class BankPaymentConfirmedConsumer : BackgroundService
                     await txService.ConfirmFromBankAsync(data.TransactionId, data.BankChargeId, ct);
 
                     var eventBus = scope.ServiceProvider.GetRequiredService<IEventBus>();
-                    await eventBus.PublishAsync(new PaymentConfirmedEvent(data.OrderId, data.BankChargeId, data.Amount), ct);
+                    await eventBus.PublishAsync(new PaymentConfirmedIntegrationEvent
+                    {
+                        OrderId = data.OrderId,
+                        ChargeId = data.BankChargeId,
+                        Amount = data.Amount
+                    }, ct);
 
                     _logger.LogInformation("Bank payment confirmed for tx {TxId}", data.TransactionId);
                     consumer.Commit(result);
@@ -61,5 +67,3 @@ public class BankPaymentConfirmedConsumer : BackgroundService
 
     private record BankConfirmData(Guid TransactionId, Guid OrderId, string BankChargeId, decimal Amount);
 }
-
-public record PaymentConfirmedEvent(Guid OrderId, string ChargeId, decimal Amount);

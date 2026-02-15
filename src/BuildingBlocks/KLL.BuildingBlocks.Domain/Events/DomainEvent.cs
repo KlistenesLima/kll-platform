@@ -1,4 +1,4 @@
-﻿namespace KLL.BuildingBlocks.Domain.Events;
+namespace KLL.BuildingBlocks.Domain.Events;
 
 public abstract record DomainEvent
 {

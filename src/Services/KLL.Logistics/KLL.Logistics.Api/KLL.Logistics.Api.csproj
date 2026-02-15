@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -6,16 +6,16 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KLL.Logistics.Application\KLL.Logistics.Application.csproj" />
-    <ProjectReference Include="..\KLL.Logistics.Infra.Data\KLL.Logistics.Infra.Data.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Infrastructure\KLL.BuildingBlocks.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.EventBus\KLL.BuildingBlocks.EventBus.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Outbox\KLL.BuildingBlocks.Outbox.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.CQRS\KLL.BuildingBlocks.CQRS.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/KLL.BuildingBlocks.CQRS/KLL.BuildingBlocks.CQRS.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/KLL.BuildingBlocks.Infrastructure/KLL.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="../../../BuildingBlocks/KLL.BuildingBlocks.Outbox/KLL.BuildingBlocks.Outbox.csproj" />
+    <ProjectReference Include="../KLL.Logistics.Application/KLL.Logistics.Application.csproj" />
+    <ProjectReference Include="../KLL.Logistics.Infra.Data/KLL.Logistics.Infra.Data.csproj" />
   </ItemGroup>
 </Project>

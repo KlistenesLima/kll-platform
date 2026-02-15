@@ -1,12 +1,15 @@
-﻿using FluentValidation;
+using FluentValidation;
+using KLL.BuildingBlocks.Domain.Results;
 using MediatR;
 
 namespace KLL.BuildingBlocks.CQRS.Behaviors;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
+    where TResponse : Result
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
+
     public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators) => _validators = validators;
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
@@ -15,10 +18,16 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 
         var context = new ValidationContext<TRequest>(request);
         var failures = (await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, ct))))
-            .SelectMany(r => r.Errors).Where(f => f != null).ToList();
+            .SelectMany(r => r.Errors)
+            .Where(f => f != null)
+            .ToList();
 
         if (failures.Count != 0)
-            throw new ValidationException(failures);
+        {
+            var errors = string.Join("; ", failures.Select(f => f.ErrorMessage));
+            // Create failure result
+            return (TResponse)(object)Result.Failure(errors);
+        }
 
         return await next();
     }

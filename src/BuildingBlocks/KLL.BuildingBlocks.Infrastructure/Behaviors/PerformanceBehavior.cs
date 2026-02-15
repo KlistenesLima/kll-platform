@@ -20,7 +20,7 @@ public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
 
         if (_timer.ElapsedMilliseconds > 500)
         {
-            _logger.LogWarning("[PERF] {Request} took {Elapsed}ms â€” consider optimization",
+            _logger.LogWarning("[PERF] {Request} took {Elapsed}ms — consider optimization",
                 typeof(TRequest).Name, _timer.ElapsedMilliseconds);
         }
 

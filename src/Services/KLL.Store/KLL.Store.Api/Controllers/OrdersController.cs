@@ -1,5 +1,7 @@
-using KLL.Store.Application.Commands;
-using KLL.Store.Application.Queries;
+using KLL.Store.Application.Commands.CreateOrder;
+using KLL.Store.Application.Commands.ConfirmPayment;
+using KLL.Store.Application.Queries.GetOrderById;
+using KLL.Store.Application.Queries.GetOrdersByCustomer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,21 +19,23 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateOrderCommand command, CancellationToken ct)
     {
         var result = await _mediator.Send(command, ct);
-        return result.IsSuccess ? Created($"/api/v1/orders/{result.Value}", new { id = result.Value }) : BadRequest(result.Error);
+        return result.IsSuccess
+            ? Created($"/api/v1/orders/{result.Value}", new { id = result.Value })
+            : BadRequest(result.Error);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetOrderByIdQuery(id), ct);
-        return result != null ? Ok(result) : NotFound();
+        return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
     }
 
     [HttpGet("customer/{customerId}")]
     public async Task<IActionResult> GetByCustomer(string customerId, CancellationToken ct)
     {
         var result = await _mediator.Send(new GetOrdersByCustomerQuery(customerId), ct);
-        return Ok(result);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
     [HttpPost("{id:guid}/confirm-payment")]
