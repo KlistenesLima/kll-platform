@@ -1,18 +1,11 @@
 import axios from 'axios';
 import type { Product, Order, Merchant, Transaction, Shipment } from '../types';
-
 const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
-
 const api = axios.create({ baseURL: GATEWAY, timeout: 10000 });
-
 api.interceptors.response.use(
   (r) => r,
-  (err) => {
-    console.error('API Error:', err.response?.data || err.message);
-    return Promise.reject(err);
-  }
+  (err) => { console.error('API Error:', err.response?.data || err.message); return Promise.reject(err); }
 );
-
 export const storeApi = {
   getProducts: (category?: string) =>
     api.get<Product[]>('/api/v1/products', { params: { category } }).then(r => r.data),
@@ -29,7 +22,6 @@ export const storeApi = {
   createOrder: (data: any) =>
     api.post<{ id: string }>('/api/v1/orders', data).then(r => r.data),
 };
-
 export const payApi = {
   getMerchants: () =>
     api.get<Merchant[]>('/api/v1/merchants').then(r => r.data),
@@ -40,14 +32,12 @@ export const payApi = {
   createCharge: (data: any) =>
     api.post<Transaction>('/api/v1/transactions/charge', data).then(r => r.data),
 };
-
 export const logisticsApi = {
   getShipment: (id: string) =>
     api.get<Shipment>(`/api/v1/shipments/${id}`).then(r => r.data),
   trackShipment: (code: string) =>
     api.get<Shipment>(`/api/v1/shipments/track/${code}`).then(r => r.data),
 };
-
 export const healthApi = {
   getAll: () => api.get<Record<string, string>>('/health/all').then(r => r.data),
 };
