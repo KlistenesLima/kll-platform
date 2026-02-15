@@ -1,4 +1,4 @@
-﻿namespace KLL.Store.Application.DTOs.Responses;
+namespace KLL.Store.Application.DTOs.Responses;
 
 public record ProductResponse(
     Guid Id, string Name, string Description, decimal Price, int StockQuantity,

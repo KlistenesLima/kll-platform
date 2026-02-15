@@ -1,4 +1,4 @@
-﻿namespace KLL.Store.Application.DTOs.Responses;
+namespace KLL.Store.Application.DTOs.Responses;
 
 public record OrderResponse(
     Guid Id, string CustomerId, string Status, decimal TotalAmount,

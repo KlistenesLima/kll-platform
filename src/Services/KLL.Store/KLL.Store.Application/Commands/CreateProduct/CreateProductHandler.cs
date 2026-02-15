@@ -1,5 +1,5 @@
-﻿using KLL.BuildingBlocks.CQRS.Abstractions;
-using KLL.BuildingBlocks.CQRS;
+using KLL.BuildingBlocks.CQRS.Abstractions;
+using KLL.BuildingBlocks.Domain.Results;
 using KLL.Store.Domain.Entities;
 using KLL.Store.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
