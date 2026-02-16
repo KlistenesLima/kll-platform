@@ -1,12 +1,7 @@
-using KLL.BuildingBlocks.Domain.Outbox;
+﻿using KLL.BuildingBlocks.Infrastructure.Auth;
 using KLL.BuildingBlocks.Infrastructure.Extensions;
-using KLL.BuildingBlocks.Infrastructure.Logging;
-using KLL.BuildingBlocks.Infrastructure.Persistence;
-using KLL.BuildingBlocks.Infrastructure.RealTime;
+using KLL.BuildingBlocks.Infrastructure.Middleware;
 using KLL.Store.Api.Consumers;
-using KLL.Store.Application.Commands.CreateProduct;
-using KLL.Store.Application.Interfaces;
-using KLL.Store.Application.Services;
 using KLL.Store.Domain.Interfaces;
 using KLL.Store.Infra.Data.Context;
 using KLL.Store.Infra.Data.Repositories;
@@ -14,15 +9,18 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Host.UseKllSerilog("KLL.Store");
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new() { Title = "KLL Store API", Version = "v1",
-        Description = "E-Commerce microservice — Products, Orders, Cart" });
-});
+builder.Services.AddSwaggerGen();
+
+// Auth
+builder.Services.AddKllAuth(builder.Configuration);
 
 // Database
 builder.Services.AddDbContext<StoreDbContext>(opt =>
@@ -31,46 +29,41 @@ builder.Services.AddDbContext<StoreDbContext>(opt =>
 // Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IOutboxRepository>(sp => new OutboxRepository(sp.GetRequiredService<StoreDbContext>()));
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 
-// Services
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IProductService, ProductService>();
+// Infrastructure
+builder.Services.AddKllInfrastructure(builder.Configuration);
 
-// BuildingBlocks (MediatR, Polly, Redis, Kafka, RabbitMQ, HealthChecks, FluentValidation)
-builder.Services.AddKllBuildingBlocks(builder.Configuration, "store",
-    typeof(CreateProductCommand).Assembly);
-
-// Saga Orchestrator
-builder.Services.AddScoped<KLL.Store.Application.Saga.OrderSagaOrchestrator>();
-
-// Kafka Consumers
+// Kafka consumers
 builder.Services.AddHostedService<PaymentConfirmedConsumer>();
 builder.Services.AddHostedService<ShipmentCreatedConsumer>();
 
-// SignalR + Real-time
-builder.Services.AddSignalR();
-builder.Services.AddSingleton<IOrderNotifier, SignalROrderNotifier>();
-
 // CORS
-builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:5173", "http://localhost:5100", "http://localhost:4200")
-     .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+builder.Services.AddCors(opt => opt.AddPolicy("AllowAll", p =>
+    p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 var app = builder.Build();
-app.UseKllInfrastructure();
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseCors();
-app.MapControllers();
-app.MapHub<OrderTrackingHub>("/hubs/order-tracking");
-app.MapHealthChecks("/health");
 
+// Auto migrate
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
     await db.Database.MigrateAsync();
 }
 
-Log.Information("KLL.Store started on {Urls}", builder.Configuration["Urls"]);
+app.UseCors("AllowAll");
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<CorrelationIdMiddleware>();
+
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
+    { app.UseSwagger(); app.UseSwaggerUI(); }
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Service = "KLL.Store", Timestamp = DateTime.UtcNow }));
+
+Log.Information("[KLL.Store] Started on port {Port}", builder.Configuration["ASPNETCORE_URLS"] ?? "5200");
 app.Run();
