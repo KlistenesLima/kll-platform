@@ -1,4 +1,4 @@
-﻿using KLL.BuildingBlocks.Domain.Entities;
+using KLL.BuildingBlocks.Domain.Entities;
 
 namespace KLL.Store.Domain.Entities;
 
@@ -6,7 +6,7 @@ public class Cart : BaseEntity
 {
     public string CustomerId { get; private set; } = string.Empty;
     public ICollection<CartItem> Items { get; private set; } = new List<CartItem>();
-    public DateTime UpdatedAt { get; private set; }
+    public new DateTime UpdatedAt { get; private set; }
 
     protected Cart() { }
 

@@ -1,7 +1,10 @@
-﻿using KLL.BuildingBlocks.Infrastructure.Auth;
+﻿using KLL.BuildingBlocks.Domain.Outbox;
+using KLL.BuildingBlocks.Infrastructure.Auth;
 using KLL.BuildingBlocks.Infrastructure.Extensions;
 using KLL.BuildingBlocks.Infrastructure.Middleware;
+using KLL.BuildingBlocks.Infrastructure.Persistence;
 using KLL.Store.Api.Consumers;
+using KLL.Store.Application.Commands.CreateProduct;
 using KLL.Store.Domain.Interfaces;
 using KLL.Store.Infra.Data.Context;
 using KLL.Store.Infra.Data.Repositories;
@@ -32,8 +35,13 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 
-// Infrastructure
-builder.Services.AddKllInfrastructure(builder.Configuration);
+// Outbox
+builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<StoreDbContext>());
+builder.Services.AddScoped<IOutboxRepository, OutboxRepository>();
+
+// Infrastructure (MediatR, Kafka, RabbitMQ, Redis, HealthChecks, Polly)
+builder.Services.AddKllBuildingBlocks(builder.Configuration, "KLL.Store",
+    typeof(CreateProductCommand).Assembly);
 
 // Kafka consumers
 builder.Services.AddHostedService<PaymentConfirmedConsumer>();
@@ -49,7 +57,10 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
-    await db.Database.MigrateAsync();
+    if (db.Database.IsRelational())
+        await db.Database.MigrateAsync();
+    else
+        await db.Database.EnsureCreatedAsync();
 }
 
 app.UseCors("AllowAll");
@@ -63,7 +74,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGet("/health", () => Results.Ok(new { Status = "Healthy", Service = "KLL.Store", Timestamp = DateTime.UtcNow }));
 
 Log.Information("[KLL.Store] Started on port {Port}", builder.Configuration["ASPNETCORE_URLS"] ?? "5200");
 app.Run();
+
+// Required for WebApplicationFactory in integration tests
+public partial class Program { }

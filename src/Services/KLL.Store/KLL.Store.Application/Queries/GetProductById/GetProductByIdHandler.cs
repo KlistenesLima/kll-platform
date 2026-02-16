@@ -17,7 +17,7 @@ public class GetProductByIdHandler : IQueryHandler<GetProductByIdQuery, ProductR
         if (p == null) return Result.Failure<ProductResponse>("Product not found");
 
         return Result.Success(new ProductResponse(
-            p.Id, p.Name, p.Description, p.Price.Amount, p.StockQuantity,
+            p.Id, p.Name, p.Description, p.Price, p.StockQuantity,
             p.Category, p.ImageUrl, p.IsActive, p.CreatedAt));
     }
 }

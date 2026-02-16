@@ -3,11 +3,13 @@
 
 CREATE DATABASE kll_pay;
 CREATE DATABASE kll_logistics;
+CREATE DATABASE kll_keycloak;
 
 -- Grant permissions
 GRANT ALL PRIVILEGES ON DATABASE kll_store TO kll;
 GRANT ALL PRIVILEGES ON DATABASE kll_pay TO kll;
 GRANT ALL PRIVILEGES ON DATABASE kll_logistics TO kll;
+GRANT ALL PRIVILEGES ON DATABASE kll_keycloak TO kll;
 
 -- Connect to kll_store and create schema
 \c kll_store kll

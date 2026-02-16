@@ -1,4 +1,5 @@
 ﻿using KLL.BuildingBlocks.Domain.Entities;
+using KLL.Store.Domain.Events;
 
 namespace KLL.Store.Domain.Entities;
 
@@ -29,6 +30,13 @@ public class Product : BaseEntity
         CreatedAt = DateTime.UtcNow;
     }
 
+    public static Product Create(string name, string description, decimal price, int stockQuantity, string category, Guid? categoryId = null, string? imageUrl = null)
+    {
+        var product = new Product(name, description, price, stockQuantity, category, categoryId, imageUrl);
+        product.AddDomainEvent(new ProductCreatedEvent(product.Id, name, price));
+        return product;
+    }
+
     public void Update(string name, string description, decimal price, int stockQuantity, string category, Guid? categoryId = null, string? imageUrl = null)
     {
         Name = name;
@@ -38,13 +46,15 @@ public class Product : BaseEntity
         Category = category;
         CategoryId = categoryId;
         ImageUrl = imageUrl;
+        SetUpdated();
     }
 
-    public bool DeductStock(int quantity)
+    public void DeductStock(int quantity)
     {
-        if (StockQuantity < quantity) return false;
+        if (StockQuantity < quantity)
+            throw new InvalidOperationException($"Insufficient stock. Available: {StockQuantity}, Requested: {quantity}");
         StockQuantity -= quantity;
-        return true;
+        AddDomainEvent(new ProductStockDeductedEvent(Id, quantity, StockQuantity));
     }
 
     public void RestoreStock(int quantity) => StockQuantity += quantity;
