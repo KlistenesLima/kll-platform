@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(docker info:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)",
+      "Bash(dotnet ef:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker exec:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)",
+      "Bash(xxd:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)",
+      "Bash(curl:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJkYS1mRVYwV2h5NVd0eDdNTjhkaHRsbFJiaFRpcHR6TDJGSTZqQmh4VlFvIn0.eyJleHAiOjE3NzEyNjMzMTEsImlhdCI6MTc3MTI2MzAxMSwianRpIjoiOWYyZGI5MzctZTg3NC00MzgxLWFhMTktMGFhOTE3ZDIzYWEwIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgxL3JlYWxtcy9rbGwtcGxhdGZvcm0iLCJzdWIiOiJlODgyMzg4Yi01ZDA3LTQwZTMtOWY3YS1iMWM4OGY5MDU3OTAiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzdG9yZWZyb250Iiwic2Vzc2lvbl9zdGF0ZSI6IjVlZTU0MDlmLWQ1ZWEtNGI5OC05ZGUxLWMwZGIwYzg3NjRlMSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovL2xvY2FsaG9zdDo1MTczIiwiaHR0cDovL2xvY2FsaG9zdDo1MTc0Il0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJhZG1pbiIsImN1c3RvbWVyIl19LCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJzaWQiOiI1ZWU1NDA5Zi1kNWVhLTRiOTgtOWRlMS1jMGRiMGM4NzY0ZTEiLCJyZWFsbV9yb2xlcyI6WyJhZG1pbiIsImN1c3RvbWVyIl0sImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6IkFkbWluIEtMTCIsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJLTEwiLCJlbWFpbCI6ImFkbWluQGtsbC5jb20ifQ.HpCYEo2BSxRedU8fdh_TDxpyZMoiDK4-3he-nAiblnxs_xqNK-g3MqRxGj0BLVfiO8u3apo0BzmhjmxOXoRJ7UapSFeFUCuaAURjE0eDcXzOnBKjkU1Pw_D-qDuZ4QS1jx_ut2ypJjSq_CISsFm2qM2pDCUifEw2RqKo1IoudWkQYriBxayKHl8oR9GPCmvA3i5k-eWpOqREvfTcQlbu1F0f-DXyiwv4HG8e81wwB7zz9EzVVBU98vAr4UtvIISenVFR1jXf7DGOaHYNxrs32vMxZrUpZm8uTNBnEajoSHXrYbac1Z0OsOl6gdDbnbgHUJ1qADQwLoZz-cJqEbMvjg\")",
+      "Bash(__NEW_LINE_c06901bb643e32c6__ echo \"=== 1. Create Category ===\")",
+      "Bash(__NEW_LINE_c06901bb643e32c6__ echo \"\")",
+      "Bash(CAT_ID=\"ac589739-e956-4020-bd70-ae4bf9858f49\")",
+      "Bash(__NEW_LINE_24efe3f03e9b1d30__ echo \"=== 3. Create Subcategory \\(Smartphones\\) ===\")",
+      "Bash(__NEW_LINE_24efe3f03e9b1d30__ echo \"\")",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vitest run:*)"
+    ]
+  }
+}

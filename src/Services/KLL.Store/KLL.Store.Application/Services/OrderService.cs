@@ -28,7 +28,7 @@ public class OrderService : IOrderService
             var product = await _productRepo.GetByIdAsync(item.ProductId, ct)
                 ?? throw new KeyNotFoundException($"Product {item.ProductId} not found");
             product.DeductStock(item.Quantity);
-            order.AddItem(product.Id, product.Name, product.Price.Amount, item.Quantity);
+            order.AddItem(product.Id, product.Name, product.Price, item.Quantity);
             await _productRepo.UpdateAsync(product, ct);
         }
 
@@ -38,7 +38,7 @@ public class OrderService : IOrderService
         await _eventBus.PublishAsync(new OrderCreatedIntegrationEvent
         {
             OrderId = order.Id, CustomerId = order.CustomerId,
-            CustomerEmail = order.CustomerEmail, TotalAmount = order.TotalAmount.Amount,
+            CustomerEmail = order.CustomerEmail, TotalAmount = order.TotalAmount,
             Items = order.Items.Select(i => new OrderItemDto
             {
                 ProductId = i.ProductId, ProductName = i.ProductName,
@@ -80,6 +80,6 @@ public class OrderService : IOrderService
     }
 
     private static OrderResponse MapOrder(Order o) => new(o.Id, o.CustomerId, o.Status.ToString(),
-        o.TotalAmount.Amount, o.TrackingCode, o.CreatedAt,
+        o.TotalAmount, o.TrackingCode, o.CreatedAt,
         o.Items.Select(i => new OrderItemResponse(i.ProductId, i.ProductName, i.UnitPrice, i.Quantity)).ToList());
 }

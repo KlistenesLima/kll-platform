@@ -16,7 +16,7 @@ public class CreateProductHandler : ICommandHandler<CreateProductCommand, Guid>
 
     public async Task<Result<Guid>> Handle(CreateProductCommand cmd, CancellationToken ct)
     {
-        var product = Product.Create(cmd.Name, cmd.Description, cmd.Price, cmd.StockQuantity, cmd.Category, cmd.ImageUrl);
+        var product = new Product(cmd.Name, cmd.Description, cmd.Price, cmd.StockQuantity, cmd.Category, null, cmd.ImageUrl);
         await _repository.AddAsync(product, ct);
         await _repository.SaveChangesAsync(ct);
 
