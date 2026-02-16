@@ -4,6 +4,7 @@ import { productApi } from "../services/api";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
+import ShippingCalculator from "../components/ShippingCalculator";
 import type { Product } from "../types";
 
 export default function ProductDetail() {
@@ -81,6 +82,8 @@ export default function ProductDetail() {
               </div>
               <span style={{ fontSize: "0.8rem", color: "#6c6c7e" }}>({product.stockQuantity} disponiveis)</span>
             </div>
+
+            <ShippingCalculator cartTotal={product.price * quantity} />
 
             <button onClick={handleAdd} style={{
               width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 12,

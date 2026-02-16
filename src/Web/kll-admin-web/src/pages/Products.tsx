@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box, Typography, Button, Card, CardContent, Dialog, DialogTitle,
-  DialogContent, DialogActions, TextField, Chip, Alert,
+  DialogContent, DialogActions, TextField, Chip, Alert, CircularProgress,
 } from '@mui/material';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
-import { storeApi } from '../services/api';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { storeApi, uploadApi } from '../services/api';
 import type { Product } from '../types';
+
+function formatBRL(cents: number): string {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cents / 100);
+}
+
+function parseBRLInput(value: string): number {
+  const digits = value.replace(/\D/g, '');
+  return parseInt(digits || '0', 10);
+}
 
 const columns: GridColDef[] = [
   { field: 'name', headerName: 'Produto', flex: 1, minWidth: 200 },
@@ -22,11 +32,16 @@ const columns: GridColDef[] = [
     valueFormatter: (v: string) => v ? new Date(v).toLocaleDateString('pt-BR') : '' },
 ];
 
-const initialForm = { name: '', description: '', price: '', stockQuantity: '', category: '', imageUrl: '' };
+const initialForm = { name: '', description: '', priceCents: 0, stockQuantity: '', category: '', imageUrl: '' };
 
 export default function Products() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
+  const [priceDisplay, setPriceDisplay] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   const { data: products, isLoading, error } = useQuery<Product[]>({
@@ -36,15 +51,57 @@ export default function Products() {
 
   const mutation = useMutation({
     mutationFn: (data: any) => storeApi.createProduct(data),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['products'] }); setOpen(false); setForm(initialForm); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      handleClose();
+    },
   });
 
-  const handleSubmit = () => {
+  const handleClose = () => {
+    setOpen(false);
+    setForm(initialForm);
+    setPriceDisplay('');
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handlePriceChange = (value: string) => {
+    const cents = parseBRLInput(value);
+    setForm({ ...form, priceCents: cents });
+    setPriceDisplay(cents > 0 ? formatBRL(cents) : '');
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async () => {
+    let imageUrl = form.imageUrl;
+
+    if (imageFile) {
+      setUploading(true);
+      try {
+        const result = await uploadApi.uploadImage(imageFile);
+        imageUrl = result.url;
+      } catch {
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
     mutation.mutate({
-      ...form,
-      price: parseFloat(form.price),
+      name: form.name,
+      description: form.description,
+      price: form.priceCents / 100,
       stockQuantity: parseInt(form.stockQuantity),
-      imageUrl: form.imageUrl || null,
+      category: form.category,
+      imageUrl: imageUrl || null,
     });
   };
 
@@ -75,22 +132,71 @@ export default function Products() {
         </CardContent>
       </Card>
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>Novo Produto</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
           <TextField label="Nome" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} fullWidth required />
           <TextField label="Descrição" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} fullWidth multiline rows={2} />
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField label="Preço (R$)" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} type="number" fullWidth required />
+            <TextField
+              label="Preço (R$)"
+              value={priceDisplay}
+              onChange={e => handlePriceChange(e.target.value)}
+              placeholder="R$ 0,00"
+              fullWidth
+              required
+            />
             <TextField label="Estoque" value={form.stockQuantity} onChange={e => setForm({ ...form, stockQuantity: e.target.value })} type="number" fullWidth required />
           </Box>
           <TextField label="Categoria" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} fullWidth required />
-          <TextField label="URL da Imagem" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} fullWidth />
+
+          <Box>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleFileSelect}
+              style={{ display: 'none' }}
+            />
+            <Button
+              variant="outlined"
+              startIcon={<CloudUploadIcon />}
+              onClick={() => fileInputRef.current?.click()}
+              fullWidth
+              sx={{ py: 1.5, borderStyle: 'dashed' }}
+            >
+              {imageFile ? imageFile.name : 'Selecionar Imagem (máx 5MB)'}
+            </Button>
+            {imagePreview && (
+              <Box sx={{ mt: 1.5, textAlign: 'center' }}>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  style={{ maxWidth: '100%', maxHeight: 180, borderRadius: 8, objectFit: 'contain' }}
+                />
+              </Box>
+            )}
+            {!imageFile && (
+              <TextField
+                label="Ou cole a URL da imagem"
+                value={form.imageUrl}
+                onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+                fullWidth
+                size="small"
+                sx={{ mt: 1 }}
+              />
+            )}
+          </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={mutation.isPending}>
-            {mutation.isPending ? 'Criando...' : 'Criar Produto'}
+          <Button onClick={handleClose}>Cancelar</Button>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={mutation.isPending || uploading}
+            startIcon={uploading ? <CircularProgress size={16} /> : undefined}
+          >
+            {uploading ? 'Enviando imagem...' : mutation.isPending ? 'Criando...' : 'Criar Produto'}
           </Button>
         </DialogActions>
       </Dialog>

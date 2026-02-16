@@ -12,9 +12,9 @@ function renderFooter() {
 }
 
 describe("Footer", () => {
-  it("renders the Luxe Store brand", () => {
+  it("renders the KLL Store brand", () => {
     renderFooter();
-    expect(screen.getByText("Luxe")).toBeTruthy();
+    expect(screen.getByText("KLL")).toBeTruthy();
     expect(screen.getByText("Store")).toBeTruthy();
   });
 
@@ -27,7 +27,7 @@ describe("Footer", () => {
 
   it("renders copyright text", () => {
     renderFooter();
-    expect(screen.getByText(/Luxe Store/)).toBeTruthy();
+    expect(screen.getByText(/KLL Store/)).toBeTruthy();
   });
 
   it("contains navigation links", () => {

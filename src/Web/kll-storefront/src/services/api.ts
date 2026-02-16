@@ -47,6 +47,11 @@ export const orderApi = {
   getMine: () => api.get("/api/v1/orders/mine").then((r) => r.data),
 };
 
+export const shippingApi = {
+  calculate: (cep: string, cartTotal: number) =>
+    api.get("/api/v1/shipping/calculate", { params: { cep, cartTotal } }).then((r) => r.data),
+};
+
 export const authApi = {
   login: (username: string, password: string) =>
     axios.post(
