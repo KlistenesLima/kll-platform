@@ -1,11 +1,28 @@
 import axios from 'axios';
+import keycloak from './keycloak';
 import type { Product, Order, Merchant, Transaction, Shipment } from '../types';
+
 const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
 const api = axios.create({ baseURL: GATEWAY, timeout: 10000 });
+
+api.interceptors.request.use((config) => {
+  if (keycloak.token) {
+    config.headers.Authorization = `Bearer ${keycloak.token}`;
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (r) => r,
-  (err) => { console.error('API Error:', err.response?.data || err.message); return Promise.reject(err); }
+  (err) => {
+    if (err.response?.status === 401) {
+      keycloak.logout();
+    }
+    console.error('API Error:', err.response?.data || err.message);
+    return Promise.reject(err);
+  }
 );
+
 export const storeApi = {
   getProducts: (category?: string) =>
     api.get<Product[]>('/api/v1/products', { params: { category } }).then(r => r.data),
@@ -40,4 +57,14 @@ export const logisticsApi = {
 };
 export const healthApi = {
   getAll: () => api.get<Record<string, string>>('/health/all').then(r => r.data),
+};
+export const uploadApi = {
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<{ url: string }>('/api/v1/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    }).then(r => r.data);
+  },
 };

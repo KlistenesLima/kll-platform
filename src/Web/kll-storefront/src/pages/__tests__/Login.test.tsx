@@ -34,9 +34,9 @@ function renderLogin() {
 }
 
 describe("Login", () => {
-  it("renders the Luxe Store heading", () => {
+  it("renders the KLL Store heading", () => {
     renderLogin();
-    expect(screen.getByText("Luxe")).toBeTruthy();
+    expect(screen.getByText("KLL")).toBeTruthy();
     expect(screen.getByText("Store")).toBeTruthy();
   });
 

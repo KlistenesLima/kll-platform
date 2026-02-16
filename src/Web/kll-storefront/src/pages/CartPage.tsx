@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
+import ShippingCalculator from "../components/ShippingCalculator";
 import toast from "react-hot-toast";
 
 export default function CartPage() {
@@ -79,7 +80,9 @@ export default function CartPage() {
               <span style={{ fontSize: "1.1rem", color: "#b8b8c7" }}>Total:</span>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#c9a962" }}>{fmt(total)}</span>
             </div>
-            <div style={{ display: "flex", gap: "1rem" }}>
+            <ShippingCalculator cartTotal={total} />
+
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
               <button onClick={() => { clearCart(); toast.success("Carrinho limpo"); }} style={{
                 padding: "1rem 1.5rem", background: "transparent", border: "2px solid rgba(201,169,98,0.2)",
                 borderRadius: 8, color: "#b8b8c7", cursor: "pointer", fontFamily: "'Poppins', sans-serif"

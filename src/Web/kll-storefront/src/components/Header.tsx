@@ -35,7 +35,7 @@ export default function Header() {
         }}>
           {/* Logo */}
           <Link to="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ color: "#fff" }}>Luxe</span>
+            <span style={{ color: "#fff" }}>KLL</span>
             <span style={{ color: "#c9a962" }}>Store</span>
           </Link>
 
