@@ -1,5 +1,5 @@
-﻿import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { productApi, categoryApi } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import type { Product, Category } from "../types";
@@ -28,50 +28,68 @@ export default function Search() {
   }, [q, categoryId, sortBy]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          {q ? `Resultados para "${q}"` : categoryId ? "Produtos da Categoria" : "Todos os Produtos"}
-          <span className="text-sm font-normal text-gray-500 ml-2">({total} encontrados)</span>
-        </h1>
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-kll-500">
+    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "2rem 1.5rem" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "2rem" }}>
+        <div>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.25rem" }}>
+            {q ? `Resultados para "${q}"` : "Catalogo"}
+          </h1>
+          <p style={{ color: "#6c6c7e", fontSize: "0.9rem" }}>{total} produtos encontrados</p>
+        </div>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{
+          padding: "0.75rem 1.25rem", fontFamily: "'Poppins', sans-serif",
+          fontSize: "0.85rem", color: "#fff", background: "#1a1a2e",
+          border: "2px solid rgba(201,169,98,0.2)", borderRadius: 8, outline: "none", cursor: "pointer"
+        }}>
           <option value="newest">Mais Recentes</option>
           <option value="price">Menor Preco</option>
           <option value="name">Nome A-Z</option>
         </select>
       </div>
 
-      <div className="flex gap-6">
+      <div style={{ display: "flex", gap: "2rem" }}>
         {/* Sidebar */}
-        <aside className="hidden md:block w-56 flex-shrink-0">
-          <h3 className="font-semibold text-gray-700 mb-3">Categorias</h3>
-          <ul className="space-y-2">
+        <aside style={{ width: 220, flexShrink: 0 }}>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", marginBottom: "1rem", color: "#c9a962" }}>Categorias</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+            <Link to="/search" style={{
+              display: "block", padding: "0.65rem 1rem", borderRadius: 8,
+              fontSize: "0.9rem", textDecoration: "none",
+              color: !categoryId ? "#c9a962" : "#b8b8c7",
+              background: !categoryId ? "rgba(201,169,98,0.1)" : "transparent"
+            }}>Todos</Link>
             {categories.map((cat) => (
-              <li key={cat.id}>
-                <a href={`/search?categoryId=${cat.id}`}
-                  className={`block px-3 py-2 rounded-lg text-sm transition ${categoryId === cat.id ? "bg-kll-100 text-kll-700 font-medium" : "text-gray-600 hover:bg-gray-100"}`}>
-                  {cat.name}
-                </a>
-              </li>
+              <Link key={cat.id} to={`/search?categoryId=${cat.id}`} style={{
+                display: "block", padding: "0.65rem 1rem", borderRadius: 8,
+                fontSize: "0.9rem", textDecoration: "none",
+                color: categoryId === cat.id ? "#c9a962" : "#b8b8c7",
+                background: categoryId === cat.id ? "rgba(201,169,98,0.1)" : "transparent",
+                transition: "all 0.15s"
+              }}>{cat.name}</Link>
             ))}
-          </ul>
+          </div>
         </aside>
 
-        {/* Products Grid */}
-        <div className="flex-1">
+        {/* Grid */}
+        <div style={{ flex: 1 }}>
           {loading ? (
-            <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-kll-600"></div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+              {[1,2,3,4,5,6].map((i) => (
+                <div key={i} style={{
+                  height: 380, background: "linear-gradient(90deg, #1a1a2e 25%, #252542 50%, #1a1a2e 75%)",
+                  backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite", borderRadius: 12
+                }} />
+              ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
               {products.map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-500">
-              <p className="text-4xl mb-3">ðŸ”</p>
-              <p>Nenhum produto encontrado.</p>
+            <div style={{ textAlign: "center", padding: "4rem 0" }}>
+              <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.3 }}>ðŸ”</div>
+              <p style={{ color: "#6c6c7e", fontSize: "1.1rem" }}>Nenhum produto encontrado.</p>
             </div>
           )}
         </div>
