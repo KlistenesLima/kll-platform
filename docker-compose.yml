@@ -1,4 +1,4 @@
-name: kll-platform
+﻿name: kll-platform
 
 services:
   # ==================== DATABASES ====================
@@ -217,6 +217,18 @@ services:
     networks:
       - kll-net
 
+  storefront:
+    build:
+      context: src/Web/kll-storefront
+      dockerfile: Dockerfile
+    container_name: kll-storefront
+    ports:
+      - "5174:80"
+    depends_on:
+      - gateway
+    networks:
+      - kll-net
+
   admin-web:
     build:
       context: src/Web/kll-admin-web
@@ -238,3 +250,4 @@ volumes:
 networks:
   kll-net:
     driver: bridge
+
