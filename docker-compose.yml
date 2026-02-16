@@ -116,17 +116,25 @@ services:
 
   # ==================== AUTH ====================
   keycloak:
-    profiles: [auth]
     image: quay.io/keycloak/keycloak:23.0
     container_name: kll-keycloak
     command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/kll_keycloak
+      KC_DB_USERNAME: kll
+      KC_DB_PASSWORD: REDACTED_DB_PASSWORD
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_RELATIVE_PATH: /
     ports:
       - "8081:8080"
     volumes:
       - ./infra/keycloak/kll-platform-realm.json:/opt/keycloak/data/import/kll-platform-realm.json
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - kll-net
 

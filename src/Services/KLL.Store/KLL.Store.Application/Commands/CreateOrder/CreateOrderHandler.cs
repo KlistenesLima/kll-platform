@@ -33,7 +33,7 @@ public class CreateOrderHandler : ICommandHandler<CreateOrderCommand, Guid>
             if (product.StockQuantity < item.Quantity) return Result.Failure<Guid>($"Insufficient stock for {product.Name}");
 
             product.DeductStock(item.Quantity);
-            order.AddItem(product.Id, product.Name, product.Price.Amount, item.Quantity);
+            order.AddItem(product.Id, product.Name, product.Price, item.Quantity);
             await _productRepo.UpdateAsync(product, ct);
         }
 
@@ -44,7 +44,7 @@ public class CreateOrderHandler : ICommandHandler<CreateOrderCommand, Guid>
         var integrationEvent = new OrderCreatedIntegrationEvent
         {
             OrderId = order.Id, CustomerId = cmd.CustomerId,
-            CustomerEmail = cmd.CustomerEmail, TotalAmount = order.TotalAmount.Amount,
+            CustomerEmail = cmd.CustomerEmail, TotalAmount = order.TotalAmount,
             Items = order.Items.Select(i => new OrderItemDto
             {
                 ProductId = i.ProductId, ProductName = i.ProductName,
@@ -56,7 +56,7 @@ public class CreateOrderHandler : ICommandHandler<CreateOrderCommand, Guid>
             JsonSerializer.Serialize(integrationEvent)), ct);
 
         _logger.LogInformation("Order {OrderId} created with {ItemCount} items, total {Total}",
-            order.Id, cmd.Items.Count, order.TotalAmount.Amount);
+            order.Id, cmd.Items.Count, order.TotalAmount);
 
         return Result.Success(order.Id);
     }

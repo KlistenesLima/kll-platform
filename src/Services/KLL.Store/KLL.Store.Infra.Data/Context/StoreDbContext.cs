@@ -1,4 +1,4 @@
-﻿using KLL.Store.Domain.Entities;
+using KLL.Store.Domain.Entities;
 using KLL.BuildingBlocks.Domain.Outbox;
 using KLL.BuildingBlocks.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +21,8 @@ public class StoreDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Ignore<KLL.BuildingBlocks.Domain.Events.DomainEvent>();
+
         modelBuilder.Entity<Product>(b =>
         {
             b.HasKey(p => p.Id);
@@ -37,7 +39,17 @@ public class StoreDbContext : DbContext
         modelBuilder.Entity<Order>(b =>
         {
             b.HasKey(o => o.Id);
-            b.Property(o => o.TotalAmount).HasColumnType("decimal(18,2)");
+            b.OwnsOne(o => o.TotalAmount, m => { m.Property(x => x.Amount).HasColumnType("decimal(18,2)").HasColumnName("TotalAmount"); m.Property(x => x.Currency).HasMaxLength(3).HasColumnName("Currency"); });
+            b.OwnsOne(o => o.ShippingAddress, a =>
+            {
+                a.Property(x => x.Street).HasMaxLength(200).HasColumnName("ShippingStreet");
+                a.Property(x => x.Number).HasMaxLength(20).HasColumnName("ShippingNumber");
+                a.Property(x => x.Complement).HasMaxLength(100).HasColumnName("ShippingComplement");
+                a.Property(x => x.Neighborhood).HasMaxLength(100).HasColumnName("ShippingNeighborhood");
+                a.Property(x => x.City).HasMaxLength(100).HasColumnName("ShippingCity");
+                a.Property(x => x.State).HasMaxLength(2).HasColumnName("ShippingState");
+                a.Property(x => x.ZipCode).HasMaxLength(10).HasColumnName("ShippingZipCode");
+            });
             b.Property(o => o.CustomerId).HasMaxLength(200);
             b.Property(o => o.CustomerEmail).HasMaxLength(200);
             b.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId);
@@ -77,6 +89,12 @@ public class StoreDbContext : DbContext
             b.Property(i => i.ImageUrl).HasMaxLength(500);
         });
 
-        modelBuilder.ApplyOutboxConfiguration();
+        modelBuilder.Entity<OutboxMessage>(b =>
+        {
+            b.HasKey(o => o.Id);
+            b.Property(o => o.Type).HasMaxLength(500).IsRequired();
+            b.Property(o => o.Content).IsRequired();
+            b.HasIndex(o => o.ProcessedOn);
+        });
     }
 }

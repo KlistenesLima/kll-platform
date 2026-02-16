@@ -1,4 +1,4 @@
-﻿{
+{
   "realm": "kll-platform",
   "enabled": true,
   "sslRequired": "none",
@@ -17,7 +17,7 @@
   "defaultRoles": ["customer"],
   "clients": [
     {
-      "clientId": "kll-storefront",
+      "clientId": "storefront",
       "name": "KLL Storefront",
       "enabled": true,
       "publicClient": true,
@@ -45,7 +45,7 @@
       ]
     },
     {
-      "clientId": "kll-admin",
+      "clientId": "admin-web",
       "name": "KLL Admin Panel",
       "enabled": true,
       "publicClient": true,
@@ -71,8 +71,8 @@
       ]
     },
     {
-      "clientId": "kll-api",
-      "name": "KLL API",
+      "clientId": "store-api",
+      "name": "KLL Store API",
       "enabled": true,
       "bearerOnly": true,
       "protocol": "openid-connect"

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { authApi } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
+import { DiamondIcon } from "../components/Icons";
 import toast from "react-hot-toast";
 
 export default function Login() {
@@ -20,63 +21,91 @@ export default function Login() {
       const data = await authApi.login(username, password);
       login(data.access_token);
       await fetchCart();
-      toast.success("Bem-vindo de volta!", { style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.3)" } });
+      toast.success("Bem-vindo de volta!", {
+        style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.2)" },
+        iconTheme: { primary: "#c9a962", secondary: "#0f0f1a" }
+      });
       nav("/");
     } catch {
-      toast.error("Credenciais invalidas");
+      toast.error("Credenciais invalidas", {
+        style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(244,67,54,0.3)" }
+      });
     } finally { setLoading(false); }
   };
 
-  const inputStyle = {
-    width: "100%", padding: "1rem 1.5rem", fontFamily: "'Poppins', sans-serif",
-    fontSize: "1rem", color: "#fff", background: "#1a1a2e",
-    border: "2px solid rgba(201,169,98,0.2)", borderRadius: 8,
-    outline: "none", transition: "border-color 0.15s"
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "0.9rem 1.25rem", fontFamily: "'Poppins', sans-serif",
+    fontSize: "0.9rem", color: "#fff", background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(201,169,98,0.12)", borderRadius: 10,
+    outline: "none", transition: "all 0.2s"
   };
 
   return (
-    <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{
+      minHeight: "calc(100vh - 72px)", display: "flex", alignItems: "center",
+      justifyContent: "center", padding: "2rem"
+    }}>
       <div style={{
-        background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.2)",
-        borderRadius: 20, padding: "3rem", width: "100%", maxWidth: 440,
-        boxShadow: "0 8px 24px rgba(0,0,0,0.5)"
+        background: "rgba(26,26,46,0.6)", border: "1px solid rgba(201,169,98,0.1)",
+        borderRadius: 24, padding: "3rem 2.5rem", width: "100%", maxWidth: 420,
+        boxShadow: "0 16px 64px rgba(0,0,0,0.4)", backdropFilter: "blur(20px)"
       }}>
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", marginBottom: "0.5rem" }}>
-            <span style={{ color: "#fff" }}>Luxe</span>
-            <span style={{ color: "#c9a962" }}> Store</span>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16,
+              background: "rgba(201,169,98,0.08)", border: "1px solid rgba(201,169,98,0.15)",
+              display: "flex", alignItems: "center", justifyContent: "center"
+            }}>
+              <DiamondIcon size={24} color="#c9a962" />
+            </div>
+          </div>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.75rem", marginBottom: "0.35rem" }}>
+            <span style={{ color: "#fff" }}>Luxe </span>
+            <span style={{ color: "#c9a962" }}>Store</span>
           </h1>
-          <p style={{ color: "#6c6c7e", fontSize: "0.9rem" }}>Entre na sua conta</p>
+          <p style={{ color: "#6c6c7e", fontSize: "0.85rem" }}>Acesse sua conta</p>
         </div>
+
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: "1.25rem" }}>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500, color: "#b8b8c7", fontSize: "0.9rem" }}>Usuario</label>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required
-              placeholder="seu.usuario" style={inputStyle}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#c9a962")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)")} />
+            <label style={{
+              display: "block", marginBottom: "0.5rem", fontWeight: 500,
+              color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
+            }}>E-mail ou usuario</label>
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
+              required autoComplete="username"
+              style={inputStyle}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
           </div>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500, color: "#b8b8c7", fontSize: "0.9rem" }}>Senha</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" style={inputStyle}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#c9a962")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)")} />
+
+          <div style={{ marginBottom: "2rem" }}>
+            <label style={{
+              display: "block", marginBottom: "0.5rem", fontWeight: 500,
+              color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
+            }}>Senha</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+              required autoComplete="current-password"
+              style={inputStyle}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
           </div>
+
           <button type="submit" disabled={loading} style={{
-            width: "100%", padding: "1rem", fontFamily: "'Poppins', sans-serif",
-            fontSize: "0.9rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: 1,
-            color: "#1a1a2e", background: "linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)",
-            border: "none", borderRadius: 8, cursor: "pointer",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.4)", opacity: loading ? 0.6 : 1,
+            width: "100%", padding: "0.9rem", fontFamily: "'Poppins', sans-serif",
+            fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px",
+            color: "#0f0f1a", background: "linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)",
+            border: "none", borderRadius: 12, cursor: loading ? "wait" : "pointer",
+            boxShadow: "0 4px 20px rgba(201,169,98,0.2)", opacity: loading ? 0.7 : 1,
             transition: "all 0.3s"
           }}>{loading ? "Entrando..." : "Entrar"}</button>
         </form>
-        <div style={{ marginTop: "2rem", textAlign: "center" }}>
-          <p style={{ color: "#6c6c7e", fontSize: "0.8rem", marginBottom: "0.5rem" }}>Usuarios de teste:</p>
-          <p style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#4a4a5e" }}>admin / REDACTED_SEQ_PASSWORD (admin)</p>
-          <p style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#4a4a5e" }}>cliente / Cliente123! (customer)</p>
-        </div>
+
+        <p style={{ textAlign: "center", marginTop: "2rem", fontSize: "0.8rem", color: "#6c6c7e" }}>
+          Ainda nao tem conta?{" "}
+          <Link to="/login" style={{ color: "#c9a962", fontWeight: 500, textDecoration: "none" }}>Criar conta</Link>
+        </p>
       </div>
     </div>
   );
