@@ -29,7 +29,6 @@ export default function Search() {
 
   return (
     <div style={{ maxWidth: 1400, margin: "0 auto", padding: "2rem 1.5rem" }}>
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "2rem" }}>
         <div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.25rem" }}>
@@ -49,7 +48,6 @@ export default function Search() {
       </div>
 
       <div style={{ display: "flex", gap: "2rem" }}>
-        {/* Sidebar */}
         <aside style={{ width: 220, flexShrink: 0 }}>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.1rem", marginBottom: "1rem", color: "#c9a962" }}>Categorias</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
@@ -71,7 +69,6 @@ export default function Search() {
           </div>
         </aside>
 
-        {/* Grid */}
         <div style={{ flex: 1 }}>
           {loading ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
@@ -88,7 +85,7 @@ export default function Search() {
             </div>
           ) : (
             <div style={{ textAlign: "center", padding: "4rem 0" }}>
-              <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.3 }}>ðŸ”</div>
+              <div style={{ fontSize: "3rem", marginBottom: "1rem", opacity: 0.3, color: "#6c6c7e" }}>&#10022;</div>
               <p style={{ color: "#6c6c7e", fontSize: "1.1rem" }}>Nenhum produto encontrado.</p>
             </div>
           )}
