@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -32,4 +32,8 @@
     <ProjectReference Include="..\KLL.BuildingBlocks.EventBus\KLL.BuildingBlocks.EventBus.csproj" />
     <ProjectReference Include="..\KLL.BuildingBlocks.CQRS\KLL.BuildingBlocks.CQRS.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+  </ItemGroup>
 </Project>
+
