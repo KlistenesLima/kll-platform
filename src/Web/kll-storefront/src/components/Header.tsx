@@ -7,7 +7,6 @@ export default function Header() {
   const { isAuthenticated, user, isAdmin, logout } = useAuthStore();
   const { itemCount } = useCartStore();
   const [query, setQuery] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const nav = useNavigate();
 
@@ -27,13 +26,11 @@ export default function Header() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
           maxWidth: 1400, margin: "0 auto", padding: "1rem 1.5rem"
         }}>
-          {/* Logo */}
           <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.75rem", fontWeight: 700 }}>
             <span style={{ color: "#fff" }}>Luxe</span>
             <span style={{ color: "#c9a962", marginLeft: 4 }}>Store</span>
           </Link>
 
-          {/* Nav */}
           <nav style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
             {[
               { to: "/", label: "Home" },
@@ -51,14 +48,12 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Actions */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            {/* Search Toggle */}
             <button onClick={() => setSearchOpen(!searchOpen)} style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              width: 44, height: 44, fontSize: "1.25rem", color: "#b8b8c7",
+              width: 44, height: 44, fontSize: "1.1rem", color: "#b8b8c7",
               background: "transparent", border: "none", borderRadius: "50%", cursor: "pointer"
-            }}>ðŸ”</button>
+            }} dangerouslySetInnerHTML={{ __html: "&#9906;" }} />
 
             {isAuthenticated ? (
               <>
@@ -71,13 +66,13 @@ export default function Header() {
                   <a href="http://localhost:5173" target="_blank" rel="noreferrer" style={{
                     display: "flex", alignItems: "center", justifyContent: "center",
                     width: 44, height: 44, color: "#b8b8c7", background: "transparent",
-                    border: "none", borderRadius: "50%", cursor: "pointer", fontSize: "1.1rem"
-                  }}>âš™ï¸</a>
+                    border: "none", borderRadius: "50%", cursor: "pointer", fontSize: "0.75rem",
+                    textDecoration: "none", fontWeight: 600, textTransform: "uppercase"
+                  }}>ADM</a>
                 )}
 
-                {/* Cart */}
-                <Link to="/cart" style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, color: "#b8b8c7", textDecoration: "none", fontSize: "1.25rem" }}>
-                  ðŸ›’
+                <Link to="/cart" style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, color: "#b8b8c7", textDecoration: "none", fontSize: "1.1rem" }}>
+                  <span dangerouslySetInnerHTML={{ __html: "&#9830;" }} />
                   {itemCount > 0 && (
                     <span style={{
                       position: "absolute", top: 4, right: 4, display: "flex", alignItems: "center", justifyContent: "center",
@@ -87,7 +82,6 @@ export default function Header() {
                   )}
                 </Link>
 
-                {/* User */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#fff", fontSize: "0.9rem" }}>
                   <span>{user?.preferred_username}</span>
                   <button onClick={logout} style={{
@@ -106,7 +100,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Search Bar */}
         <div style={{
           maxHeight: searchOpen ? 80 : 0, overflow: "hidden",
           background: "#1a1a2e", borderTop: searchOpen ? "1px solid rgba(201,169,98,0.2)" : "none",
@@ -123,9 +116,9 @@ export default function Header() {
               }} />
             <button type="submit" style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              padding: "0 1.5rem", fontSize: "1.25rem", color: "#1a1a2e",
+              padding: "0 1.5rem", fontSize: "1rem", color: "#1a1a2e",
               background: "#c9a962", border: "none", borderRadius: "0 8px 8px 0", cursor: "pointer"
-            }}>ðŸ”</button>
+            }}>Buscar</button>
           </form>
         </div>
       </header>
