@@ -1,9 +1,8 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { productApi } from "../services/api";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
-import { FiShoppingCart, FiMinus, FiPlus } from "react-icons/fi";
 import toast from "react-hot-toast";
 import type { Product } from "../types";
 
@@ -25,50 +24,72 @@ export default function ProductDetail() {
     if (!product) return;
     try {
       await addItem(product.id, quantity);
-      toast.success(`${product.name} adicionado ao carrinho!`);
+      toast.success(`${product.name} adicionado!`, { style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.3)" } });
     } catch { toast.error("Erro ao adicionar"); }
   };
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-kll-600"></div></div>;
-  if (!product) return <div className="text-center py-20 text-gray-500">Produto nao encontrado</div>;
+  if (loading) return (
+    <div style={{ display: "flex", justifyContent: "center", padding: "5rem 0" }}>
+      <div style={{ width: 48, height: 48, border: "3px solid rgba(201,169,98,0.2)", borderTopColor: "#c9a962", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+  if (!product) return <div style={{ textAlign: "center", padding: "5rem 0", color: "#6c6c7e" }}>Produto nao encontrado</div>;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div className="grid md:grid-cols-2 gap-0">
-          <div className="bg-gray-100 flex items-center justify-center p-8 min-h-[400px]">
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "3rem 1.5rem" }}>
+      <div style={{ background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.2)", borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.5)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+          {/* Image */}
+          <div style={{ background: "#252542", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 500, position: "relative" }}>
             {product.imageUrl ? (
-              <img src={product.imageUrl} alt={product.name} className="max-w-full max-h-[500px] object-contain" />
+              <img src={product.imageUrl} alt={product.name} style={{ maxWidth: "100%", maxHeight: 500, objectFit: "contain" }} />
             ) : (
-              <div className="text-9xl text-gray-300">ðŸ“¦</div>
+              <div style={{ fontSize: "8rem", color: "#3a3a4e", opacity: 0.3 }}>âœ¦</div>
             )}
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(201,169,98,0.08) 0%, transparent 50%)", pointerEvents: "none" }} />
           </div>
-          <div className="p-8">
-            <p className="text-sm text-kll-600 font-medium mb-2">{product.category}</p>
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
-            <p className="text-gray-600 mb-6 leading-relaxed">{product.description}</p>
 
-            <div className="mb-6">
-              <p className="text-4xl font-bold text-kll-700">{fmt(product.price)}</p>
-              <p className="text-green-600 text-sm mt-1">Frete gratis â€¢ Entrega em ate 5 dias uteis</p>
+          {/* Info */}
+          <div style={{ padding: "3rem" }}>
+            <span style={{
+              display: "inline-block", padding: "4px 12px", fontSize: "0.75rem", fontWeight: 600,
+              textTransform: "uppercase", letterSpacing: 1, color: "#c9a962",
+              background: "rgba(201,169,98,0.15)", borderRadius: 4, marginBottom: "1rem"
+            }}>{product.category}</span>
+            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.25rem", fontWeight: 700, color: "#fff", marginBottom: "1rem", lineHeight: 1.3 }}>{product.name}</h1>
+            <p style={{ color: "#b8b8c7", lineHeight: 1.8, marginBottom: "2rem" }}>{product.description}</p>
+
+            <div style={{ marginBottom: "2rem" }}>
+              <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 700, color: "#c9a962" }}>{fmt(product.price)}</p>
+              <p style={{ color: "#4caf50", fontSize: "0.85rem", marginTop: "0.25rem" }}>Frete gratis â€¢ Entrega em ate 5 dias uteis</p>
             </div>
 
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-sm text-gray-600">Quantidade:</span>
-              <div className="flex items-center border border-gray-300 rounded-lg">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-2 hover:bg-gray-100"><FiMinus /></button>
-                <span className="px-4 py-2 font-medium">{quantity}</span>
-                <button onClick={() => setQuantity(Math.min(product.stockQuantity, quantity + 1))} className="px-3 py-2 hover:bg-gray-100"><FiPlus /></button>
+            {/* Quantity */}
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}>
+              <span style={{ fontSize: "0.9rem", color: "#b8b8c7" }}>Quantidade:</span>
+              <div style={{ display: "flex", alignItems: "center", border: "2px solid rgba(201,169,98,0.2)", borderRadius: 8 }}>
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{
+                  padding: "0.5rem 1rem", background: "none", border: "none", color: "#fff", fontSize: "1.1rem", cursor: "pointer"
+                }}>âˆ’</button>
+                <span style={{ padding: "0.5rem 1.25rem", fontWeight: 600, color: "#fff" }}>{quantity}</span>
+                <button onClick={() => setQuantity(Math.min(product.stockQuantity, quantity + 1))} style={{
+                  padding: "0.5rem 1rem", background: "none", border: "none", color: "#fff", fontSize: "1.1rem", cursor: "pointer"
+                }}>+</button>
               </div>
-              <span className="text-xs text-gray-400">({product.stockQuantity} disponiveis)</span>
+              <span style={{ fontSize: "0.8rem", color: "#6c6c7e" }}>({product.stockQuantity} disponiveis)</span>
             </div>
 
-            <button onClick={handleAdd}
-              className="w-full flex items-center justify-center gap-3 bg-kll-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-kll-700 transition">
-              <FiShoppingCart size={22} /> Adicionar ao Carrinho
-            </button>
+            <button onClick={handleAdd} style={{
+              width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+              padding: "1.25rem", fontFamily: "'Poppins', sans-serif", fontSize: "1rem",
+              fontWeight: 600, textTransform: "uppercase", letterSpacing: 1,
+              color: "#1a1a2e", background: "linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)",
+              border: "none", borderRadius: 12, cursor: "pointer",
+              boxShadow: "0 0 20px rgba(201,169,98,0.3)", transition: "all 0.3s"
+            }}>ðŸ›’ Adicionar ao Carrinho</button>
           </div>
         </div>
       </div>

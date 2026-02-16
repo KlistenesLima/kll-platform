@@ -1,5 +1,5 @@
-﻿import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { authApi } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
@@ -20,40 +20,62 @@ export default function Login() {
       const data = await authApi.login(username, password);
       login(data.access_token);
       await fetchCart();
-      toast.success("Login realizado com sucesso!");
+      toast.success("Bem-vindo de volta!", { style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.3)" } });
       nav("/");
     } catch {
-      toast.error("Usuario ou senha incorretos");
+      toast.error("Credenciais invalidas");
     } finally { setLoading(false); }
   };
 
+  const inputStyle = {
+    width: "100%", padding: "1rem 1.5rem", fontFamily: "'Poppins', sans-serif",
+    fontSize: "1rem", color: "#fff", background: "#1a1a2e",
+    border: "2px solid rgba(201,169,98,0.2)", borderRadius: 8,
+    outline: "none", transition: "border-color 0.15s"
+  };
+
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-kll-800">KLL Store</h1>
-          <p className="text-gray-500 mt-2">Entre na sua conta</p>
+    <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+      <div style={{
+        background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.2)",
+        borderRadius: 20, padding: "3rem", width: "100%", maxWidth: 440,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.5)"
+      }}>
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", marginBottom: "0.5rem" }}>
+            <span style={{ color: "#fff" }}>Luxe</span>
+            <span style={{ color: "#c9a962" }}> Store</span>
+          </h1>
+          <p style={{ color: "#6c6c7e", fontSize: "0.9rem" }}>Entre na sua conta</p>
         </div>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+        <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: "1.25rem" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500, color: "#b8b8c7", fontSize: "0.9rem" }}>Usuario</label>
             <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kll-500 focus:border-transparent outline-none" placeholder="seu.usuario" />
+              placeholder="seu.usuario" style={inputStyle}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#c9a962")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)")} />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 500, color: "#b8b8c7", fontSize: "0.9rem" }}>Senha</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kll-500 focus:border-transparent outline-none" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" style={inputStyle}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#c9a962")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)")} />
           </div>
-          <button type="submit" disabled={loading}
-            className="w-full bg-kll-600 text-white py-3 rounded-lg font-semibold hover:bg-kll-700 transition disabled:opacity-50">
-            {loading ? "Entrando..." : "Entrar"}
-          </button>
+          <button type="submit" disabled={loading} style={{
+            width: "100%", padding: "1rem", fontFamily: "'Poppins', sans-serif",
+            fontSize: "0.9rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: 1,
+            color: "#1a1a2e", background: "linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)",
+            border: "none", borderRadius: 8, cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.4)", opacity: loading ? 0.6 : 1,
+            transition: "all 0.3s"
+          }}>{loading ? "Entrando..." : "Entrar"}</button>
         </form>
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Usuarios de teste:</p>
-          <p className="font-mono text-xs mt-1">admin / REDACTED_SEQ_PASSWORD (admin)</p>
-          <p className="font-mono text-xs">cliente / Cliente123! (customer)</p>
+        <div style={{ marginTop: "2rem", textAlign: "center" }}>
+          <p style={{ color: "#6c6c7e", fontSize: "0.8rem", marginBottom: "0.5rem" }}>Usuarios de teste:</p>
+          <p style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#4a4a5e" }}>admin / REDACTED_SEQ_PASSWORD (admin)</p>
+          <p style={{ fontFamily: "monospace", fontSize: "0.75rem", color: "#4a4a5e" }}>cliente / Cliente123! (customer)</p>
         </div>
       </div>
     </div>
