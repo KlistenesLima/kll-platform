@@ -1,13 +1,17 @@
-﻿using KLL.BuildingBlocks.Domain.Outbox;
+﻿using Amazon.S3;
+using KLL.BuildingBlocks.Domain.Outbox;
 using KLL.BuildingBlocks.Infrastructure.Auth;
 using KLL.BuildingBlocks.Infrastructure.Extensions;
 using KLL.BuildingBlocks.Infrastructure.Middleware;
 using KLL.BuildingBlocks.Infrastructure.Persistence;
 using KLL.Store.Api.Consumers;
 using KLL.Store.Application.Commands.CreateProduct;
+using KLL.Store.Application.Interfaces;
+using KLL.Store.Application.Options;
 using KLL.Store.Domain.Interfaces;
 using KLL.Store.Infra.Data.Context;
 using KLL.Store.Infra.Data.Repositories;
+using KLL.Store.Infra.Data.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -38,6 +42,20 @@ builder.Services.AddScoped<ICartRepository, CartRepository>();
 // Outbox
 builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<StoreDbContext>());
 builder.Services.AddScoped<IOutboxRepository, OutboxRepository>();
+
+// Shipping
+builder.Services.AddSingleton<KLL.Store.Application.Services.ShippingService>();
+
+// Backblaze B2 (S3-compatible)
+builder.Services.Configure<BackblazeB2Options>(builder.Configuration.GetSection(BackblazeB2Options.Section));
+var b2 = builder.Configuration.GetSection(BackblazeB2Options.Section).Get<BackblazeB2Options>();
+if (b2 is not null && !string.IsNullOrEmpty(b2.Endpoint))
+{
+    builder.Services.AddSingleton<IAmazonS3>(new AmazonS3Client(
+        b2.KeyId, b2.ApplicationKey,
+        new AmazonS3Config { ServiceURL = b2.Endpoint, ForcePathStyle = true }));
+    builder.Services.AddScoped<IImageUploadService, BackblazeB2UploadService>();
+}
 
 // Infrastructure (MediatR, Kafka, RabbitMQ, Redis, HealthChecks, Polly)
 builder.Services.AddKllBuildingBlocks(builder.Configuration, "KLL.Store",

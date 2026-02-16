@@ -29,9 +29,9 @@ function renderHeader() {
 }
 
 describe("Header", () => {
-  it("renders the Luxe Store brand name", () => {
+  it("renders the KLL Store brand name", () => {
     renderHeader();
-    expect(screen.getByText("Luxe")).toBeTruthy();
+    expect(screen.getByText("KLL")).toBeTruthy();
     expect(screen.getByText("Store")).toBeTruthy();
   });
 

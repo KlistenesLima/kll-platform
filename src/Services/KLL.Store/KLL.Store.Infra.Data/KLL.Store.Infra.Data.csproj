@@ -8,9 +8,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.305.22" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KLL.Store.Domain\KLL.Store.Domain.csproj" />
+    <ProjectReference Include="..\KLL.Store.Application\KLL.Store.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Domain\KLL.BuildingBlocks.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Infrastructure\KLL.BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>

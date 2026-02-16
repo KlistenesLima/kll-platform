@@ -14,7 +14,7 @@ export default function Footer() {
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1.25rem" }}>
               <DiamondIcon size={20} color="#c9a962" />
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 700 }}>
-                <span style={{ color: "#fff" }}>Luxe </span>
+                <span style={{ color: "#fff" }}>KLL </span>
                 <span style={{ color: "#c9a962" }}>Store</span>
               </span>
             </div>
@@ -64,7 +64,7 @@ export default function Footer() {
               textTransform: "uppercase", letterSpacing: "2px", marginBottom: "1.25rem"
             }}>Contato</h4>
             <p style={{ color: "#4a4a5e", fontSize: "0.85rem", lineHeight: 2 }}>
-              suporte@luxestore.com<br/>(85) 9 9999-9999
+              suporte@kllstore.com<br/>(85) 9 9999-9999
             </p>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function Footer() {
           display: "flex", justifyContent: "space-between", alignItems: "center"
         }}>
           <p style={{ color: "#3a3a4e", fontSize: "0.75rem" }}>
-            2026 Luxe Store. Todos os direitos reservados.
+            2026 KLL Store. Todos os direitos reservados.
           </p>
           <p style={{ color: "#2a2a3e", fontSize: "0.65rem", letterSpacing: 1 }}>
             .NET 8 | React 18 | Kafka | PostgreSQL | Clean Architecture
