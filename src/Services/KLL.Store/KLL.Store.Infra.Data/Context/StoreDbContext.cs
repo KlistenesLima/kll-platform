@@ -16,6 +16,8 @@ public class StoreDbContext : DbContext
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -95,6 +97,32 @@ public class StoreDbContext : DbContext
             b.Property(o => o.Type).HasMaxLength(500).IsRequired();
             b.Property(o => o.Content).IsRequired();
             b.HasIndex(o => o.ProcessedOn);
+        });
+
+        modelBuilder.Entity<CustomerAddress>(b =>
+        {
+            b.HasKey(a => a.Id);
+            b.ToTable("Addresses");
+            b.Property(a => a.CustomerId).HasMaxLength(200).IsRequired();
+            b.Property(a => a.Label).HasMaxLength(50).IsRequired();
+            b.Property(a => a.Street).HasMaxLength(200).IsRequired();
+            b.Property(a => a.Number).HasMaxLength(20).IsRequired();
+            b.Property(a => a.Complement).HasMaxLength(100);
+            b.Property(a => a.Neighborhood).HasMaxLength(100).IsRequired();
+            b.Property(a => a.City).HasMaxLength(100).IsRequired();
+            b.Property(a => a.State).HasMaxLength(2).IsRequired();
+            b.Property(a => a.ZipCode).HasMaxLength(10).IsRequired();
+            b.HasIndex(a => a.CustomerId);
+        });
+
+        modelBuilder.Entity<UserProfile>(b =>
+        {
+            b.HasKey(p => p.Id);
+            b.Property(p => p.CustomerId).HasMaxLength(200).IsRequired();
+            b.Property(p => p.AvatarUrl).HasMaxLength(500);
+            b.Property(p => p.FirstName).HasMaxLength(100).IsRequired();
+            b.Property(p => p.LastName).HasMaxLength(100).IsRequired();
+            b.HasIndex(p => p.CustomerId).IsUnique();
         });
     }
 }
