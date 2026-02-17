@@ -6,7 +6,6 @@ public class Cart : BaseEntity
 {
     public string CustomerId { get; private set; } = string.Empty;
     public ICollection<CartItem> Items { get; private set; } = new List<CartItem>();
-    public new DateTime UpdatedAt { get; private set; }
 
     protected Cart() { }
 
@@ -15,17 +14,26 @@ public class Cart : BaseEntity
         Id = Guid.NewGuid();
         CustomerId = customerId;
         CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdated();
     }
 
-    public void AddItem(Guid productId, string productName, decimal unitPrice, int quantity, string? imageUrl = null)
+    /// <summary>
+    /// Adds a product to the cart. Returns the new CartItem if created, or null if an existing item was updated.
+    /// </summary>
+    public CartItem? AddItem(Guid productId, string productName, decimal unitPrice, int quantity, string? imageUrl = null)
     {
         var existing = Items.FirstOrDefault(i => i.ProductId == productId);
         if (existing is not null)
+        {
             existing.UpdateQuantity(existing.Quantity + quantity);
-        else
-            Items.Add(new CartItem(Id, productId, productName, unitPrice, quantity, imageUrl));
-        UpdatedAt = DateTime.UtcNow;
+            SetUpdated();
+            return null;
+        }
+
+        var item = new CartItem(Id, productId, productName, unitPrice, quantity, imageUrl);
+        Items.Add(item);
+        SetUpdated();
+        return item;
     }
 
     public void UpdateItemQuantity(Guid productId, int quantity)
@@ -34,16 +42,16 @@ public class Cart : BaseEntity
         if (item is null) return;
         if (quantity <= 0) Items.Remove(item);
         else item.UpdateQuantity(quantity);
-        UpdatedAt = DateTime.UtcNow;
+        SetUpdated();
     }
 
     public void RemoveItem(Guid productId)
     {
         var item = Items.FirstOrDefault(i => i.ProductId == productId);
-        if (item is not null) { Items.Remove(item); UpdatedAt = DateTime.UtcNow; }
+        if (item is not null) { Items.Remove(item); SetUpdated(); }
     }
 
-    public void Clear() { Items.Clear(); UpdatedAt = DateTime.UtcNow; }
+    public void Clear() { Items.Clear(); SetUpdated(); }
     public decimal Total => Items.Sum(i => i.Total);
     public int ItemCount => Items.Sum(i => i.Quantity);
 }

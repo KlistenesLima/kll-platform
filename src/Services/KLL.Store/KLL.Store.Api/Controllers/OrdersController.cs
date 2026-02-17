@@ -1,8 +1,10 @@
+using KLL.BuildingBlocks.Infrastructure.Auth;
 using KLL.Store.Application.Commands.CreateOrder;
 using KLL.Store.Application.Commands.ConfirmPayment;
 using KLL.Store.Application.Queries.GetOrderById;
 using KLL.Store.Application.Queries.GetOrdersByCustomer;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KLL.Store.Api.Controllers;
@@ -29,6 +31,16 @@ public class OrdersController : ControllerBase
     {
         var result = await _mediator.Send(new GetOrderByIdQuery(id), ct);
         return result.IsSuccess ? Ok(result.Value) : NotFound(result.Error);
+    }
+
+    [Authorize]
+    [HttpGet("mine")]
+    public async Task<IActionResult> GetMine(CancellationToken ct)
+    {
+        var userId = User.GetUserId();
+        if (userId is null) return Unauthorized();
+        var result = await _mediator.Send(new GetOrdersByCustomerQuery(userId), ct);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
     }
 
     [HttpGet("customer/{customerId}")]
