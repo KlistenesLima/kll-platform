@@ -2,21 +2,25 @@ import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText,
-  AppBar, Toolbar, Typography, IconButton, Chip, Divider,
+  AppBar, Toolbar, Typography, IconButton, Chip, Divider, Avatar,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentIcon from '@mui/icons-material/Payment';
+import CategoryIcon from '@mui/icons-material/Category';
 import StoreIcon from '@mui/icons-material/Store';
 import MenuIcon from '@mui/icons-material/Menu';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '../components/AuthProvider';
 
 const DRAWER_WIDTH = 260;
 
 const menuItems = [
   { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { label: 'Produtos', icon: <InventoryIcon />, path: '/products' },
+  { label: 'Categorias', icon: <CategoryIcon />, path: '/categories' },
   { label: 'Pedidos', icon: <ShoppingCartIcon />, path: '/orders' },
   { label: 'Entregas', icon: <LocalShippingIcon />, path: '/shipments' },
   { label: 'Transações', icon: <PaymentIcon />, path: '/transactions' },
@@ -27,6 +31,7 @@ export default function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { username, logout } = useAuth();
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -93,6 +98,16 @@ export default function AdminLayout() {
           <Typography variant="h6" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>
             {location.pathname.replace('/', '')}
           </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 14 }}>
+              {username.charAt(0).toUpperCase()}
+            </Avatar>
+            <Typography variant="body2">{username}</Typography>
+            <IconButton size="small" onClick={logout} color="inherit" title="Sair">
+              <LogoutIcon fontSize="small" />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
 

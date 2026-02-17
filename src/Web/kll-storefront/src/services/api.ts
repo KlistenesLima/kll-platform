@@ -1,6 +1,6 @@
 ﻿import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5100";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 const api = axios.create({ baseURL: API_URL });
 
@@ -47,11 +47,16 @@ export const orderApi = {
   getMine: () => api.get("/api/v1/orders/mine").then((r) => r.data),
 };
 
+export const shippingApi = {
+  calculate: (cep: string, cartTotal: number) =>
+    api.get("/api/v1/shipping/calculate", { params: { cep, cartTotal } }).then((r) => r.data),
+};
+
 export const authApi = {
   login: (username: string, password: string) =>
     axios.post(
       `${import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8081"}/realms/kll-platform/protocol/openid-connect/token`,
-      new URLSearchParams({ grant_type: "password", client_id: "kll-storefront", username, password }),
+      new URLSearchParams({ grant_type: "password", client_id: "storefront", username, password }),
       { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     ).then((r) => r.data),
   register: (username: string, email: string, password: string, firstName: string, lastName: string) =>

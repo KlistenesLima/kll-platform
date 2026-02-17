@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   stockQuantity: number;
   category: string;
+  categoryId?: string;
   imageUrl?: string;
   isActive: boolean;
   createdAt: string;
@@ -26,6 +27,18 @@ export interface Order {
   trackingCode?: string;
   createdAt: string;
   items: OrderItem[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  imageUrl?: string;
+  parentCategoryId?: string;
+  isActive: boolean;
+  displayOrder: number;
+  subCategories?: Category[];
 }
 
 // Pay

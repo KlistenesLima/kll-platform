@@ -6,6 +6,7 @@ import Orders from './pages/Orders';
 import Shipments from './pages/Shipments';
 import Transactions from './pages/Transactions';
 import Merchants from './pages/Merchants';
+import Categories from './pages/Categories';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="products" element={<Products />} />
+        <Route path="categories" element={<Categories />} />
         <Route path="orders" element={<Orders />} />
         <Route path="transactions" element={<Transactions />} />
         <Route path="merchants" element={<Merchants />} />

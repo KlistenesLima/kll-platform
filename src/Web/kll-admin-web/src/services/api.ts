@@ -1,11 +1,28 @@
 import axios from 'axios';
-import type { Product, Order, Merchant, Transaction, Shipment } from '../types';
+import keycloak from './keycloak';
+import type { Product, Order, Merchant, Transaction, Shipment, Category } from '../types';
+
 const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
 const api = axios.create({ baseURL: GATEWAY, timeout: 10000 });
+
+api.interceptors.request.use((config) => {
+  if (keycloak.token) {
+    config.headers.Authorization = `Bearer ${keycloak.token}`;
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (r) => r,
-  (err) => { console.error('API Error:', err.response?.data || err.message); return Promise.reject(err); }
+  (err) => {
+    if (err.response?.status === 401) {
+      keycloak.logout();
+    }
+    console.error('API Error:', err.response?.data || err.message);
+    return Promise.reject(err);
+  }
 );
+
 export const storeApi = {
   getProducts: (category?: string) =>
     api.get<Product[]>('/api/v1/products', { params: { category } }).then(r => r.data),
@@ -15,12 +32,28 @@ export const storeApi = {
     api.get<Product[]>('/api/v1/products/search', { params: { q } }).then(r => r.data),
   createProduct: (data: Partial<Product>) =>
     api.post<{ id: string }>('/api/v1/products', data).then(r => r.data),
+  updateProduct: (id: string, data: Partial<Product>) =>
+    api.put(`/api/v1/products/${id}`, data).then(r => r.data),
+  deleteProduct: (id: string) =>
+    api.delete(`/api/v1/products/${id}`),
   getOrder: (id: string) =>
     api.get<Order>(`/api/v1/orders/${id}`).then(r => r.data),
   getOrdersByCustomer: (customerId: string) =>
     api.get<Order[]>(`/api/v1/orders/customer/${customerId}`).then(r => r.data),
   createOrder: (data: any) =>
     api.post<{ id: string }>('/api/v1/orders', data).then(r => r.data),
+};
+export const categoryApi = {
+  getAll: (activeOnly = false) =>
+    api.get<Category[]>('/api/v1/categories', { params: { activeOnly } }).then(r => r.data),
+  getById: (id: string) =>
+    api.get<Category>(`/api/v1/categories/${id}`).then(r => r.data),
+  create: (data: { name: string; description?: string; imageUrl?: string; parentCategoryId?: string }) =>
+    api.post<{ id: string; name: string; slug: string }>('/api/v1/categories', data).then(r => r.data),
+  update: (id: string, data: { name: string; description?: string; imageUrl?: string; displayOrder: number }) =>
+    api.put(`/api/v1/categories/${id}`, data).then(r => r.data),
+  delete: (id: string) =>
+    api.delete(`/api/v1/categories/${id}`),
 };
 export const payApi = {
   getMerchants: () =>
@@ -40,4 +73,14 @@ export const logisticsApi = {
 };
 export const healthApi = {
   getAll: () => api.get<Record<string, string>>('/health/all').then(r => r.data),
+};
+export const uploadApi = {
+  uploadImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<{ url: string }>('/api/v1/upload/image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
+    }).then(r => r.data);
+  },
 };
