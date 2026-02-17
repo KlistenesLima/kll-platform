@@ -31,13 +31,13 @@ export default function Shipments() {
   return (
     <Box>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>Rastreio de Entregas</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>KLL Logistics — Acompanhamento em tempo real</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Acompanhamento em tempo real</Typography>
 
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <LocalShippingIcon color="primary" />
           <TextField
-            size="small" label="Código de Rastreio" placeholder="KLL20250213..."
+            size="small" label="Código de Rastreio" placeholder="AU0000000000000"
             value={trackingCode} onChange={e => setTrackingCode(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleTrack()}
             sx={{ minWidth: 300 }}

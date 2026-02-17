@@ -137,7 +137,7 @@ export default function Categories() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>Categorias</Typography>
-          <Typography variant="body2" color="text.secondary">Gerenciamento de categorias — KLL Store</Typography>
+          <Typography variant="body2" color="text.secondary">Gerenciamento de categorias</Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>Nova Categoria</Button>
       </Box>

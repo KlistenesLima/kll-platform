@@ -190,7 +190,7 @@ export default function Products() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>Produtos</Typography>
-          <Typography variant="body2" color="text.secondary">Gerenciamento do catálogo — KLL Store</Typography>
+          <Typography variant="body2" color="text.secondary">Gerenciamento do catálogo</Typography>
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>Novo Produto</Button>
       </Box>

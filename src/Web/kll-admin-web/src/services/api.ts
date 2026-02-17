@@ -68,8 +68,12 @@ export const payApi = {
     api.post<Transaction>('/api/v1/transactions/charge', data).then(r => r.data),
 };
 export const logisticsApi = {
+  getAllShipments: () =>
+    api.get<Shipment[]>('/api/v1/shipments').then(r => r.data),
   getShipment: (id: string) =>
     api.get<Shipment>(`/api/v1/shipments/${id}`).then(r => r.data),
+  getShipmentByOrder: (orderId: string) =>
+    api.get<Shipment>(`/api/v1/shipments/order/${orderId}`).then(r => r.data),
   trackShipment: (code: string) =>
     api.get<Shipment>(`/api/v1/shipments/track/${code}`).then(r => r.data),
 };
