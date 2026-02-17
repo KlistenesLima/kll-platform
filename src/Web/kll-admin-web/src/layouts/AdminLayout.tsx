@@ -9,6 +9,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentIcon from '@mui/icons-material/Payment';
+import CategoryIcon from '@mui/icons-material/Category';
 import StoreIcon from '@mui/icons-material/Store';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -19,6 +20,7 @@ const DRAWER_WIDTH = 260;
 const menuItems = [
   { label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { label: 'Produtos', icon: <InventoryIcon />, path: '/products' },
+  { label: 'Categorias', icon: <CategoryIcon />, path: '/categories' },
   { label: 'Pedidos', icon: <ShoppingCartIcon />, path: '/orders' },
   { label: 'Entregas', icon: <LocalShippingIcon />, path: '/shipments' },
   { label: 'Transações', icon: <PaymentIcon />, path: '/transactions' },
