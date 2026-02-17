@@ -2,15 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Product } from "../types";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
-import { CartIcon } from "../components/Icons";
+import { CartIcon } from "./Icons";
+import ProductImage from "./ProductImage";
 import toast from "react-hot-toast";
-import { useState } from "react";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const nav = useNavigate();
-  const [hovered, setHovered] = useState(false);
 
   const handleAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -20,87 +19,73 @@ export default function ProductCard({ product }: { product: Product }) {
       await addItem(product.id);
       toast.success(`${product.name} adicionado ao carrinho`, {
         style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.2)", fontSize: "0.85rem" },
-        iconTheme: { primary: "#c9a962", secondary: "#0f0f1a" }
+        iconTheme: { primary: "#c9a962", secondary: "#0f0f1a" },
       });
-    } catch { toast.error("Erro ao adicionar"); }
+    } catch {
+      toast.error("Erro ao adicionar");
+    }
   };
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+  const isNew = product.createdAt &&
+    Date.now() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000;
+
   return (
-    <Link to={`/product/${product.id}`} style={{ textDecoration: "none", color: "inherit" }}
-      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-      <div style={{
-        display: "flex", flexDirection: "column",
-        background: hovered ? "rgba(26,26,46,0.8)" : "rgba(26,26,46,0.4)",
-        border: `1px solid ${hovered ? "rgba(201,169,98,0.25)" : "rgba(201,169,98,0.06)"}`,
-        borderRadius: 16, overflow: "hidden",
-        transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
-        transform: hovered ? "translateY(-6px)" : "none",
-        boxShadow: hovered ? "0 12px 40px rgba(0,0,0,0.4)" : "none"
-      }}>
+    <Link to={`/product/${product.id}`} className="group block no-underline text-inherit">
+      <div className="bg-surface rounded-xl overflow-hidden border border-gold/5 hover:border-gold/20 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(201,169,98,0.1)]">
         {/* Image */}
-        <div style={{
-          position: "relative", aspectRatio: "1", overflow: "hidden",
-          background: "linear-gradient(135deg, #1e1e38, #252542)"
-        }}>
-          {product.imageUrl ? (
-            <img src={product.imageUrl} alt={product.name} style={{
-              width: "100%", height: "100%", objectFit: "cover",
-              transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-              transform: hovered ? "scale(1.08)" : "scale(1)"
-            }} />
-          ) : (
-            <div style={{
-              width: "100%", height: "100%", display: "flex", alignItems: "center",
-              justifyContent: "center", color: "rgba(201,169,98,0.1)"
-            }}>
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                <path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z" />
-              </svg>
-            </div>
-          )}
+        <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-surface to-dark">
+          <ProductImage
+            imageUrl={product.imageUrl}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+
+          {/* Hover Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-dark/70 via-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-16">
+            <span className="bg-white/95 text-dark px-5 py-2 rounded-lg font-poppins font-semibold text-[0.7rem] uppercase tracking-wider translate-y-3 group-hover:translate-y-0 transition-transform duration-300 shadow-lg">
+              Ver Detalhes
+            </span>
+          </div>
 
           {/* Quick Add */}
-          <button onClick={handleAdd} style={{
-            position: "absolute", bottom: 12, right: 12,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: 40, height: 40, color: "#0f0f1a",
-            background: "#c9a962", border: "none", borderRadius: 10,
-            cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-            opacity: hovered ? 1 : 0, transform: hovered ? "translateY(0)" : "translateY(8px)",
-            transition: "all 0.3s ease"
-          }}><CartIcon size={16} /></button>
+          <button
+            onClick={handleAdd}
+            className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 bg-gold text-dark rounded-lg border-none cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.4)] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-10 hover:bg-gold-light"
+          >
+            <CartIcon size={16} />
+          </button>
 
-          {/* Badge */}
-          {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
-            <span style={{
-              position: "absolute", top: 12, left: 12,
-              padding: "4px 10px", fontSize: "0.65rem", fontWeight: 700,
-              textTransform: "uppercase", letterSpacing: "0.5px", borderRadius: 6,
-              background: "rgba(255,152,0,0.9)", color: "#fff"
-            }}>Ultimas unidades</span>
+          {/* Badges */}
+          {isNew && (
+            <span className="absolute top-3 left-3 px-3 py-1 bg-gold text-dark text-[0.65rem] font-bold uppercase tracking-wider rounded-md">
+              Novo
+            </span>
+          )}
+          {!isNew && product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+            <span className="absolute top-3 left-3 px-3 py-1 bg-orange-500/90 text-white text-[0.65rem] font-bold uppercase tracking-[0.5px] rounded-md">
+              Últimas unidades
+            </span>
           )}
         </div>
 
         {/* Info */}
-        <div style={{ padding: "1.25rem 1.25rem 1rem" }}>
+        <div className="p-4 pt-3">
           {product.category && (
-            <span style={{
-              display: "block", fontSize: "0.65rem", fontWeight: 600,
-              color: "#c9a962", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 6
-            }}>{product.category}</span>
+            <span className="block text-[0.65rem] font-semibold text-gold uppercase tracking-[1.5px] mb-1.5">
+              {product.category}
+            </span>
           )}
-          <h3 style={{
-            fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 600,
-            color: "#fff", marginBottom: 10, display: "-webkit-box",
-            WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-            lineHeight: 1.4, minHeight: "2.8em"
-          }}>{product.name}</h3>
-          <p style={{
-            fontFamily: "'Playfair Display', serif", fontSize: "1.2rem",
-            fontWeight: 700, color: "#c9a962"
-          }}>{fmt(product.price)}</p>
+          <h3 className="font-poppins font-medium text-white text-[0.9rem] leading-snug mb-3 line-clamp-2 min-h-[2.5em]">
+            {product.name}
+          </h3>
+          <div className="flex items-baseline gap-2">
+            <p className="text-gold font-semibold text-lg font-poppins">{fmt(product.price)}</p>
+            {product.oldPrice && product.oldPrice > product.price && (
+              <p className="text-text-secondary text-sm line-through">{fmt(product.oldPrice)}</p>
+            )}
+          </div>
         </div>
       </div>
     </Link>
