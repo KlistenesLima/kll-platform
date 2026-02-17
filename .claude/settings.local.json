@@ -64,7 +64,18 @@
       "Bash(__NEW_LINE_8cbdf69520c88d2f__ echo \"\")",
       "Bash(__NEW_LINE_85a6c0fe3dea7077__ echo \"\")",
       "Bash(__NEW_LINE_2228d285e1fa1967__ echo \"\")",
-      "Bash(bash scripts/update-images-unsplash.sh)"
+      "Bash(bash scripts/update-images-unsplash.sh)",
+      "WebFetch(domain:unsplash.com)",
+      "WebSearch",
+      "WebFetch(domain:images.unsplash.com)",
+      "Bash(# Verify:*)",
+      "Bash(while IFS= read -r product)",
+      "Bash(pimg=\"$product#*\\\\\"\"imageUrl\\\\\"\":\\\\\"\"\")",
+      "Bash(pimg=\"$pimg%%\\\\\"\"*\")",
+      "Bash(pname=\"$product#*\\\\\"\"name\\\\\"\":\\\\\"\"\")",
+      "Bash(pname=\"$pname%%\\\\\"\"*\")",
+      "Bash(npm run build:*)",
+      "Bash(python -m json.tool:*)"
     ]
   }
 }
