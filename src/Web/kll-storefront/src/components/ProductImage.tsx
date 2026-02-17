@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ProductImageProps {
   imageUrl?: string;
@@ -7,22 +7,31 @@ interface ProductImageProps {
   style?: React.CSSProperties;
 }
 
-function extractFilename(url: string): string | null {
+function resolveImageSrc(url: string): { local: string | null; remote: string | null } {
+  // Local paths (e.g. /categories/aneis.jpg, /products/foo.jpg) — use directly
+  if (url.startsWith("/")) return { local: url, remote: null };
+  // B2/remote URLs — extract filename for local fallback
   const match = url.match(/products\/(.+)$/);
-  return match ? match[1] : null;
+  return { local: match ? `/products/${match[1]}` : null, remote: url };
 }
 
 export default function ProductImage({ imageUrl, alt, className, style }: ProductImageProps) {
-  const filename = imageUrl ? extractFilename(imageUrl) : null;
-  const localSrc = filename ? `/products/${filename}` : null;
+  const resolved = imageUrl ? resolveImageSrc(imageUrl) : null;
+  const initialSrc = resolved?.local ?? resolved?.remote ?? null;
 
-  const [src, setSrc] = useState<string | null>(localSrc ?? imageUrl ?? null);
+  const [src, setSrc] = useState<string | null>(initialSrc);
   const [errorCount, setErrorCount] = useState(0);
 
+  useEffect(() => {
+    const r = imageUrl ? resolveImageSrc(imageUrl) : null;
+    setSrc(r?.local ?? r?.remote ?? null);
+    setErrorCount(0);
+  }, [imageUrl]);
+
   const handleError = () => {
-    if (errorCount === 0 && imageUrl) {
-      // Local failed, try B2 original
-      setSrc(imageUrl);
+    if (errorCount === 0 && resolved?.remote) {
+      // Local failed, try remote original
+      setSrc(resolved.remote);
       setErrorCount(1);
     } else {
       // Both failed, show placeholder
