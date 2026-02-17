@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
 import ShippingCalculator from "../components/ShippingCalculator";
+import { CartIcon, DiamondIcon, MinusIcon, PlusIcon, XIcon } from "../components/Icons";
 import toast from "react-hot-toast";
 
 export default function CartPage() {
@@ -36,7 +37,9 @@ export default function CartPage() {
 
       {items.length === 0 ? (
         <div style={{ textAlign: "center", padding: "4rem", background: "#1a1a2e", borderRadius: 20, border: "1px solid rgba(201,169,98,0.2)" }}>
-          <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.3 }}>ðŸ›’</div>
+          <div style={{ marginBottom: "1rem", opacity: 0.3, display: "flex", justifyContent: "center" }}>
+            <CartIcon size={64} color="#6c6c7e" />
+          </div>
           <p style={{ color: "#6c6c7e", fontSize: "1.1rem", marginBottom: "2rem" }}>Seu carrinho esta vazio</p>
           <Link to="/search" style={{
             display: "inline-block", padding: "1rem 2.5rem", background: "linear-gradient(135deg, #c9a962, #a68b4b)",
@@ -53,21 +56,28 @@ export default function CartPage() {
                 background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.2)", borderRadius: 12
               }}>
                 <div style={{ width: 80, height: 80, background: "#252542", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  {item.imageUrl ? <img src={item.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} /> : <span style={{ fontSize: "2rem", color: "#3a3a4e" }}>âœ¦</span>}
+                  {item.imageUrl ? <img src={item.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} /> : <DiamondIcon size={32} color="#3a3a4e" />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 600, color: "#fff" }}>{item.productName}</h3>
                   <p style={{ color: "#c9a962", fontWeight: 600, fontSize: "0.95rem" }}>{fmt(item.unitPrice)}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", border: "2px solid rgba(201,169,98,0.2)", borderRadius: 8 }}>
-                  <button onClick={() => handleUpdate(item.productId, item.quantity - 1)} style={{ padding: "0.4rem 0.8rem", background: "none", border: "none", color: "#fff", cursor: "pointer" }}>âˆ’</button>
+                  <button onClick={() => handleUpdate(item.productId, item.quantity - 1)} style={{
+                    padding: "0.4rem 0.8rem", background: "none", border: "none", color: "#fff", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center"
+                  }}><MinusIcon size={14} color="#fff" /></button>
                   <span style={{ padding: "0.4rem 0.75rem", fontWeight: 600, color: "#fff", fontSize: "0.9rem" }}>{item.quantity}</span>
-                  <button onClick={() => handleUpdate(item.productId, item.quantity + 1)} style={{ padding: "0.4rem 0.8rem", background: "none", border: "none", color: "#fff", cursor: "pointer" }}>+</button>
+                  <button onClick={() => handleUpdate(item.productId, item.quantity + 1)} style={{
+                    padding: "0.4rem 0.8rem", background: "none", border: "none", color: "#fff", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center"
+                  }}><PlusIcon size={14} color="#fff" /></button>
                 </div>
                 <p style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, color: "#c9a962", width: 100, textAlign: "right", fontSize: "1.1rem" }}>{fmt(item.total)}</p>
                 <button onClick={() => handleRemove(item.productId)} style={{
-                  background: "none", border: "none", color: "#f44336", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem"
-                }}>âœ•</button>
+                  background: "none", border: "none", color: "#f44336", cursor: "pointer", padding: "0.5rem",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}><XIcon size={16} color="#f44336" /></button>
               </div>
             ))}
           </div>

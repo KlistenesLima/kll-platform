@@ -85,7 +85,7 @@ export default function Checkout() {
           </div>
           <button type="submit" disabled={loading}
             className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition disabled:opacity-50 mt-4">
-            {loading ? "Processando..." : `Confirmar Pedido â€¢ ${fmt(total)}`}
+            {loading ? "Processando..." : `Confirmar Pedido \u2022 ${fmt(total)}`}
           </button>
         </form>
 
