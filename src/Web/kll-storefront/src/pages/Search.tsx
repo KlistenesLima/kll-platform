@@ -8,6 +8,28 @@ import type { Product, Category } from "../types";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+interface FlatCategory {
+  id: string; name: string; slug: string; description?: string;
+  imageUrl?: string; parentCategoryId?: string | null; isActive: boolean; displayOrder: number;
+}
+
+function buildCategoryTree(flat: FlatCategory[]): Category[] {
+  const map = new Map<string, Category>();
+  for (const c of flat) {
+    map.set(c.id, { ...c, subCategories: [] });
+  }
+  const roots: Category[] = [];
+  for (const c of flat) {
+    const node = map.get(c.id)!;
+    if (c.parentCategoryId && map.has(c.parentCategoryId)) {
+      map.get(c.parentCategoryId)!.subCategories!.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+  return roots;
+}
+
 function getCategoryNames(cat: Category): string[] {
   const names = [cat.name];
   if (cat.subCategories) {
@@ -371,23 +393,20 @@ export default function Search() {
     setLocalPriceMax(maxPrice);
   }, [minPrice, maxPrice]);
 
-  // ── Fetch categories once
+  // ── Fetch categories once and build tree
   useEffect(() => {
     categoryApi
       .getAll()
-      .then((cats) => setCategories(Array.isArray(cats) ? cats : []))
+      .then((cats) => {
+        const flat = Array.isArray(cats) ? cats : [];
+        setCategories(buildCategoryTree(flat));
+      })
       .catch(() => {})
       .finally(() => setCategoriesLoaded(true));
   }, []);
 
-  // Root categories
-  const rootCategories = useMemo(() => {
-    const childIds = new Set<string>();
-    categories.forEach((cat) =>
-      cat.subCategories?.forEach((sub) => childIds.add(sub.id))
-    );
-    return categories.filter((cat) => !childIds.has(cat.id));
-  }, [categories]);
+  // Root categories (already a tree, so just use directly)
+  const rootCategories = categories;
 
   // Auto-expand parent when subcategory is selected
   useEffect(() => {
