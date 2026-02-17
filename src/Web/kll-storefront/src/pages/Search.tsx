@@ -1,17 +1,157 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { productApi, categoryApi } from "../services/api";
 import ProductCard from "../components/ProductCard";
-import { DiamondIcon, ChevronRightIcon } from "../components/Icons";
+import { DiamondIcon, ChevronRightIcon, ChevronDownIcon } from "../components/Icons";
 import type { Product, Category } from "../types";
+
+function getCategoryNames(cat: Category): string[] {
+  const names = [cat.name];
+  if (cat.subCategories) {
+    for (const sub of cat.subCategories) {
+      names.push(...getCategoryNames(sub));
+    }
+  }
+  return names;
+}
+
+function getCategoryIds(cat: Category): string[] {
+  const ids = [cat.id];
+  if (cat.subCategories) {
+    for (const sub of cat.subCategories) {
+      ids.push(...getCategoryIds(sub));
+    }
+  }
+  return ids;
+}
+
+function findCategoryById(categories: Category[], id: string): Category | undefined {
+  for (const cat of categories) {
+    if (cat.id === id) return cat;
+    if (cat.subCategories) {
+      const found = findCategoryById(cat.subCategories, id);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+function findParentCategory(categories: Category[], childId: string): Category | undefined {
+  for (const cat of categories) {
+    if (cat.subCategories?.some(sub => sub.id === childId)) return cat;
+    if (cat.subCategories) {
+      const found = findParentCategory(cat.subCategories, childId);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+function CategoryTree({
+  categories,
+  selectedId,
+  expandedIds,
+  onToggle,
+}: {
+  categories: Category[];
+  selectedId: string;
+  expandedIds: Set<string>;
+  onToggle: (id: string) => void;
+}) {
+  return (
+    <>
+      {categories.map((cat) => {
+        const hasChildren = cat.subCategories && cat.subCategories.length > 0;
+        const isExpanded = expandedIds.has(cat.id);
+        const isSelected = selectedId === cat.id;
+        const childIds = hasChildren ? getCategoryIds(cat) : [cat.id];
+        const isChildSelected = childIds.includes(selectedId);
+
+        return (
+          <div key={cat.id}>
+            <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+              {hasChildren && (
+                <button
+                  onClick={(e) => { e.preventDefault(); onToggle(cat.id); }}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 24, height: 24, background: "none", border: "none",
+                    color: isChildSelected ? "#c9a962" : "#6c6c7e",
+                    cursor: "pointer", flexShrink: 0, padding: 0,
+                    transition: "transform 0.2s ease",
+                    transform: isExpanded ? "rotate(0deg)" : "rotate(-90deg)"
+                  }}
+                >
+                  <ChevronDownIcon size={14} />
+                </button>
+              )}
+              <Link
+                to={`/search?categoryId=${cat.id}`}
+                style={{
+                  display: "block",
+                  flex: 1,
+                  padding: hasChildren ? "0.5rem 0.75rem" : "0.5rem 0.75rem 0.5rem 1.75rem",
+                  borderRadius: 8,
+                  fontSize: hasChildren ? "0.85rem" : "0.8rem",
+                  textDecoration: "none",
+                  transition: "all 0.15s",
+                  color: isSelected ? "#c9a962" : isChildSelected ? "#c9a962" : "#9898ab",
+                  background: isSelected ? "rgba(201,169,98,0.08)" : "transparent",
+                  fontWeight: isSelected ? 600 : hasChildren ? 500 : 400,
+                  borderLeft: isSelected ? "3px solid #c9a962" : "3px solid transparent",
+                }}
+              >
+                {cat.name}
+              </Link>
+            </div>
+
+            {/* Subcategories with animation */}
+            {hasChildren && (
+              <div style={{
+                overflow: "hidden",
+                maxHeight: isExpanded ? `${cat.subCategories!.length * 40}px` : "0px",
+                transition: "max-height 0.3s ease",
+                paddingLeft: 8
+              }}>
+                {cat.subCategories!.map((sub) => {
+                  const isSubSelected = selectedId === sub.id;
+                  return (
+                    <Link
+                      key={sub.id}
+                      to={`/search?categoryId=${sub.id}`}
+                      style={{
+                        display: "block",
+                        padding: "0.4rem 0.75rem 0.4rem 2rem",
+                        borderRadius: 8,
+                        fontSize: "0.8rem",
+                        textDecoration: "none",
+                        transition: "all 0.15s",
+                        color: isSubSelected ? "#c9a962" : "#7a7a90",
+                        background: isSubSelected ? "rgba(201,169,98,0.08)" : "transparent",
+                        fontWeight: isSubSelected ? 600 : 400,
+                        borderLeft: isSubSelected ? "3px solid #c9a962" : "3px solid transparent",
+                      }}
+                    >
+                      {sub.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
 
 export default function Search() {
   const [params] = useSearchParams();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
   const [sortBy, setSortBy] = useState("newest");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const q = params.get("q") || "";
   const categoryId = params.get("categoryId") || "";
@@ -26,15 +166,81 @@ export default function Search() {
         .finally(() => setLoading(false));
     } else {
       Promise.all([
-        productApi.search({ q, categoryId: categoryId || undefined, sortBy, pageSize: 40 }),
+        productApi.getAll(),
         categoryApi.getAll(),
-      ]).then(([res, cats]) => {
-        setProducts(res.items || res);
-        setTotal(res.totalCount || res.length || 0);
-        setCategories(cats);
+      ]).then(([prods, cats]) => {
+        setAllProducts(Array.isArray(prods) ? prods : prods.items || []);
+        setCategories(Array.isArray(cats) ? cats : []);
       }).finally(() => setLoading(false));
     }
-  }, [q, categoryId, sortBy, view]);
+  }, [view]);
+
+  // Auto-expand parent when a subcategory is selected
+  useEffect(() => {
+    if (categoryId && categories.length > 0) {
+      const parent = findParentCategory(categories, categoryId);
+      if (parent && !expandedIds.has(parent.id)) {
+        setExpandedIds(prev => new Set([...prev, parent.id]));
+      }
+    }
+  }, [categoryId, categories]);
+
+  const handleToggle = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let result = [...allProducts];
+
+    // Filter by search query
+    if (q) {
+      const lower = q.toLowerCase();
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(lower) ||
+        p.description?.toLowerCase().includes(lower) ||
+        p.category?.toLowerCase().includes(lower)
+      );
+    }
+
+    // Filter by category (including subcategories)
+    if (categoryId) {
+      const selectedCat = findCategoryById(categories, categoryId);
+      if (selectedCat) {
+        const matchNames = getCategoryNames(selectedCat);
+        const matchIds = getCategoryIds(selectedCat);
+        result = result.filter(p =>
+          matchNames.includes(p.category) || (p.categoryId && matchIds.includes(p.categoryId))
+        );
+      }
+    }
+
+    // Sort
+    if (sortBy === "price") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "name") {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    return result;
+  }, [allProducts, q, categoryId, categories, sortBy]);
+
+  // Only show parent categories (those with subCategories or no parent)
+  const rootCategories = useMemo(() => {
+    // Categories that are parents (have subCategories) or standalone (no parent has them as child)
+    const childIds = new Set<string>();
+    categories.forEach(cat => {
+      cat.subCategories?.forEach(sub => childIds.add(sub.id));
+    });
+    return categories.filter(cat => !childIds.has(cat.id));
+  }, [categories]);
 
   if (view === "categories") {
     return (
@@ -134,7 +340,7 @@ export default function Search() {
     );
   }
 
-  const selectedCategory = categories.find(c => c.id === categoryId);
+  const selectedCategory = findCategoryById(categories, categoryId);
 
   return (
     <div style={{ maxWidth: 1400, margin: "0 auto", padding: "2.5rem 2rem" }}>
@@ -150,7 +356,7 @@ export default function Search() {
              selectedCategory ? <>{selectedCategory.name}</> : "Catalogo"}
           </h1>
           <p style={{ color: "#6c6c7e", fontSize: "0.85rem", marginTop: "0.25rem" }}>
-            {total} {total === 1 ? "produto encontrado" : "produtos encontrados"}
+            {filteredProducts.length} {filteredProducts.length === 1 ? "produto encontrado" : "produtos encontrados"}
           </p>
         </div>
         <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} style={{
@@ -166,7 +372,7 @@ export default function Search() {
       </div>
 
       <div style={{ display: "flex", gap: "2.5rem" }}>
-        {/* Sidebar */}
+        {/* Sidebar - Hierarchical Category Tree */}
         <aside style={{ width: 220, flexShrink: 0 }}>
           <h3 style={{
             fontFamily: "'Poppins', sans-serif", fontSize: "0.7rem", fontWeight: 700,
@@ -175,25 +381,20 @@ export default function Search() {
           }}>Categorias</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
             <Link to="/search" style={{
-              display: "block", padding: "0.6rem 1rem", borderRadius: 10,
+              display: "block", padding: "0.6rem 1rem", borderRadius: 8,
               fontSize: "0.85rem", textDecoration: "none", transition: "all 0.15s",
               color: !categoryId ? "#c9a962" : "#9898ab",
               background: !categoryId ? "rgba(201,169,98,0.08)" : "transparent",
-              fontWeight: !categoryId ? 600 : 400
+              fontWeight: !categoryId ? 600 : 400,
+              borderLeft: !categoryId ? "3px solid #c9a962" : "3px solid transparent"
             }}>Todos</Link>
-            {categories.map((cat) => (
-              <Link key={cat.id} to={`/search?categoryId=${cat.id}`} style={{
-                display: "block", padding: "0.6rem 1rem", borderRadius: 10,
-                fontSize: "0.85rem", textDecoration: "none", transition: "all 0.15s",
-                color: categoryId === cat.id ? "#c9a962" : "#9898ab",
-                background: categoryId === cat.id ? "rgba(201,169,98,0.08)" : "transparent",
-                fontWeight: categoryId === cat.id ? 600 : 400
-              }}
-              onMouseEnter={(e) => { if (categoryId !== cat.id) e.currentTarget.style.color = "#c9a962"; }}
-              onMouseLeave={(e) => { if (categoryId !== cat.id) e.currentTarget.style.color = "#9898ab"; }}>
-                {cat.name}
-              </Link>
-            ))}
+
+            <CategoryTree
+              categories={rootCategories}
+              selectedId={categoryId}
+              expandedIds={expandedIds}
+              onToggle={handleToggle}
+            />
           </div>
         </aside>
 
@@ -208,9 +409,9 @@ export default function Search() {
                 }} />
               ))}
             </div>
-          ) : products.length > 0 ? (
+          ) : filteredProducts.length > 0 ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
-              {products.map((p) => <ProductCard key={p.id} product={p} />)}
+              {filteredProducts.map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
           ) : (
             <div style={{

@@ -1,7 +1,8 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { orderApi } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { PackageIcon } from "../components/Icons";
 import type { Order } from "../types";
 
 export default function Orders() {
@@ -29,7 +30,9 @@ export default function Orders() {
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Meus Pedidos</h1>
       {orders.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl shadow">
-          <p className="text-6xl mb-4">ðŸ“¦</p>
+          <div className="flex justify-center mb-4">
+            <PackageIcon size={64} color="#9ca3af" />
+          </div>
           <p className="text-xl text-gray-500 mb-4">Nenhum pedido realizado</p>
           <Link to="/" className="inline-block bg-kll-600 text-white px-6 py-3 rounded-lg font-semibold">Ir as Compras</Link>
         </div>
