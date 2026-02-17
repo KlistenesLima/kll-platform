@@ -61,7 +61,7 @@ export default function Transactions() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>Transações</Typography>
-          <Typography variant="body2" color="text.secondary">Gateway de Pagamentos — KLL Pay</Typography>
+          <Typography variant="body2" color="text.secondary">Gestão de pagamentos</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button variant="outlined" onClick={() => setMerchantOpen(true)}>Novo Merchant</Button>
