@@ -40,15 +40,20 @@ app.UseRateLimiter();
 app.MapReverseProxy();
 app.MapHealthChecks("/health");
 
-// Aggregated health
+// Aggregated health — resolve service hosts based on environment
+var isDocker = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Docker";
+var storeHost = isDocker ? "store-api" : "localhost";
+var payHost = isDocker ? "pay-api" : "localhost";
+var logisticsHost = isDocker ? "logistics-api" : "localhost";
+
 app.MapGet("/health/all", async (HttpContext ctx) =>
 {
     var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
     var services = new Dictionary<string, string>
     {
-        ["store"] = "http://localhost:5200/health",
-        ["pay"] = "http://localhost:5300/health",
-        ["logistics"] = "http://localhost:5400/health"
+        ["store"] = $"http://{storeHost}:5200/health",
+        ["pay"] = $"http://{payHost}:5300/health",
+        ["logistics"] = $"http://{logisticsHost}:5400/health"
     };
 
     var results = new Dictionary<string, string>();
