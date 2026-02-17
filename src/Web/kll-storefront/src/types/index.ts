@@ -20,3 +20,9 @@ export interface Order {
 export interface OrderItem { productId: string; productName: string; quantity: number; unitPrice: number; }
 export interface PagedResult<T> { items: T[]; totalCount: number; page: number; pageSize: number; totalPages: number; }
 export interface User { sub: string; preferred_username: string; email: string; realm_roles: string[]; }
+export interface UserProfile { firstName: string; lastName: string; email: string; avatarUrl?: string; }
+export interface CustomerAddress {
+  id: string; customerId: string; label: string; street: string; number: string;
+  complement?: string; neighborhood: string; city: string; state: string; zipCode: string;
+  isDefault: boolean; createdAt: string;
+}

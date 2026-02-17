@@ -56,7 +56,9 @@ public class CartController : ControllerBase
             await _cartRepo.AddAsync(cart);
         }
 
-        cart.AddItem(product.Id, product.Name, product.Price, req.Quantity, product.ImageUrl);
+        var newItem = cart.AddItem(product.Id, product.Name, product.Price, req.Quantity, product.ImageUrl);
+        if (newItem is not null)
+            await _cartRepo.AddCartItemAsync(newItem);
         await _cartRepo.SaveChangesAsync();
 
         return Ok(new { cart.Total, cart.ItemCount });
