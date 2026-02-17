@@ -11,11 +11,25 @@ public class ShipmentsController : ControllerBase
     private readonly ShipmentService _svc;
     public ShipmentsController(ShipmentService svc) => _svc = svc;
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var shipments = await _svc.GetAllAsync(ct);
+        return Ok(shipments);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateShipmentRequest req, CancellationToken ct)
     {
         var s = await _svc.CreateAsync(req, ct);
         return CreatedAtAction(nameof(GetById), new { id = s.Id }, s);
+    }
+
+    [HttpGet("order/{orderId:guid}")]
+    public async Task<IActionResult> GetByOrderId(Guid orderId, CancellationToken ct)
+    {
+        var s = await _svc.GetByOrderIdAsync(orderId, ct);
+        return s is null ? NotFound() : Ok(s);
     }
 
     [HttpGet("{id:guid}")]

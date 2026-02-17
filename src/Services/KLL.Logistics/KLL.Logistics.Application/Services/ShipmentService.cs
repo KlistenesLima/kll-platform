@@ -27,6 +27,18 @@ public class ShipmentService
         return Map(shipment);
     }
 
+    public async Task<IEnumerable<ShipmentResponse>> GetAllAsync(CancellationToken ct)
+    {
+        var shipments = await _repo.GetAllAsync(ct);
+        return shipments.Select(Map);
+    }
+
+    public async Task<ShipmentResponse?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
+    {
+        var s = await _repo.GetByOrderIdAsync(orderId, ct);
+        return s is null ? null : Map(s);
+    }
+
     public async Task<ShipmentResponse?> GetByTrackingCodeAsync(string code, CancellationToken ct)
     {
         var s = await _repo.GetByTrackingCodeAsync(code, ct);
