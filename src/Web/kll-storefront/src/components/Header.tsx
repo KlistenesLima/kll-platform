@@ -1,15 +1,37 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { SearchIcon, CartIcon, UserIcon, SettingsIcon } from "./Icons";
+import { profileApi } from "../services/api";
 
 export default function Header() {
   const { isAuthenticated, user, isAdmin, logout } = useAuthStore();
   const { itemCount } = useCartStore();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const nav = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      profileApi.get().then((data: any) => {
+        if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
+      }).catch(() => {});
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +41,10 @@ export default function Header() {
   const navLinks = [
     { to: "/", label: "Home" },
     { to: "/search", label: "Produtos" },
-      { to: "/search?view=categories", label: "Categorias" },
+    { to: "/search?view=categories", label: "Categorias" },
   ];
+
+  const initial = user?.preferred_username?.charAt(0).toUpperCase() || "?";
 
   return (
     <>
@@ -77,15 +101,6 @@ export default function Header() {
                   </a>
                 )}
 
-                <Link to="/orders" style={{
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 42, height: 42, color: "#9898ab", textDecoration: "none", transition: "all 0.2s"
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#c9a962")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#9898ab")}>
-                  <PackageIcon size={18} />
-                </Link>
-
                 <Link to="/cart" style={{
                   position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
                   width: 42, height: 42, color: "#9898ab", textDecoration: "none", transition: "all 0.2s"
@@ -104,24 +119,94 @@ export default function Header() {
                   )}
                 </Link>
 
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  marginLeft: 4, paddingLeft: 12,
+                {/* Avatar + Dropdown */}
+                <div ref={menuRef} style={{
+                  position: "relative", marginLeft: 4, paddingLeft: 12,
                   borderLeft: "1px solid rgba(201,169,98,0.15)"
                 }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: "50%",
-                    background: "linear-gradient(135deg, #c9a962, #a68b4b)",
+                  <button onClick={() => setMenuOpen(!menuOpen)} style={{
+                    width: 36, height: 36, borderRadius: "50%", overflow: "hidden",
+                    background: avatarUrl ? "transparent" : "linear-gradient(135deg, #c9a962, #a68b4b)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "0.75rem", fontWeight: 700, color: "#0f0f1a"
-                  }}>{user?.preferred_username?.charAt(0).toUpperCase()}</div>
-                  <button onClick={logout} style={{
-                    background: "none", border: "none", color: "#6c6c7e",
-                    cursor: "pointer", fontSize: "0.75rem", fontFamily: "'Poppins', sans-serif",
-                    transition: "color 0.2s"
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#f44336")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#6c6c7e")}>Sair</button>
+                    border: menuOpen ? "2px solid #c9a962" : "2px solid transparent",
+                    cursor: "pointer", padding: 0, transition: "border-color 0.2s"
+                  }}>
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                    ) : (
+                      <span style={{
+                        fontSize: "0.8rem", fontWeight: 700, color: "#0f0f1a"
+                      }}>{initial}</span>
+                    )}
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {menuOpen && (
+                    <div style={{
+                      position: "absolute", top: "calc(100% + 8px)", right: 0, minWidth: 200,
+                      background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.15)",
+                      borderRadius: 12, padding: "0.5rem", boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                      zIndex: 1001
+                    }}>
+                      <div style={{
+                        padding: "0.5rem 0.75rem", borderBottom: "1px solid rgba(201,169,98,0.08)",
+                        marginBottom: "0.25rem"
+                      }}>
+                        <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#fff" }}>
+                          {user?.preferred_username}
+                        </div>
+                        <div style={{ fontSize: "0.7rem", color: "#6c6c7e", marginTop: 2 }}>
+                          {user?.email}
+                        </div>
+                      </div>
+
+                      <Link to="/profile" onClick={() => setMenuOpen(false)} style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.75rem",
+                        borderRadius: 8, textDecoration: "none", color: "#e0e0e0", fontSize: "0.85rem",
+                        transition: "background 0.15s"
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = "rgba(201,169,98,0.08)"}
+                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                        <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9898ab" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Meu Perfil
+                      </Link>
+
+                      <Link to="/orders" onClick={() => setMenuOpen(false)} style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.75rem",
+                        borderRadius: 8, textDecoration: "none", color: "#e0e0e0", fontSize: "0.85rem",
+                        transition: "background 0.15s"
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = "rgba(201,169,98,0.08)"}
+                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                        <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9898ab" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                          <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+                        </svg>
+                        Meus Pedidos
+                      </Link>
+
+                      <div style={{
+                        borderTop: "1px solid rgba(201,169,98,0.08)", marginTop: "0.25rem", paddingTop: "0.25rem"
+                      }}>
+                        <button onClick={() => { setMenuOpen(false); logout(); }} style={{
+                          display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.75rem",
+                          borderRadius: 8, background: "none", border: "none", color: "#f44336",
+                          fontSize: "0.85rem", cursor: "pointer", width: "100%", textAlign: "left",
+                          fontFamily: "'Poppins', sans-serif", transition: "background 0.15s"
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = "rgba(244,67,54,0.08)"}
+                        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                          </svg>
+                          Sair
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
@@ -175,14 +260,5 @@ export default function Header() {
       </header>
       <div style={{ height: 72 }} />
     </>
-  );
-}
-
-function PackageIcon({ size = 20 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m7.5 4.27 9 5.15" /><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-      <path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" />
-    </svg>
   );
 }

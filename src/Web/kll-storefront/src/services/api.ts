@@ -52,6 +52,27 @@ export const shippingApi = {
     api.get("/api/v1/shipping/calculate", { params: { cep, cartTotal } }).then((r) => r.data),
 };
 
+export const profileApi = {
+  get: () => api.get("/api/v1/profile").then((r) => r.data),
+  update: (data: { firstName: string; lastName: string }) => api.put("/api/v1/profile", data).then((r) => r.data),
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post("/api/v1/profile/avatar", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }).then((r) => r.data);
+  },
+};
+
+export const addressApi = {
+  getAll: () => api.get("/api/v1/addresses").then((r) => r.data),
+  getById: (id: string) => api.get(`/api/v1/addresses/${id}`).then((r) => r.data),
+  create: (data: any) => api.post("/api/v1/addresses", data).then((r) => r.data),
+  update: (id: string, data: any) => api.put(`/api/v1/addresses/${id}`, data).then((r) => r.data),
+  delete: (id: string) => api.delete(`/api/v1/addresses/${id}`),
+  setDefault: (id: string) => api.put(`/api/v1/addresses/${id}/default`).then((r) => r.data),
+};
+
 export const authApi = {
   login: (username: string, password: string) =>
     axios.post(
