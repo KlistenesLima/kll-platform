@@ -96,7 +96,14 @@
       "Bash(do ls -lh \"$f\")",
       "Bash(DIR=\"/c/Users/User/Desktop/Sistemas 2026/kll-platform/src/Web/kll-storefront/public/products\" echo \"Total de arquivos:\" ls \"$DIR\"/*.jpg)",
       "Bash(du:*)",
-      "Bash(powershell.exe -NoProfile -Command 'Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Get-NetTCPConnection -LocalPort 5175 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; echo done')"
+      "Bash(powershell.exe -NoProfile -Command 'Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Get-NetTCPConnection -LocalPort 5175 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; echo done')",
+      "Bash(start:*)",
+      "Bash(powershell -Command \"Start-Sleep -Seconds 3; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen.Bounds | ForEach-Object { $bitmap = New-Object System.Drawing.Bitmap\\($_.Width, $_.Height\\); $graphics = [System.Drawing.Graphics]::FromImage\\($bitmap\\); $graphics.CopyFromScreen\\($_.Location, [System.Drawing.Point]::Empty, $_.Size\\); $bitmap.Save\\(''C:\\\\Users\\\\User\\\\Desktop\\\\Sistemas 2026\\\\kll-platform\\\\screenshot_product_detail.png''\\); $graphics.Dispose\\(\\); $bitmap.Dispose\\(\\) }; Write-Host ''Screenshot saved''\")",
+      "Bash(powershell -File:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
