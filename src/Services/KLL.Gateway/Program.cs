@@ -29,7 +29,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:5173", "http://localhost:4200")
+    p.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:4200")
      .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
 builder.Services.AddHealthChecks();
