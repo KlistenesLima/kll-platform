@@ -75,7 +75,9 @@
       "Bash(pname=\"$product#*\\\\\"\"name\\\\\"\":\\\\\"\"\")",
       "Bash(pname=\"$pname%%\\\\\"\"*\")",
       "Bash(npm run build:*)",
-      "Bash(python -m json.tool:*)"
+      "Bash(python -m json.tool:*)",
+      "Bash(node -e:*)",
+      "Bash(node -p:*)"
     ]
   }
 }
