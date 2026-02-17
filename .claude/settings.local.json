@@ -103,7 +103,16 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git status:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(powershell -Command \"Invoke-WebRequest -Uri ''http://localhost:5200/api/v1/products'' -UseBasicParsing | Select-Object -ExpandProperty StatusCode\")",
+      "Bash(powershell -Command \"\\(Invoke-WebRequest -Uri ''http://localhost:5200/api/v1/products'' -UseBasicParsing\\).Content\")",
+      "Bash(powershell -Command \"\\(Invoke-WebRequest -Uri ''http://localhost:5200/api/v1/products'' -UseBasicParsing\\).Content.Substring\\(0, [Math]::Min\\(500, \\(Invoke-WebRequest -Uri ''http://localhost:5200/api/v1/products'' -UseBasicParsing\\).Content.Length\\)\\)\")",
+      "Bash(powershell -Command \"try { $r = Invoke-WebRequest -Uri ''http://localhost:5200/api/v1/orders'' -UseBasicParsing; Write-Output $r.StatusCode; Write-Output $r.Content.Substring\\(0, [Math]::Min\\(500, $r.Content.Length\\)\\) } catch { Write-Output \\(''ERROR: '' + $_Exception.Message\\) }\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"/c/Users/User/Desktop/Sistemas 2026/kll-platform/test-apis.ps1\")",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Users\\\\User\\\\Desktop\\\\Sistemas 2026\\\\kll-platform\\\\src\\\\Web'' | Select-Object Name\")",
+      "Bash(powershell -Command:*)",
+      "Bash(cd:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)"
     ]
   }
 }
