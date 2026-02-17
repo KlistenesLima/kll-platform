@@ -36,6 +36,8 @@ export const storeApi = {
     api.put(`/api/v1/products/${id}`, data).then(r => r.data),
   deleteProduct: (id: string) =>
     api.delete(`/api/v1/products/${id}`),
+  getAllOrders: () =>
+    api.get<Order[]>('/api/v1/orders').then(r => r.data),
   getOrder: (id: string) =>
     api.get<Order>(`/api/v1/orders/${id}`).then(r => r.data),
   getOrdersByCustomer: (customerId: string) =>

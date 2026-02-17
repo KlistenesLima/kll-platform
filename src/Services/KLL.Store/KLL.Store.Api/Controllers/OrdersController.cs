@@ -1,6 +1,7 @@
 using KLL.BuildingBlocks.Infrastructure.Auth;
 using KLL.Store.Application.Commands.CreateOrder;
 using KLL.Store.Application.Commands.ConfirmPayment;
+using KLL.Store.Application.Queries.GetAllOrders;
 using KLL.Store.Application.Queries.GetOrderById;
 using KLL.Store.Application.Queries.GetOrdersByCustomer;
 using MediatR;
@@ -16,6 +17,13 @@ public class OrdersController : ControllerBase
     private readonly IMediator _mediator;
 
     public OrdersController(IMediator mediator) => _mediator = mediator;
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetAllOrdersQuery(), ct);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderCommand command, CancellationToken ct)
