@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
 import ShippingCalculator from "../components/ShippingCalculator";
+import ProductImage from "../components/ProductImage";
 import { CartIcon, DiamondIcon, MinusIcon, PlusIcon, XIcon } from "../components/Icons";
 import toast from "react-hot-toast";
 
@@ -56,7 +57,7 @@ export default function CartPage() {
                 background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.2)", borderRadius: 12
               }}>
                 <div style={{ width: 80, height: 80, background: "#252542", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  {item.imageUrl ? <img src={item.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} /> : <DiamondIcon size={32} color="#3a3a4e" />}
+                  <ProductImage imageUrl={item.imageUrl} alt={item.productName} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 600, color: "#fff" }}>{item.productName}</h3>

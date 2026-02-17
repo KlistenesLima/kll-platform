@@ -26,6 +26,9 @@ Thumbs.db
 ## Docker
 docker-compose.override.yml
 
+## Product images (local cache, source of truth is B2)
+src/Web/kll-storefront/public/products/
+
 ## Misc
 *.log
 *.bak

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { productApi, categoryApi } from "../services/api";
 import ProductCard from "../components/ProductCard";
+import ProductImage from "../components/ProductImage";
 import { DiamondIcon, ChevronRightIcon, ChevronDownIcon } from "../components/Icons";
 import type { Product, Category } from "../types";
 
@@ -296,7 +297,7 @@ export default function Search() {
                     display: "flex", alignItems: "center", justifyContent: "center"
                   }}>
                     {cat.imageUrl ? (
-                      <img src={cat.imageUrl} alt="" style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
+                      <ProductImage imageUrl={cat.imageUrl} alt={cat.name} style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
                     ) : (
                       <DiamondIcon size={20} color="#c9a962" />
                     )}

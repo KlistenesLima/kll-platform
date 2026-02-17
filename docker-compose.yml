@@ -148,6 +148,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Docker
     ports:
       - "5200:5200"
+    volumes:
+      - ./src/Web/kll-storefront/public/products:/app/products-local
     depends_on:
       postgres:
         condition: service_healthy

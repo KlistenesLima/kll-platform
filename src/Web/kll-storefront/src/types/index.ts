@@ -1,6 +1,6 @@
 ﻿export interface Product {
   id: string; name: string; description: string; price: number;
-  stockQuantity: number; category: string; categoryId?: string;
+  oldPrice?: number; stockQuantity: number; category: string; categoryId?: string;
   imageUrl?: string; isActive: boolean; createdAt: string;
 }
 export interface Category {

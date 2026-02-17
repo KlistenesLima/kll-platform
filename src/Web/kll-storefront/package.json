@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync-images": "aws s3 sync s3://luxestore-media/products/ ./public/products/ --endpoint-url https://s3.us-east-005.backblazeb2.com"
   },
   "dependencies": {
     "axios": "^1.7.2",
