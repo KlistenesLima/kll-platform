@@ -77,7 +77,26 @@
       "Bash(npm run build:*)",
       "Bash(python -m json.tool:*)",
       "Bash(node -e:*)",
-      "Bash(node -p:*)"
+      "Bash(node -p:*)",
+      "Bash(bash /tmp/create_categories.sh)",
+      "Bash(ls:*)",
+      "Bash(bash migration_cats.sh)",
+      "Bash(node --version:*)",
+      "Bash(node:*)",
+      "Bash(__NEW_LINE_8cca9a3972f21426__ echo \"\")",
+      "Bash(npm run dev:*)",
+      "Bash(curl.exe:*)",
+      "Bash(export AWS_ACCESS_KEY_ID:*)",
+      "Bash(export AWS_SECRET_ACCESS_KEY:*)",
+      "Bash(aws s3api get-bucket-acl:*)",
+      "Bash(where.exe:*)",
+      "Bash(powershell.exe -Command \"Get-Command aws -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(\"/c/Program Files/Amazon/AWSCLIV2/aws.exe\" s3 sync s3://luxestore-media/products/ \"/c/Users/User/Desktop/Sistemas 2026/kll-platform/src/Web/kll-storefront/public/products/\" --endpoint-url \"https://s3.us-east-005.backblazeb2.com\")",
+      "Bash(while read f)",
+      "Bash(do ls -lh \"$f\")",
+      "Bash(DIR=\"/c/Users/User/Desktop/Sistemas 2026/kll-platform/src/Web/kll-storefront/public/products\" echo \"Total de arquivos:\" ls \"$DIR\"/*.jpg)",
+      "Bash(du:*)",
+      "Bash(powershell.exe -NoProfile -Command 'Get-NetTCPConnection -LocalPort 5174 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Get-NetTCPConnection -LocalPort 5175 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; echo done')"
     ]
   }
 }

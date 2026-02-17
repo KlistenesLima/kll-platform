@@ -5,6 +5,7 @@ import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
 import toast from "react-hot-toast";
 import ShippingCalculator from "../components/ShippingCalculator";
+import ProductImage from "../components/ProductImage";
 import { CartIcon, DiamondIcon, MinusIcon, PlusIcon, XIcon } from "../components/Icons";
 import type { Product } from "../types";
 
@@ -62,13 +63,11 @@ export default function ProductDetail() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
           {/* Image */}
           <div style={{ background: "#252542", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 500, position: "relative" }}>
-            {product.imageUrl ? (
-              <img src={product.imageUrl} alt={product.name} style={{ maxWidth: "100%", maxHeight: 500, objectFit: "contain" }} />
-            ) : (
-              <div style={{ opacity: 0.3 }}>
-                <DiamondIcon size={128} color="#3a3a4e" />
-              </div>
-            )}
+            <ProductImage
+              imageUrl={product.imageUrl}
+              alt={product.name}
+              style={{ maxWidth: "100%", maxHeight: 500, objectFit: "contain" }}
+            />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(201,169,98,0.08) 0%, transparent 50%)", pointerEvents: "none" }} />
           </div>
 

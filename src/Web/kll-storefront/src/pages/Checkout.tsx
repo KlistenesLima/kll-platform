@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
 import { orderApi, addressApi } from "../services/api";
+import ProductImage from "../components/ProductImage";
 import type { CustomerAddress } from "../types";
 import toast from "react-hot-toast";
 
@@ -253,19 +254,11 @@ export default function Checkout() {
                     width: 60, height: 60, borderRadius: 8, overflow: "hidden", flexShrink: 0,
                     background: "#252542"
                   }}>
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.productName}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    ) : (
-                      <div style={{
-                        width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center"
-                      }}>
-                        <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#6c6c7e" strokeWidth="1.5">
-                          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-                          <path d="m21 15-5-5L5 21"/>
-                        </svg>
-                      </div>
-                    )}
+                    <ProductImage
+                      imageUrl={item.imageUrl}
+                      alt={item.productName}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{

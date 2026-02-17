@@ -2,8 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
 import { useState, useEffect, useRef } from "react";
-import { SearchIcon, CartIcon, UserIcon, SettingsIcon } from "./Icons";
+import { SearchIcon, CartIcon, UserIcon, SettingsIcon, MenuIcon, XIcon } from "./Icons";
 import { profileApi } from "../services/api";
+import { FiHeart } from "react-icons/fi";
 
 export default function Header() {
   const { isAuthenticated, user, isAdmin, logout } = useAuthStore();
@@ -11,6 +12,7 @@ export default function Header() {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const nav = useNavigate();
@@ -33,9 +35,19 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) { nav(`/search?q=${encodeURIComponent(query.trim())}`); setSearchOpen(false); setQuery(""); }
+    if (query.trim()) {
+      nav(`/search?q=${encodeURIComponent(query.trim())}`);
+      setSearchOpen(false);
+      setMobileOpen(false);
+      setQuery("");
+    }
   };
 
   const navLinks = [
@@ -48,159 +60,120 @@ export default function Header() {
 
   return (
     <>
-      <header style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000,
-        background: "rgba(15, 15, 26, 0.97)", backdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(201, 169, 98, 0.15)"
-      }}>
-        <div style={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          maxWidth: 1400, margin: "0 auto", padding: "0 2rem", height: 72
-        }}>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-dark/95 backdrop-blur-md border-b border-gold/10">
+        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 h-[72px] flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" style={{ textDecoration: "none", fontFamily: "'Playfair Display', serif", fontSize: "1.6rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ color: "#fff" }}>KLL</span>
-            <span style={{ color: "#c9a962" }}>Store</span>
+          <Link to="/" className="flex items-center gap-1 no-underline shrink-0">
+            <span className="font-playfair font-bold text-gold text-2xl tracking-wide">AUREA</span>
+            <span className="font-poppins font-light text-text-secondary text-base">Maison</span>
           </Link>
 
-          {/* Nav */}
-          <nav style={{ display: "flex", alignItems: "center", gap: "2.5rem" }}>
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-10">
             {navLinks.map((link) => (
-              <Link key={link.to} to={link.to} style={{
-                fontSize: "0.8rem", fontWeight: 500, color: "#9898ab", textTransform: "uppercase",
-                letterSpacing: "2px", textDecoration: "none", transition: "color 0.2s",
-                padding: "0.25rem 0", borderBottom: "1px solid transparent"
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#c9a962"; e.currentTarget.style.borderBottomColor = "#c9a962"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#9898ab"; e.currentTarget.style.borderBottomColor = "transparent"; }}>
+              <Link
+                key={link.to + link.label}
+                to={link.to}
+                className="text-[0.8rem] font-medium text-text-secondary uppercase tracking-[2px] no-underline pb-1 border-b border-transparent hover:text-gold hover:border-gold transition-all duration-200"
+              >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Actions */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <button onClick={() => setSearchOpen(!searchOpen)} style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 42, height: 42, color: searchOpen ? "#c9a962" : "#9898ab",
-              background: searchOpen ? "rgba(201,169,98,0.1)" : "transparent",
-              border: "none", borderRadius: "50%", cursor: "pointer", transition: "all 0.2s"
-            }}><SearchIcon size={18} /></button>
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-1">
+            {/* Search */}
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className={`flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer transition-all duration-200 ${
+                searchOpen ? "text-gold bg-gold/10" : "text-text-secondary hover:text-gold bg-transparent"
+              }`}
+            >
+              <SearchIcon size={18} />
+            </button>
+
+            {/* Favorites */}
+            <button className="flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer text-text-secondary hover:text-gold bg-transparent transition-colors duration-200">
+              <FiHeart size={18} />
+            </button>
 
             {isAuthenticated ? (
               <>
                 {isAdmin && (
-                  <a href="http://localhost:5173" target="_blank" rel="noreferrer" style={{
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    width: 42, height: 42, color: "#9898ab", background: "transparent",
-                    border: "none", borderRadius: "50%", textDecoration: "none", transition: "all 0.2s"
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#c9a962")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#9898ab")}>
+                  <a
+                    href="http://localhost:5173"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center w-10 h-10 rounded-full text-text-secondary hover:text-gold no-underline transition-colors duration-200"
+                  >
                     <SettingsIcon size={18} />
                   </a>
                 )}
 
-                <Link to="/cart" style={{
-                  position: "relative", display: "flex", alignItems: "center", justifyContent: "center",
-                  width: 42, height: 42, color: "#9898ab", textDecoration: "none", transition: "all 0.2s"
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#c9a962")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#9898ab")}>
+                {/* Cart */}
+                <Link
+                  to="/cart"
+                  className="relative flex items-center justify-center w-10 h-10 text-text-secondary hover:text-gold no-underline transition-colors duration-200"
+                >
                   <CartIcon size={18} />
                   {itemCount > 0 && (
-                    <span style={{
-                      position: "absolute", top: 4, right: 4,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      minWidth: 16, height: 16, padding: "0 4px",
-                      fontSize: "0.65rem", fontWeight: 700, lineHeight: 1,
-                      color: "#0f0f1a", background: "#c9a962", borderRadius: 10
-                    }}>{itemCount}</span>
+                    <span className="absolute top-1 right-1 flex items-center justify-center min-w-[16px] h-4 px-1 text-[0.65rem] font-bold leading-none text-dark bg-gold rounded-full">
+                      {itemCount}
+                    </span>
                   )}
                 </Link>
 
-                {/* Avatar + Dropdown */}
-                <div ref={menuRef} style={{
-                  position: "relative", marginLeft: 4, paddingLeft: 12,
-                  borderLeft: "1px solid rgba(201,169,98,0.15)"
-                }}>
-                  <button onClick={() => setMenuOpen(!menuOpen)} style={{
-                    width: 36, height: 36, borderRadius: "50%", overflow: "hidden",
-                    background: avatarUrl ? "transparent" : "linear-gradient(135deg, #c9a962, #a68b4b)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    border: menuOpen ? "2px solid #c9a962" : "2px solid transparent",
-                    cursor: "pointer", padding: 0, transition: "border-color 0.2s"
-                  }}>
+                {/* Profile Dropdown */}
+                <div ref={menuRef} className="relative ml-1 pl-3 border-l border-gold/15">
+                  <button
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center p-0 cursor-pointer transition-all duration-200 border-2 ${
+                      menuOpen ? "border-gold" : "border-transparent"
+                    }`}
+                    style={{
+                      background: avatarUrl ? "transparent" : "linear-gradient(135deg, #c9a962, #b08942)",
+                    }}
+                  >
                     {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar"
-                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
                     ) : (
-                      <span style={{
-                        fontSize: "0.8rem", fontWeight: 700, color: "#0f0f1a"
-                      }}>{initial}</span>
+                      <span className="text-[0.8rem] font-bold text-dark">{initial}</span>
                     )}
                   </button>
 
-                  {/* Dropdown Menu */}
                   {menuOpen && (
-                    <div style={{
-                      position: "absolute", top: "calc(100% + 8px)", right: 0, minWidth: 200,
-                      background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.15)",
-                      borderRadius: 12, padding: "0.5rem", boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-                      zIndex: 1001
-                    }}>
-                      <div style={{
-                        padding: "0.5rem 0.75rem", borderBottom: "1px solid rgba(201,169,98,0.08)",
-                        marginBottom: "0.25rem"
-                      }}>
-                        <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#fff" }}>
-                          {user?.preferred_username}
-                        </div>
-                        <div style={{ fontSize: "0.7rem", color: "#6c6c7e", marginTop: 2 }}>
-                          {user?.email}
-                        </div>
+                    <div className="absolute top-[calc(100%+8px)] right-0 min-w-[200px] bg-surface border border-gold/15 rounded-xl p-2 shadow-[0_8px_32px_rgba(0,0,0,0.4)] z-[1001]">
+                      <div className="px-3 py-2 border-b border-gold/10 mb-1">
+                        <div className="text-[0.85rem] font-semibold text-white">{user?.preferred_username}</div>
+                        <div className="text-[0.7rem] text-text-secondary mt-0.5">{user?.email}</div>
                       </div>
-
-                      <Link to="/profile" onClick={() => setMenuOpen(false)} style={{
-                        display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.75rem",
-                        borderRadius: 8, textDecoration: "none", color: "#e0e0e0", fontSize: "0.85rem",
-                        transition: "background 0.15s"
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = "rgba(201,169,98,0.08)"}
-                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                        <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9898ab" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                        </svg>
+                      <Link
+                        to="/profile"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg no-underline text-text-primary text-[0.85rem] hover:bg-gold/10 transition-colors duration-150"
+                      >
+                        <UserIcon size={16} color="#a0a0b0" />
                         Meu Perfil
                       </Link>
-
-                      <Link to="/orders" onClick={() => setMenuOpen(false)} style={{
-                        display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.75rem",
-                        borderRadius: 8, textDecoration: "none", color: "#e0e0e0", fontSize: "0.85rem",
-                        transition: "background 0.15s"
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = "rgba(201,169,98,0.08)"}
-                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
-                        <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9898ab" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-                          <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+                      <Link
+                        to="/orders"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg no-underline text-text-primary text-[0.85rem] hover:bg-gold/10 transition-colors duration-150"
+                      >
+                        <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a0a0b0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m7.5 4.27 9 5.15" /><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                          <path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" />
                         </svg>
                         Meus Pedidos
                       </Link>
-
-                      <div style={{
-                        borderTop: "1px solid rgba(201,169,98,0.08)", marginTop: "0.25rem", paddingTop: "0.25rem"
-                      }}>
-                        <button onClick={() => { setMenuOpen(false); logout(); }} style={{
-                          display: "flex", alignItems: "center", gap: 10, padding: "0.6rem 0.75rem",
-                          borderRadius: 8, background: "none", border: "none", color: "#f44336",
-                          fontSize: "0.85rem", cursor: "pointer", width: "100%", textAlign: "left",
-                          fontFamily: "'Poppins', sans-serif", transition: "background 0.15s"
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = "rgba(244,67,54,0.08)"}
-                        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                      <div className="border-t border-gold/10 mt-1 pt-1">
+                        <button
+                          onClick={() => { setMenuOpen(false); logout(); }}
+                          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-transparent border-none text-red-500 text-[0.85rem] cursor-pointer w-full text-left font-poppins hover:bg-red-500/10 transition-colors duration-150"
+                        >
                           <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
                           </svg>
                           Sair
                         </button>
@@ -210,55 +183,201 @@ export default function Header() {
                 </div>
               </>
             ) : (
-              <Link to="/login" style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                marginLeft: 8, padding: "0.55rem 1.5rem",
-                background: "linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)",
-                color: "#0f0f1a", borderRadius: 8,
-                fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase",
-                letterSpacing: "1.5px", textDecoration: "none", transition: "all 0.3s",
-                boxShadow: "0 2px 8px rgba(201,169,98,0.2)"
-              }}>
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-2 ml-2 px-5 py-2.5 bg-gradient-to-br from-gold to-gold-dark text-dark rounded-lg font-semibold text-[0.75rem] uppercase tracking-[1.5px] no-underline shadow-[0_2px_8px_rgba(201,169,98,0.2)] hover:from-gold-light hover:to-gold transition-all duration-300"
+              >
                 <UserIcon size={14} /> Entrar
               </Link>
             )}
           </div>
+
+          {/* Mobile Actions */}
+          <div className="flex lg:hidden items-center gap-1">
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className={`flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer transition-all duration-200 ${
+                searchOpen ? "text-gold bg-gold/10" : "text-text-secondary bg-transparent"
+              }`}
+            >
+              <SearchIcon size={18} />
+            </button>
+            <Link
+              to="/cart"
+              className="relative flex items-center justify-center w-10 h-10 text-text-secondary no-underline"
+            >
+              <CartIcon size={18} />
+              {itemCount > 0 && (
+                <span className="absolute top-1 right-1 flex items-center justify-center min-w-[16px] h-4 px-1 text-[0.65rem] font-bold leading-none text-dark bg-gold rounded-full">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer text-text-secondary bg-transparent hover:text-gold transition-colors duration-200"
+            >
+              <MenuIcon size={22} />
+            </button>
+          </div>
         </div>
 
-        {/* Search Bar */}
-        <div style={{
-          maxHeight: searchOpen ? 72 : 0, overflow: "hidden",
-          background: "rgba(26, 26, 46, 0.98)",
-          borderTop: searchOpen ? "1px solid rgba(201,169,98,0.1)" : "none",
-          transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        }}>
-          <form onSubmit={handleSearch} style={{
-            display: "flex", maxWidth: 560, margin: "0 auto", padding: "0.875rem 2rem", gap: 8
-          }}>
-            <div style={{
-              flex: 1, display: "flex", alignItems: "center", gap: 12,
-              padding: "0 1.25rem", background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(201,169,98,0.15)", borderRadius: 10
-            }}>
+        {/* Expandable Search Bar */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] bg-surface/[0.98] ${
+            searchOpen ? "max-h-[72px] border-t border-gold/10" : "max-h-0"
+          }`}
+        >
+          <form onSubmit={handleSearch} className="flex max-w-[560px] mx-auto py-3 px-4 lg:px-8 gap-2">
+            <div className="flex-1 flex items-center gap-3 px-4 bg-white/[0.04] border border-gold/20 rounded-lg focus-within:border-gold transition-colors duration-200">
               <SearchIcon size={16} color="#6c6c7e" />
-              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-                placeholder="O que voce procura?"
-                style={{
-                  flex: 1, padding: "0.7rem 0", fontSize: "0.9rem", color: "#fff",
-                  background: "transparent", border: "none", outline: "none",
-                  fontFamily: "'Poppins', sans-serif"
-                }} />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="O que você procura?"
+                className="flex-1 py-2.5 text-[0.9rem] text-white bg-transparent border-none outline-none font-poppins placeholder:text-text-secondary/50"
+              />
             </div>
-            <button type="submit" style={{
-              padding: "0 1.5rem", fontSize: "0.8rem", fontWeight: 600,
-              color: "#0f0f1a", background: "#c9a962", border: "none",
-              borderRadius: 10, cursor: "pointer", fontFamily: "'Poppins', sans-serif",
-              textTransform: "uppercase", letterSpacing: 1, transition: "all 0.2s"
-            }}>Buscar</button>
+            <button
+              type="submit"
+              className="px-5 text-[0.8rem] font-semibold text-dark bg-gold rounded-lg border-none cursor-pointer font-poppins uppercase tracking-wider hover:bg-gold-light transition-colors duration-200"
+            >
+              Buscar
+            </button>
           </form>
         </div>
       </header>
-      <div style={{ height: 72 }} />
+
+      {/* Header Spacer */}
+      <div className="h-[72px]" />
+
+      {/* Mobile Sidebar Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/60 z-[60] lg:hidden transition-opacity duration-300 ${
+          mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileOpen(false)}
+      />
+
+      {/* Mobile Sidebar */}
+      <div
+        className={`fixed top-0 right-0 bottom-0 w-[300px] bg-dark z-[70] lg:hidden border-l border-gold/10 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          mobileOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between px-6 h-[72px] border-b border-gold/10">
+          <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-1 no-underline">
+            <span className="font-playfair font-bold text-gold text-xl">AUREA</span>
+            <span className="font-poppins font-light text-text-secondary text-sm">Maison</span>
+          </Link>
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer text-text-secondary bg-transparent hover:text-gold transition-colors duration-200"
+          >
+            <XIcon size={20} />
+          </button>
+        </div>
+
+        {/* Sidebar Nav */}
+        <nav className="flex flex-col px-4 py-6 gap-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to + link.label}
+              to={link.to}
+              onClick={() => setMobileOpen(false)}
+              className="px-4 py-3 text-[0.9rem] font-medium text-text-primary no-underline rounded-lg hover:bg-gold/10 hover:text-gold transition-all duration-200"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Sidebar Divider */}
+        <div className="mx-6 border-t border-gold/10" />
+
+        {/* Sidebar User Actions */}
+        <div className="px-4 py-4 flex flex-col gap-1">
+          {isAuthenticated ? (
+            <>
+              <div className="px-4 py-3 flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shrink-0"
+                  style={{
+                    background: avatarUrl ? "transparent" : "linear-gradient(135deg, #c9a962, #b08942)",
+                  }}
+                >
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                  ) : (
+                    <span className="text-[0.8rem] font-bold text-dark">{initial}</span>
+                  )}
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-white">{user?.preferred_username}</div>
+                  <div className="text-[0.7rem] text-text-secondary">{user?.email}</div>
+                </div>
+              </div>
+
+              <Link
+                to="/profile"
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200"
+              >
+                Meu Perfil
+              </Link>
+              <Link
+                to="/orders"
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200"
+              >
+                Meus Pedidos
+              </Link>
+              <Link
+                to="/cart"
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200 flex items-center justify-between"
+              >
+                Carrinho
+                {itemCount > 0 && (
+                  <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[0.65rem] font-bold text-dark bg-gold rounded-full">
+                    {itemCount}
+                  </span>
+                )}
+              </Link>
+
+              {isAdmin && (
+                <a
+                  href="http://localhost:5173"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200"
+                >
+                  Painel Admin
+                </a>
+              )}
+
+              <div className="mx-4 my-2 border-t border-gold/10" />
+
+              <button
+                onClick={() => { setMobileOpen(false); logout(); }}
+                className="px-4 py-3 text-[0.85rem] text-red-500 bg-transparent border-none cursor-pointer text-left font-poppins rounded-lg hover:bg-red-500/10 transition-colors duration-200"
+              >
+                Sair
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMobileOpen(false)}
+              className="mx-4 mt-2 flex items-center justify-center gap-2 px-5 py-3 bg-gold text-dark rounded-lg font-semibold text-[0.8rem] uppercase tracking-wider no-underline hover:bg-gold-light transition-colors duration-200"
+            >
+              <UserIcon size={14} /> Entrar
+            </Link>
+          )}
+        </div>
+      </div>
     </>
   );
 }
