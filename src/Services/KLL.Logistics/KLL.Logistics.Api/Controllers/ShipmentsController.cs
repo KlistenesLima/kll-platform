@@ -50,9 +50,17 @@ public class ShipmentsController : ControllerBase
     public async Task<IActionResult> AssignDriver(Guid id, [FromBody] AssignDriverRequest req, CancellationToken ct)
     { await _svc.AssignDriverAsync(id, req.DriverId, ct); return NoContent(); }
 
+    [HttpPut("{id:guid}/status")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateShipmentStatusRequest req, CancellationToken ct)
+    {
+        await _svc.UpdateStatusAsync(id, req.Status, req.Description, req.Location, ct);
+        return NoContent();
+    }
+
     [HttpPost("{id:guid}/deliver")]
     public async Task<IActionResult> MarkDelivered(Guid id, CancellationToken ct)
     { await _svc.MarkDeliveredAsync(id, ct); return NoContent(); }
 }
 
 public record AssignDriverRequest(Guid DriverId);
+public record UpdateShipmentStatusRequest(int Status, string Description, string? Location);

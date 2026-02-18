@@ -59,6 +59,20 @@ public class ShipmentService
         await _repo.SaveChangesAsync(ct);
     }
 
+    public async Task UpdateStatusAsync(Guid shipmentId, int status, string description, string? location, CancellationToken ct)
+    {
+        var s = await _repo.GetWithTrackingAsync(shipmentId, ct) ?? throw new KeyNotFoundException("Shipment not found");
+        var newStatus = (ShipmentStatus)status;
+        s.UpdateStatus(newStatus, description, location);
+        await _repo.SaveChangesAsync(ct);
+
+        if (newStatus == ShipmentStatus.Delivered)
+        {
+            await _eventBus.PublishAsync(new ShipmentDeliveredIntegrationEvent
+            { ShipmentId = s.Id, OrderId = s.OrderId, TrackingCode = s.TrackingCode }, ct);
+        }
+    }
+
     public async Task MarkDeliveredAsync(Guid shipmentId, CancellationToken ct)
     {
         var s = await _repo.GetByIdAsync(shipmentId, ct) ?? throw new KeyNotFoundException("Shipment not found");
