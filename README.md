@@ -5,20 +5,33 @@ Plataforma e-commerce enterprise com arquitetura de microserviços, construída 
 ## 🏗️ Arquitetura
 
 ```
-┌─────────────┐     ┌────────────────────────────────────────┐
-│  Admin Web   │────▶│         YARP API Gateway (:5100)       │
-│  React + TS  │     └────────┬──────────┬──────────┬─────────┘
-│   (:5173)    │              │          │          │
-└─────────────┘         ┌─────▼──┐  ┌────▼───┐  ┌──▼────────┐
-                        │ Store  │  │  Pay   │  │ Logistics │
-                        │ :5200  │  │ :5300  │  │   :5400   │
-                        └───┬────┘  └───┬────┘  └────┬──────┘
-                            │           │            │
-                     ┌──────▼───────────▼────────────▼──────┐
-                     │         Shared Infrastructure         │
-                     │  PostgreSQL · Redis · Kafka · RabbitMQ│
-                     │  Keycloak · SEQ · MongoDB             │
-                     └──────────────────────────────────────┘
+┌──────────────┐   ┌─────────────┐
+│  Storefront  │   │  Admin Web  │
+│  React + TS  │   │  React + TS │
+│  Tailwind    │   │  MUI        │
+│   (:5174)    │   │   (:5173)   │
+└──────┬───────┘   └──────┬──────┘
+       │                  │
+       └────────┬─────────┘
+                ▼
+┌────────────────────────────────────────┐
+│         YARP API Gateway (:5100)       │
+└────────┬──────────┬──────────┬─────────┘
+         │          │          │
+   ┌─────▼──┐  ┌────▼───┐  ┌──▼────────┐
+   │ Store  │  │  Pay   │  │ Logistics │
+   │ :5200  │  │ :5300  │  │   :5400   │
+   └───┬────┘  └───┬────┘  └────┬──────┘
+       │           │            │
+       │      ┌────▼─────┐     │
+       │      │ KRT Bank │     │
+       │      │  (PIX)   │     │
+       │      └──────────┘     │
+┌──────▼───────────────────────▼──────┐
+│         Shared Infrastructure       │
+│  PostgreSQL · Redis · Kafka · Rabbit│
+│  Keycloak · SEQ · MongoDB          │
+└─────────────────────────────────────┘
 ```
 
 ## 🧱 Padrões Enterprise
@@ -39,7 +52,7 @@ Plataforma e-commerce enterprise com arquitetura de microserviços, construída 
 ## 🛠️ Tech Stack
 
 **Backend:** .NET 8, C# 12, Entity Framework Core, MediatR, FluentValidation, Polly, Serilog
-**Frontend:** React 18, TypeScript, Material UI, TanStack Query, Recharts, Vite
+**Frontend:** React 18, TypeScript, Material UI (Admin), Tailwind CSS (Storefront), Zustand, Vite
 **Infrastructure:** PostgreSQL 16, Redis 7, Apache Kafka, RabbitMQ, MongoDB 7
 **Auth:** Keycloak 23
 **Observability:** Serilog + SEQ, Health Checks
@@ -80,10 +93,10 @@ make logs        # Acompanhar logs
 - SignalR para tracking em tempo real
 
 ### KLL Pay (:5300)
-- Gateway de pagamentos (PIX, Boleto, Cartão)
-- Integração com KRT Bank
+- Gateway de pagamentos (PIX via KRT Bank, Cartão simulado)
+- Integração com KRT Bank (PIX charges, health check, webhooks)
 - Gestão de merchants com API Keys
-- Webhooks de confirmação
+- Polly resilience (retry + circuit breaker) para chamadas externas
 
 ### KLL Logistics (:5400)
 - Criação automática de shipments via eventos Kafka
@@ -100,10 +113,22 @@ make logs        # Acompanhar logs
 ## 🧪 Testes
 
 ```bash
-make test        # 30+ testes unitários
+dotnet test KLL.Platform.sln    # 157 testes (100% aprovados)
 ```
 
-Cobertura: Domain entities, CQRS handlers, validators, value objects, integration events.
+| Projeto | Testes | Tipo |
+|---------|--------|------|
+| KLL.Store.Tests | 76 | Unit (Domain, Services, Handlers, Validators) |
+| KLL.Store.UnitTests | 15 | Unit (Favorite, Address, Shipping) |
+| KLL.Store.IntegrationTests | 19 | Integration (WebApplicationFactory) |
+| KLL.Pay.Tests | 10 | Unit (Transaction, Merchant) |
+| KLL.Pay.UnitTests | 17 | Unit (Transaction, Merchant extended) |
+| KLL.Logistics.Tests | 6 | Unit (Shipment, TrackingEvents) |
+| KLL.Logistics.UnitTests | 12 | Unit (Shipment lifecycle) |
+| KLL.Logistics.IntegrationTests | 2 | Integration (Lifecycle) |
+| **Total** | **157** | **Todos aprovados** |
+
+Stack: xUnit, FluentAssertions, Moq, Microsoft.AspNetCore.Mvc.Testing
 
 ## 📁 Estrutura do Projeto
 
@@ -118,7 +143,8 @@ kll-platform/
 │   │   ├── KLL.Gateway/         # YARP API Gateway
 │   │   └── KLL.Notifications/   # RabbitMQ Worker (Email, SMS, Push)
 │   └── Web/
-│       └── kll-admin-web/       # React + TypeScript + Material UI
+│       ├── kll-admin-web/       # React + TypeScript + Material UI
+│       └── kll-storefront/      # React + TypeScript + Tailwind CSS
 ├── tests/                       # xUnit + FluentAssertions + Moq
 ├── infra/keycloak/              # Realm config
 ├── docker-compose.yml           # 12 containers
@@ -141,9 +167,10 @@ O KLL Pay integra com o [KRT Bank](https://github.com/klistenes/krt-bank) para p
 | Store API | http://localhost:5200/swagger | 5200 |
 | Pay API | http://localhost:5300/swagger | 5300 |
 | Logistics API | http://localhost:5400/swagger | 5400 |
+| Storefront | http://localhost:5174 | 5174 |
 | Admin Web | http://localhost:5173 | 5173 |
 | SEQ (logs) | http://localhost:8082 | 8082 |
-| Keycloak | http://localhost:8080 | 8080 |
+| Keycloak | http://localhost:8081 | 8081 |
 | RabbitMQ | http://localhost:15673 | 15673 |
 | PostgreSQL | localhost:5434 | 5434 |
 | Redis | localhost:6381 | 6381 |

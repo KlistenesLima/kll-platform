@@ -35,6 +35,9 @@ builder.Services.AddHttpClient<KrtBankClient>(c =>
     c.Timeout = TimeSpan.FromSeconds(30);
 }).AddResiliencePolicies();
 
+// HttpClientFactory for health checks
+builder.Services.AddHttpClient();
+
 builder.Services.AddKafkaEventBus();
 builder.Services.AddRabbitMQNotifications();
 builder.Services.AddRedisCache(builder.Configuration);

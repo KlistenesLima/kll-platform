@@ -83,6 +83,14 @@ export const favoriteApi = {
   check: (productId: string) => api.get(`/api/v1/favorites/${productId}/check`).then((r) => r.data),
 };
 
+export const pixApi = {
+  healthCheck: () => api.get("/api/v1/pay/health/krt").then((r) => r.data),
+  createCharge: (data: { orderId: string; amount: number; description?: string; payerCpf?: string }) =>
+    api.post("/api/v1/pay/pix/charge", data).then((r) => r.data),
+  getChargeStatus: (chargeId: string) =>
+    api.get(`/api/v1/pay/pix/${chargeId}/status`).then((r) => r.data),
+};
+
 export const authApi = {
   login: (username: string, password: string) =>
     axios.post(
