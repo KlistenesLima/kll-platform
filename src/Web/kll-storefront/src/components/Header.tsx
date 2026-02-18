@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { SearchIcon, CartIcon, UserIcon, SettingsIcon, MenuIcon, XIcon, ChevronDownIcon } from "./Icons";
 import { profileApi } from "../services/api";
 import { FiHeart } from "react-icons/fi";
+import { useFavoritesStore } from "../store/favoritesStore";
 
 // ─── Category IDs (from database) ───
 const CAT = {
@@ -111,6 +112,7 @@ const megaColumns = [
 export default function Header() {
   const { isAuthenticated, user, isAdmin, logout } = useAuthStore();
   const { itemCount } = useCartStore();
+  const { count: favCount } = useFavoritesStore();
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -259,9 +261,17 @@ export default function Header() {
             </button>
 
             {/* Favorites */}
-            <button className="flex items-center justify-center w-10 h-10 rounded-full border-none cursor-pointer text-text-secondary hover:text-gold bg-transparent transition-colors duration-200">
+            <Link
+              to={isAuthenticated ? "/favorites" : "/login"}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full text-text-secondary hover:text-gold no-underline transition-colors duration-200"
+            >
               <FiHeart size={18} />
-            </button>
+              {isAuthenticated && favCount > 0 && (
+                <span className="absolute top-1 right-1 flex items-center justify-center min-w-[16px] h-4 px-1 text-[0.65rem] font-bold leading-none text-dark bg-gold rounded-full">
+                  {favCount}
+                </span>
+              )}
+            </Link>
 
             {isAuthenticated ? (
               <>
@@ -331,6 +341,16 @@ export default function Header() {
                           <path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" />
                         </svg>
                         Meus Pedidos
+                      </Link>
+                      <Link
+                        to="/favorites"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg no-underline text-text-primary text-[0.85rem] hover:bg-gold/10 transition-colors duration-150"
+                      >
+                        <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#a0a0b0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                        Meus Favoritos
                       </Link>
                       <div className="border-t border-gold/10 mt-1 pt-1">
                         <button
@@ -629,6 +649,18 @@ export default function Header() {
                 className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200"
               >
                 Meus Pedidos
+              </Link>
+              <Link
+                to="/favorites"
+                onClick={() => setMobileOpen(false)}
+                className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200 flex items-center justify-between"
+              >
+                Meus Favoritos
+                {favCount > 0 && (
+                  <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[0.65rem] font-bold text-dark bg-gold rounded-full">
+                    {favCount}
+                  </span>
+                )}
               </Link>
               <Link
                 to="/cart"

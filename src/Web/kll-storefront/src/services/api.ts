@@ -75,6 +75,14 @@ export const addressApi = {
   setDefault: (id: string) => api.put(`/api/v1/addresses/${id}/default`).then((r) => r.data),
 };
 
+export const favoriteApi = {
+  getAll: () => api.get("/api/v1/favorites").then((r) => r.data),
+  getIds: () => api.get("/api/v1/favorites/ids").then((r) => r.data),
+  add: (productId: string) => api.post(`/api/v1/favorites/${productId}`).then((r) => r.data),
+  remove: (productId: string) => api.delete(`/api/v1/favorites/${productId}`),
+  check: (productId: string) => api.get(`/api/v1/favorites/${productId}/check`).then((r) => r.data),
+};
+
 export const authApi = {
   login: (username: string, password: string) =>
     axios.post(

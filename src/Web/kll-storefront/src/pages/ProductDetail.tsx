@@ -9,6 +9,7 @@ import ProductImage from "../components/ProductImage";
 import ProductCard from "../components/ProductCard";
 import { CartIcon, MinusIcon, PlusIcon, ChevronDownIcon, TruckIcon, ShieldIcon } from "../components/Icons";
 import { FiCreditCard } from "react-icons/fi";
+import { useFavoritesStore } from "../store/favoritesStore";
 import type { Product } from "../types";
 
 export default function ProductDetail() {
@@ -22,6 +23,8 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [heartAnim, setHeartAnim] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [descExpanded, setDescExpanded] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [shippingOpen, setShippingOpen] = useState(false);
@@ -215,23 +218,46 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAdd}
-              disabled={outOfStock || adding}
-              className={`w-full flex items-center justify-center gap-3 py-4 rounded-xl font-poppins font-semibold text-base uppercase tracking-wider border-none transition-all duration-300 mb-6 ${
-                outOfStock
-                  ? "bg-surface/50 text-text-secondary cursor-not-allowed"
-                  : "bg-gold text-dark hover:bg-gold-light cursor-pointer shadow-[0_0_20px_rgba(201,169,98,0.3)] hover:shadow-[0_0_30px_rgba(201,169,98,0.4)]"
-              }`}
-            >
-              {adding ? (
-                <div className="w-5 h-5 border-2 border-dark/30 border-t-dark rounded-full animate-spin" />
-              ) : (
-                <CartIcon size={20} color={outOfStock ? "currentColor" : "#0f0f1a"} />
-              )}
-              {outOfStock ? "PRODUTO ESGOTADO" : adding ? "ADICIONANDO..." : "ADICIONAR AO CARRINHO"}
-            </button>
+            {/* Add to Cart + Favorite */}
+            <div className="flex gap-3 mb-6">
+              <button
+                onClick={handleAdd}
+                disabled={outOfStock || adding}
+                className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-xl font-poppins font-semibold text-base uppercase tracking-wider border-none transition-all duration-300 ${
+                  outOfStock
+                    ? "bg-surface/50 text-text-secondary cursor-not-allowed"
+                    : "bg-gold text-dark hover:bg-gold-light cursor-pointer shadow-[0_0_20px_rgba(201,169,98,0.3)] hover:shadow-[0_0_30px_rgba(201,169,98,0.4)]"
+                }`}
+              >
+                {adding ? (
+                  <div className="w-5 h-5 border-2 border-dark/30 border-t-dark rounded-full animate-spin" />
+                ) : (
+                  <CartIcon size={20} color={outOfStock ? "currentColor" : "#0f0f1a"} />
+                )}
+                {outOfStock ? "ESGOTADO" : adding ? "ADICIONANDO..." : "ADICIONAR AO CARRINHO"}
+              </button>
+              <button
+                onClick={async () => {
+                  if (!isAuthenticated) { nav("/login"); return; }
+                  if (!product) return;
+                  setHeartAnim(true);
+                  setTimeout(() => setHeartAnim(false), 300);
+                  await toggleFavorite(product.id);
+                }}
+                className="flex items-center justify-center w-14 rounded-xl border-2 cursor-pointer transition-all duration-300 bg-transparent"
+                style={{
+                  borderColor: isFavorite(product.id) ? "#c9a962" : "rgba(201,169,98,0.2)",
+                  transform: heartAnim ? "scale(1.1)" : "scale(1)",
+                }}
+              >
+                <svg width={22} height={22} viewBox="0 0 24 24"
+                  fill={isFavorite(product.id) ? "#c9a962" : "none"}
+                  stroke="#c9a962" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+              </button>
+            </div>
 
             {/* Info Cards */}
             <div className="grid grid-cols-3 gap-3 mb-6">
