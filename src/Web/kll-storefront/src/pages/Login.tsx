@@ -3,13 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { authApi } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
-import { DiamondIcon } from "../components/Icons";
+import { DiamondIcon, EyeIcon, EyeOffIcon } from "../components/Icons";
 import toast from "react-hot-toast";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuthStore();
   const { fetchCart } = useCartStore();
   const nav = useNavigate();
@@ -85,11 +86,22 @@ export default function Login() {
               display: "block", marginBottom: "0.5rem", fontWeight: 500,
               color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
             }}>Senha</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-              required autoComplete="current-password"
-              style={inputStyle}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
+            <div style={{ position: "relative" }}>
+              <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                required autoComplete="current-password"
+                style={{ ...inputStyle, paddingRight: "3rem" }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer", padding: 4,
+                  color: showPassword ? "#c9a962" : "#6c6c7e", transition: "color 0.2s",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" disabled={loading} style={{
