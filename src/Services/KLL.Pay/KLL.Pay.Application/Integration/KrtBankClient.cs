@@ -179,8 +179,8 @@ public record KrtBankBoletoStatus(string ChargeId, string ExternalId, decimal Am
 
 // ===== CARD DTOs =====
 public record KrtBankCardChargeRequest(
-    Guid CardId,
     decimal Amount,
+    Guid? CardId = null,
     string? Description = null,
     string? ExternalId = null,
     int? Installments = 1,
