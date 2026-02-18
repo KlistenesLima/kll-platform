@@ -11,6 +11,9 @@ public class TransactionsController : ControllerBase
     private readonly TransactionService _svc;
     public TransactionsController(TransactionService svc) => _svc = svc;
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct) => Ok(await _svc.GetAllAsync(ct));
+
     [HttpPost("charge")]
     public async Task<IActionResult> CreateCharge([FromBody] CreateChargeRequest req, CancellationToken ct)
     {
