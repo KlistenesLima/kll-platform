@@ -228,7 +228,21 @@ export default function Checkout() {
     setLoading(true);
     try {
       const order = await createOrder();
-      try { await orderApi.confirmPayment(order.id, `SIM_${Date.now()}`); } catch {}
+      if (krtAvailable) {
+        const charge = await paymentApi.createCardCharge({
+          orderId: order.id,
+          amount: grandTotal,
+          description: `Pedido AUREA #${order.id.slice(0, 8).toUpperCase()}`,
+          installments,
+        });
+        if (charge.status === "Declined") {
+          toast.error(charge.reason || "Cartao recusado pelo banco");
+          return;
+        }
+        try { await orderApi.confirmPayment(order.id, charge.chargeId); } catch {}
+      } else {
+        try { await orderApi.confirmPayment(order.id, `SIM_${Date.now()}`); } catch {}
+      }
       await clearCart();
       nav(`/order/${order.id}`, { state: { confirmed: true, total: grandTotal, shipping: shippingOpts[selectedShipping] } });
     } catch { toast.error("Erro ao finalizar pedido"); }

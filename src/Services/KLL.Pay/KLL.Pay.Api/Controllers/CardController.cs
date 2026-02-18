@@ -29,8 +29,8 @@ public class CardController : ControllerBase
         var webhookUrl = $"{Request.Scheme}://{Request.Host}/api/v1/webhooks/krt-bank/payment-confirmed";
 
         var krtRequest = new KrtBankCardChargeRequest(
-            CardId: request.CardId,
             Amount: request.Amount,
+            CardId: request.CardId,
             Description: request.Description ?? $"Pedido AUREA Maison",
             ExternalId: request.OrderId ?? "",
             Installments: request.Installments,
@@ -116,8 +116,8 @@ public class CardController : ControllerBase
 }
 
 public record CreateCardChargeRequest(
-    Guid CardId,
     decimal Amount,
+    Guid? CardId = null,
     string? OrderId = null,
     string? Description = null,
     int? Installments = 1

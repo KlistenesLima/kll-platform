@@ -96,7 +96,7 @@ export const paymentApi = {
   getBoletoChargeStatus: (chargeId: string) =>
     api.get(`/api/v1/pay/boleto/${chargeId}/status`).then((r) => r.data),
   // Card
-  createCardCharge: (data: { cardId: string; amount: number; orderId?: string; description?: string; installments?: number }) =>
+  createCardCharge: (data: { amount: number; orderId?: string; description?: string; installments?: number; cardId?: string }) =>
     api.post("/api/v1/pay/card/charge", data).then((r) => r.data),
   getCardChargeStatus: (chargeId: string) =>
     api.get(`/api/v1/pay/card/${chargeId}/status`).then((r) => r.data),
