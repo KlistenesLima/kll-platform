@@ -46,6 +46,7 @@ export const orderApi = {
   getById: (id: string) => api.get(`/api/v1/orders/${id}`).then((r) => r.data),
   getMine: () => api.get("/api/v1/orders/mine").then((r) => r.data),
   getOrderTracking: (orderId: string) => api.get(`/api/v1/shipments/order/${orderId}`).then((r) => r.data),
+  confirmPayment: (id: string, chargeId: string) => api.post(`/api/v1/orders/${id}/confirm-payment`, { chargeId }).then((r) => r.data),
 };
 
 export const shippingApi = {
