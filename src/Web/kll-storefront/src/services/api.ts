@@ -45,6 +45,7 @@ export const orderApi = {
   create: (data: any) => api.post("/api/v1/orders", data).then((r) => r.data),
   getById: (id: string) => api.get(`/api/v1/orders/${id}`).then((r) => r.data),
   getMine: () => api.get("/api/v1/orders/mine").then((r) => r.data),
+  getOrderTracking: (orderId: string) => api.get(`/api/v1/shipments/order/${orderId}`).then((r) => r.data),
 };
 
 export const shippingApi = {

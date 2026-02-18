@@ -44,6 +44,10 @@ export const storeApi = {
     api.get<Order[]>(`/api/v1/orders/customer/${customerId}`).then(r => r.data),
   createOrder: (data: any) =>
     api.post<{ id: string }>('/api/v1/orders', data).then(r => r.data),
+  updateOrderStatus: (id: string, status: string) =>
+    api.put(`/api/v1/orders/${id}/status`, { status }),
+  cancelOrder: (id: string, reason?: string) =>
+    api.post(`/api/v1/orders/${id}/cancel`, { reason }),
 };
 export const categoryApi = {
   getAll: (activeOnly = false) =>
@@ -76,6 +80,8 @@ export const logisticsApi = {
     api.get<Shipment>(`/api/v1/shipments/order/${orderId}`).then(r => r.data),
   trackShipment: (code: string) =>
     api.get<Shipment>(`/api/v1/shipments/track/${code}`).then(r => r.data),
+  updateShipmentStatus: (id: string, data: { status: number; description: string; location?: string }) =>
+    api.put(`/api/v1/shipments/${id}/status`, data),
 };
 export const healthApi = {
   getAll: () => api.get<Record<string, string>>('/health/all').then(r => r.data),

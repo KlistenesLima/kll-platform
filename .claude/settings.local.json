@@ -112,7 +112,17 @@
       "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Users\\\\User\\\\Desktop\\\\Sistemas 2026\\\\kll-platform\\\\src\\\\Web'' | Select-Object Name\")",
       "Bash(powershell -Command:*)",
       "Bash(cd:*)",
-      "Bash(powershell -ExecutionPolicy Bypass -File:*)"
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(DOCKER_BUILDKIT=0 docker compose build:*)",
+      "Bash(docker builder prune:*)",
+      "Bash(docker rmi:*)",
+      "Bash(COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 docker build:*)",
+      "Bash(docker build:*)",
+      "Bash(findstr:*)",
+      "Bash(tee:*)",
+      "Bash(awk:*)",
+      "Bash(git -C \"C:/Users/User/Desktop/Sistemas 2026/kll-platform\" status)",
+      "Bash(git -C \"C:/Users/User/Desktop/Sistemas 2026/kll-platform\" log --oneline -10)"
     ]
   }
 }
