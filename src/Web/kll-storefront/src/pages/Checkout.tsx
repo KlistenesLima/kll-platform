@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
-import { orderApi, addressApi, shippingApi } from "../services/api";
+import { orderApi, addressApi, shippingApi, pixApi } from "../services/api";
 import ProductImage from "../components/ProductImage";
 import type { CustomerAddress } from "../types";
 import toast from "react-hot-toast";
+import { QRCodeSVG } from "qrcode.react";
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "0.75rem 1rem", background: "#252542",
@@ -40,12 +41,30 @@ export default function Checkout() {
 
   // Payment
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "pix">("card");
+  const [pixAvailable, setPixAvailable] = useState(false);
+  const [pixLoading, setPixLoading] = useState(false);
+  const [pixCharge, setPixCharge] = useState<{ chargeId: string; qrCode: string; qrCodeBase64: string; expiresAt: string } | null>(null);
+  const [pixPolling, setPixPolling] = useState(false);
+  const [pixExpired, setPixExpired] = useState(false);
+  const [pixCountdown, setPixCountdown] = useState("");
+  const pollingRef = useRef<ReturnType<typeof setInterval>>();
+  const countdownRef = useRef<ReturnType<typeof setInterval>>();
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const shippingPrice = selectedShipping >= 0 ? shippingOpts[selectedShipping]?.price ?? 0 : 0;
   const grandTotal = total + shippingPrice;
 
-  useEffect(() => { fetchCart(); }, []);
+  useEffect(() => {
+    fetchCart();
+    pixApi.healthCheck().then((data: { available: boolean }) => {
+      setPixAvailable(data.available);
+    }).catch(() => setPixAvailable(false));
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     addressApi.getAll().then((data: CustomerAddress[]) => {
@@ -92,6 +111,76 @@ export default function Checkout() {
 
   const simulatePayment = () => {
     setCard({ number: "4111 1111 1111 1111", name: "CLIENTE DEMONSTRACAO", expiry: "12/28", cvv: "123" });
+  };
+
+  const startPixCountdown = useCallback((expiresAt: string) => {
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      const now = Date.now();
+      const exp = new Date(expiresAt).getTime();
+      const diff = exp - now;
+      if (diff <= 0) {
+        setPixExpired(true);
+        setPixPolling(false);
+        if (pollingRef.current) clearInterval(pollingRef.current);
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        setPixCountdown("00:00");
+        return;
+      }
+      const min = Math.floor(diff / 60000);
+      const sec = Math.floor((diff % 60000) / 1000);
+      setPixCountdown(`${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`);
+    }, 1000);
+  }, []);
+
+  const handlePixSubmit = async () => {
+    if (selectedShipping < 0) { toast.error("Selecione um metodo de envio"); return; }
+    setPixLoading(true);
+    setPixExpired(false);
+    try {
+      const orderData = {
+        customerId: user?.sub, customerEmail: user?.email,
+        ...form, zipCode: form.zipCode.replace(/\D/g, ""),
+        items: items.map((i) => ({ productId: i.productId, quantity: i.quantity }))
+      };
+      const order = await orderApi.create(orderData);
+      const charge = await pixApi.createCharge({
+        orderId: order.id,
+        amount: grandTotal,
+        description: `Pedido AUREA #${order.id.slice(0, 8).toUpperCase()}`,
+      });
+      setPixCharge({ chargeId: charge.chargeId, qrCode: charge.qrCode, qrCodeBase64: charge.qrCodeBase64, expiresAt: charge.expiresAt });
+      setPixPolling(true);
+      startPixCountdown(charge.expiresAt);
+      // Start polling
+      if (pollingRef.current) clearInterval(pollingRef.current);
+      pollingRef.current = setInterval(async () => {
+        try {
+          const status = await pixApi.getChargeStatus(charge.chargeId);
+          if (status.status === "Confirmed") {
+            if (pollingRef.current) clearInterval(pollingRef.current);
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            setPixPolling(false);
+            try { await orderApi.confirmPayment(order.id, charge.chargeId); } catch {}
+            await clearCart();
+            nav(`/order/${order.id}`, { state: { confirmed: true, total: grandTotal, shipping: shippingOpts[selectedShipping] } });
+          } else if (status.status === "Expired") {
+            if (pollingRef.current) clearInterval(pollingRef.current);
+            if (countdownRef.current) clearInterval(countdownRef.current);
+            setPixExpired(true);
+            setPixPolling(false);
+          }
+        } catch {}
+      }, 5000);
+    } catch { toast.error("Erro ao gerar cobranca PIX"); }
+    finally { setPixLoading(false); }
+  };
+
+  const handleCopyPix = () => {
+    if (pixCharge?.qrCode) {
+      navigator.clipboard.writeText(pixCharge.qrCode);
+      toast.success("Codigo PIX copiado!");
+    }
   };
 
   const handleSubmit = async () => {
@@ -271,47 +360,170 @@ export default function Checkout() {
                   <span style={{ fontSize: "0.8rem", color: "#c9a962" }}>Ambiente de demonstracao — pagamento simulado</span>
                 </div>
 
-                <div style={{ marginBottom: "1rem" }}>
-                  <label style={labelStyle}>Numero do Cartao</label>
-                  <input value={card.number} onChange={(e) => setCard({ ...card, number: formatCard(e.target.value) })} style={inputStyle} placeholder="0000 0000 0000 0000" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
-                </div>
-                <div style={{ marginBottom: "1rem" }}>
-                  <label style={labelStyle}>Nome no Cartao</label>
-                  <input value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.toUpperCase() })} style={inputStyle} placeholder="NOME COMO NO CARTAO" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
-                  <div><label style={labelStyle}>Validade</label>
-                    <input value={card.expiry} onChange={(e) => setCard({ ...card, expiry: formatExpiry(e.target.value) })} style={inputStyle} placeholder="MM/AA" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
-                  </div>
-                  <div><label style={labelStyle}>CVV</label>
-                    <input value={card.cvv} onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, "").slice(0, 3) })} style={inputStyle} placeholder="123" type="password" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
-                  </div>
-                </div>
-
-                <button onClick={simulatePayment} style={{
-                  width: "100%", padding: "0.75rem", border: "1px dashed rgba(201,169,98,0.3)", borderRadius: 8,
-                  background: "transparent", color: "#c9a962", cursor: "pointer", fontFamily: "'Poppins', sans-serif",
-                  fontSize: "0.85rem", marginBottom: "1.5rem"
-                }}>Preencher automaticamente (Demo)</button>
-
-                <div style={{ display: "flex", gap: "1rem" }}>
-                  <button onClick={() => setStep(2)} style={{ padding: "1rem 1.5rem", border: "2px solid rgba(201,169,98,0.2)", borderRadius: 12, background: "transparent", color: "#b8b8c7", cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}>Voltar</button>
-                  <button onClick={handleSubmit} disabled={loading || card.number.replace(/\D/g, "").length < 16}
+                {/* Payment Method Tabs */}
+                <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
+                  <button onClick={() => { setPaymentMethod("card"); setPixCharge(null); setPixPolling(false); }}
                     style={{
-                      flex: 1, padding: "1rem", border: "none", borderRadius: 12, cursor: loading ? "wait" : "pointer",
-                      background: loading ? "#555" : "linear-gradient(135deg,#c9a962,#a68b4b)", color: "#0f0f1a",
-                      fontSize: "1.05rem", fontWeight: 700, fontFamily: "'Poppins', sans-serif", textTransform: "uppercase",
-                      letterSpacing: 1.5, boxShadow: loading ? "none" : "0 4px 15px rgba(201,169,98,0.3)",
-                      opacity: loading || card.number.replace(/\D/g, "").length < 16 ? 0.6 : 1
+                      flex: 1, padding: "0.85rem", borderRadius: 10, cursor: "pointer",
+                      background: paymentMethod === "card" ? "rgba(201,169,98,0.15)" : "#252542",
+                      color: paymentMethod === "card" ? "#c9a962" : "#6c6c7e",
+                      fontWeight: 600, fontSize: "0.85rem", fontFamily: "'Poppins', sans-serif",
+                      border: paymentMethod === "card" ? "2px solid #c9a962" : "2px solid transparent",
+                      transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8
                     }}>
-                    {loading ? (
-                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                        <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 1s linear infinite" }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-                        Processando...
-                      </span>
-                    ) : `Confirmar Pedido — ${fmt(grandTotal)}`}
+                    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    Cartao (Simulado)
                   </button>
+                  {pixAvailable && (
+                    <button onClick={() => setPaymentMethod("pix")}
+                      style={{
+                        flex: 1, padding: "0.85rem", borderRadius: 10, cursor: "pointer",
+                        background: paymentMethod === "pix" ? "rgba(0,191,165,0.12)" : "#252542",
+                        color: paymentMethod === "pix" ? "#00bfa5" : "#6c6c7e",
+                        fontWeight: 600, fontSize: "0.85rem", fontFamily: "'Poppins', sans-serif",
+                        border: paymentMethod === "pix" ? "2px solid #00bfa5" : "2px solid transparent",
+                        transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8
+                      }}>
+                      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M13.17 6.83l-4.34 4.34a2 2 0 000 2.83l4.34 4.34"/><path d="M10.83 17.17l4.34-4.34a2 2 0 000-2.83L10.83 5.66"/>
+                      </svg>
+                      PIX
+                    </button>
+                  )}
                 </div>
+
+                {/* CARD PAYMENT */}
+                {paymentMethod === "card" && (
+                  <>
+                    <div style={{ marginBottom: "1rem" }}>
+                      <label style={labelStyle}>Numero do Cartao</label>
+                      <input value={card.number} onChange={(e) => setCard({ ...card, number: formatCard(e.target.value) })} style={inputStyle} placeholder="0000 0000 0000 0000" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
+                    </div>
+                    <div style={{ marginBottom: "1rem" }}>
+                      <label style={labelStyle}>Nome no Cartao</label>
+                      <input value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value.toUpperCase() })} style={inputStyle} placeholder="NOME COMO NO CARTAO" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+                      <div><label style={labelStyle}>Validade</label>
+                        <input value={card.expiry} onChange={(e) => setCard({ ...card, expiry: formatExpiry(e.target.value) })} style={inputStyle} placeholder="MM/AA" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
+                      </div>
+                      <div><label style={labelStyle}>CVV</label>
+                        <input value={card.cvv} onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, "").slice(0, 3) })} style={inputStyle} placeholder="123" type="password" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
+                      </div>
+                    </div>
+
+                    <button onClick={simulatePayment} style={{
+                      width: "100%", padding: "0.75rem", border: "1px dashed rgba(201,169,98,0.3)", borderRadius: 8,
+                      background: "transparent", color: "#c9a962", cursor: "pointer", fontFamily: "'Poppins', sans-serif",
+                      fontSize: "0.85rem", marginBottom: "1.5rem"
+                    }}>Preencher automaticamente (Demo)</button>
+
+                    <div style={{ display: "flex", gap: "1rem" }}>
+                      <button onClick={() => setStep(2)} style={{ padding: "1rem 1.5rem", border: "2px solid rgba(201,169,98,0.2)", borderRadius: 12, background: "transparent", color: "#b8b8c7", cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}>Voltar</button>
+                      <button onClick={handleSubmit} disabled={loading || card.number.replace(/\D/g, "").length < 16}
+                        style={{
+                          flex: 1, padding: "1rem", border: "none", borderRadius: 12, cursor: loading ? "wait" : "pointer",
+                          background: loading ? "#555" : "linear-gradient(135deg,#c9a962,#a68b4b)", color: "#0f0f1a",
+                          fontSize: "1.05rem", fontWeight: 700, fontFamily: "'Poppins', sans-serif", textTransform: "uppercase",
+                          letterSpacing: 1.5, boxShadow: loading ? "none" : "0 4px 15px rgba(201,169,98,0.3)",
+                          opacity: loading || card.number.replace(/\D/g, "").length < 16 ? 0.6 : 1
+                        }}>
+                        {loading ? (
+                          <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: "spin 1s linear infinite" }}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                            Processando...
+                          </span>
+                        ) : `Confirmar Pedido — ${fmt(grandTotal)}`}
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* PIX PAYMENT */}
+                {paymentMethod === "pix" && (
+                  <>
+                    {!pixCharge && !pixLoading && (
+                      <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
+                        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(0,191,165,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem" }}>
+                          <svg width={32} height={32} viewBox="0 0 24 24" fill="none" stroke="#00bfa5" strokeWidth="2">
+                            <path d="M13.17 6.83l-4.34 4.34a2 2 0 000 2.83l4.34 4.34"/><path d="M10.83 17.17l4.34-4.34a2 2 0 000-2.83L10.83 5.66"/>
+                          </svg>
+                        </div>
+                        <p style={{ color: "#e0e0e0", fontSize: "1rem", fontWeight: 600, marginBottom: "0.5rem" }}>Pague com PIX</p>
+                        <p style={{ color: "#6c6c7e", fontSize: "0.85rem", marginBottom: "2rem" }}>
+                          Aprovacao instantanea via KRT Bank
+                          {shippingPrice === 0 && <span style={{ color: "#00bfa5", fontWeight: 600 }}> + Frete Gratis!</span>}
+                        </p>
+                        <div style={{ display: "flex", gap: "1rem" }}>
+                          <button onClick={() => setStep(2)} style={{ padding: "1rem 1.5rem", border: "2px solid rgba(201,169,98,0.2)", borderRadius: 12, background: "transparent", color: "#b8b8c7", cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}>Voltar</button>
+                          <button onClick={handlePixSubmit} style={{
+                            flex: 1, padding: "1rem", border: "none", borderRadius: 12, cursor: "pointer",
+                            background: "linear-gradient(135deg, #00bfa5, #009688)", color: "#fff",
+                            fontSize: "1.05rem", fontWeight: 700, fontFamily: "'Poppins', sans-serif", textTransform: "uppercase",
+                            letterSpacing: 1.5, boxShadow: "0 4px 15px rgba(0,191,165,0.3)"
+                          }}>Gerar QR Code PIX — {fmt(grandTotal)}</button>
+                        </div>
+                      </div>
+                    )}
+
+                    {pixLoading && (
+                      <div style={{ textAlign: "center", padding: "3rem" }}>
+                        <div style={{ width: 40, height: 40, border: "3px solid rgba(0,191,165,0.2)", borderTopColor: "#00bfa5", borderRadius: "50%", animation: "spin 1s linear infinite", margin: "0 auto 1rem" }} />
+                        <p style={{ color: "#6c6c7e", fontSize: "0.9rem" }}>Gerando cobranca PIX...</p>
+                      </div>
+                    )}
+
+                    {pixCharge && !pixExpired && (
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ background: "#fff", borderRadius: 16, padding: "1.5rem", display: "inline-block", marginBottom: "1.25rem" }}>
+                          <QRCodeSVG value={pixCharge.qrCode} size={220} level="M" />
+                        </div>
+
+                        <div style={{ marginBottom: "1.25rem" }}>
+                          <p style={{ color: "#6c6c7e", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1, marginBottom: "0.5rem" }}>Codigo Copia e Cola</p>
+                          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                            <div style={{ flex: 1, padding: "0.6rem 0.75rem", background: "#252542", borderRadius: 8, fontSize: "0.7rem", color: "#9898ab", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", border: "1px solid rgba(201,169,98,0.1)" }}>
+                              {pixCharge.qrCode}
+                            </div>
+                            <button onClick={handleCopyPix} style={{
+                              padding: "0.6rem 1rem", background: "rgba(0,191,165,0.15)", border: "1px solid rgba(0,191,165,0.3)",
+                              borderRadius: 8, color: "#00bfa5", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer",
+                              fontFamily: "'Poppins', sans-serif", whiteSpace: "nowrap"
+                            }}>Copiar</button>
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: "1rem" }}>
+                          {pixPolling && (
+                            <>
+                              <div style={{ width: 16, height: 16, border: "2px solid rgba(0,191,165,0.3)", borderTopColor: "#00bfa5", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                              <span style={{ color: "#00bfa5", fontSize: "0.85rem", fontWeight: 600 }}>Aguardando pagamento...</span>
+                            </>
+                          )}
+                          <span style={{ color: "#6c6c7e", fontSize: "0.8rem" }}>Expira em {pixCountdown}</span>
+                        </div>
+
+                        <p style={{ color: "#6c6c7e", fontSize: "0.75rem" }}>
+                          Abra o app do seu banco, escaneie o QR Code ou copie o codigo acima
+                        </p>
+                      </div>
+                    )}
+
+                    {pixExpired && (
+                      <div style={{ textAlign: "center", padding: "2rem" }}>
+                        <svg width={48} height={48} viewBox="0 0 24 24" fill="none" stroke="#f44336" strokeWidth="2" style={{ marginBottom: "1rem" }}>
+                          <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        <p style={{ color: "#f44336", fontSize: "1rem", fontWeight: 600, marginBottom: "0.5rem" }}>PIX expirado</p>
+                        <p style={{ color: "#6c6c7e", fontSize: "0.85rem", marginBottom: "1.5rem" }}>O tempo para pagamento expirou. Gere um novo QR Code.</p>
+                        <button onClick={() => { setPixCharge(null); setPixExpired(false); }} style={{
+                          padding: "0.85rem 2rem", background: "linear-gradient(135deg, #00bfa5, #009688)", color: "#fff",
+                          border: "none", borderRadius: 10, fontWeight: 600, cursor: "pointer", fontFamily: "'Poppins', sans-serif"
+                        }}>Gerar Novo QR Code</button>
+                      </div>
+                    )}
+                  </>
+                )}
               </>
             )}
           </div>
