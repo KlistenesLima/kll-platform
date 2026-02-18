@@ -11,10 +11,12 @@ public class Favorite : BaseEntity
 
     public static Favorite Create(string customerId, Guid productId)
     {
-        return new Favorite
+        var favorite = new Favorite
         {
             CustomerId = customerId,
             ProductId = productId
         };
+        favorite.SetUpdated();
+        return favorite;
     }
 }
