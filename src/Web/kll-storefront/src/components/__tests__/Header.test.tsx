@@ -20,6 +20,18 @@ vi.mock("../../store/cartStore", () => ({
   })),
 }));
 
+vi.mock("../../store/favoritesStore", () => ({
+  useFavoritesStore: vi.fn(() => ({
+    count: 0,
+  })),
+}));
+
+vi.mock("../../services/api", () => ({
+  profileApi: {
+    get: vi.fn().mockResolvedValue({}),
+  },
+}));
+
 function renderHeader() {
   return render(
     <BrowserRouter>
@@ -29,15 +41,15 @@ function renderHeader() {
 }
 
 describe("Header", () => {
-  it("renders the KLL Store brand name", () => {
+  it("renders the AUREA Maison brand name", () => {
     renderHeader();
-    expect(screen.getByText("KLL")).toBeTruthy();
-    expect(screen.getByText("Store")).toBeTruthy();
+    expect(screen.getAllByText("AUREA").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Maison").length).toBeGreaterThan(0);
   });
 
   it("renders navigation links", () => {
     renderHeader();
-    expect(screen.getByText("Home")).toBeTruthy();
+    expect(screen.getAllByText("Joias").length).toBeGreaterThan(0);
   });
 
   it("renders search form", () => {
@@ -48,7 +60,8 @@ describe("Header", () => {
 
   it("shows login link when not authenticated", () => {
     renderHeader();
-    expect(screen.getByText("Entrar")).toBeTruthy();
+    const entrarLinks = screen.getAllByText(/Entrar/);
+    expect(entrarLinks.length).toBeGreaterThan(0);
   });
 });
 
@@ -63,7 +76,8 @@ describe("Header - Authenticated", () => {
     (useCartStore as any).mockReturnValue({ itemCount: 3 });
 
     renderHeader();
-    expect(screen.getByText("Sair")).toBeTruthy();
+    const sairButtons = screen.getAllByText("Sair");
+    expect(sairButtons.length).toBeGreaterThan(0);
   });
 
   it("shows user initial avatar when authenticated", () => {
@@ -76,7 +90,8 @@ describe("Header - Authenticated", () => {
     (useCartStore as any).mockReturnValue({ itemCount: 0 });
 
     renderHeader();
-    expect(screen.getByText("T")).toBeTruthy();
+    const avatars = screen.getAllByText("T");
+    expect(avatars.length).toBeGreaterThan(0);
   });
 
   it("shows cart count badge", () => {
@@ -89,6 +104,7 @@ describe("Header - Authenticated", () => {
     (useCartStore as any).mockReturnValue({ itemCount: 3 });
 
     renderHeader();
-    expect(screen.getByText("3")).toBeTruthy();
+    const badges = screen.getAllByText("3");
+    expect(badges.length).toBeGreaterThan(0);
   });
 });

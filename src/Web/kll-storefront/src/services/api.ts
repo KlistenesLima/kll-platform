@@ -83,18 +83,38 @@ export const favoriteApi = {
   check: (productId: string) => api.get(`/api/v1/favorites/${productId}/check`).then((r) => r.data),
 };
 
-export const pixApi = {
+export const paymentApi = {
   healthCheck: () => api.get("/api/v1/pay/health/krt").then((r) => r.data),
-  createCharge: (data: { orderId: string; amount: number; description?: string; payerCpf?: string }) =>
+  // PIX
+  createPixCharge: (data: { orderId: string; amount: number; description?: string; payerCpf?: string }) =>
     api.post("/api/v1/pay/pix/charge", data).then((r) => r.data),
-  getChargeStatus: (chargeId: string) =>
+  getPixChargeStatus: (chargeId: string) =>
     api.get(`/api/v1/pay/pix/${chargeId}/status`).then((r) => r.data),
+  // Boleto
+  createBoletoCharge: (data: { orderId: string; amount: number; description?: string; payerCpf?: string; payerName?: string; dueDate?: string }) =>
+    api.post("/api/v1/pay/boleto/charge", data).then((r) => r.data),
+  getBoletoChargeStatus: (chargeId: string) =>
+    api.get(`/api/v1/pay/boleto/${chargeId}/status`).then((r) => r.data),
+  // Card
+  createCardCharge: (data: { cardId: string; amount: number; orderId?: string; description?: string; installments?: number }) =>
+    api.post("/api/v1/pay/card/charge", data).then((r) => r.data),
+  getCardChargeStatus: (chargeId: string) =>
+    api.get(`/api/v1/pay/card/${chargeId}/status`).then((r) => r.data),
+};
+
+// Backwards compat alias
+export const pixApi = {
+  healthCheck: () => paymentApi.healthCheck(),
+  createCharge: (data: { orderId: string; amount: number; description?: string; payerCpf?: string }) =>
+    paymentApi.createPixCharge(data),
+  getChargeStatus: (chargeId: string) =>
+    paymentApi.getPixChargeStatus(chargeId),
 };
 
 export const authApi = {
   login: (username: string, password: string) =>
     axios.post(
-      `${import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8081"}/realms/kll-platform/protocol/openid-connect/token`,
+      `${import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8083"}/realms/kll-platform/protocol/openid-connect/token`,
       new URLSearchParams({ grant_type: "password", client_id: "storefront", username, password }),
       { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     ).then((r) => r.data),

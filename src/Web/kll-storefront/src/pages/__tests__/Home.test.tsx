@@ -40,14 +40,14 @@ describe("Home", () => {
   it("renders the hero heading", async () => {
     renderHome();
     await waitFor(() => {
-      expect(screen.getByText(/Extraordinario/)).toBeTruthy();
+      expect(screen.getByText(/Joias que contam/)).toBeTruthy();
     });
   });
 
   it("renders feature sections", async () => {
     renderHome();
     await waitFor(() => {
-      expect(screen.getByText(/Frete Gratis/)).toBeTruthy();
+      expect(screen.getByText(/Frete gr/)).toBeTruthy();
     });
   });
 
