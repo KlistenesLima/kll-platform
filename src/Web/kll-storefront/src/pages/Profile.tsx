@@ -194,6 +194,23 @@ export default function Profile() {
               </span>
               <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#6c6c7e" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
             </Link>
+
+            <Link to="/favorites" style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "0.85rem 1rem", background: "rgba(255,255,255,0.03)", borderRadius: 10,
+              textDecoration: "none", color: "#e0e0e0", fontSize: "0.9rem",
+              border: "1px solid rgba(201,169,98,0.08)", transition: "all 0.2s"
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.3)"; e.currentTarget.style.background = "rgba(201,169,98,0.05)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#c9a962" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                Meus Favoritos
+              </span>
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#6c6c7e" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
+            </Link>
           </div>
         </div>
       </div>

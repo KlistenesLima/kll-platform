@@ -2,14 +2,20 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Product } from "../types";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
+import { useFavoritesStore } from "../store/favoritesStore";
 import { CartIcon } from "./Icons";
 import ProductImage from "./ProductImage";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCartStore();
   const { isAuthenticated } = useAuthStore();
+  const { isFavorite, toggleFavorite } = useFavoritesStore();
   const nav = useNavigate();
+  const [heartAnim, setHeartAnim] = useState(false);
+
+  const liked = isFavorite(product.id);
 
   const handleAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -24,6 +30,15 @@ export default function ProductCard({ product }: { product: Product }) {
     } catch {
       toast.error("Erro ao adicionar");
     }
+  };
+
+  const handleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) { nav("/login"); return; }
+    setHeartAnim(true);
+    setTimeout(() => setHeartAnim(false), 300);
+    await toggleFavorite(product.id);
   };
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -48,6 +63,25 @@ export default function ProductCard({ product }: { product: Product }) {
               Ver Detalhes
             </span>
           </div>
+
+          {/* Favorite Heart */}
+          <button
+            onClick={handleFavorite}
+            className="absolute top-3 right-3 flex items-center justify-center w-9 h-9 rounded-full border-none cursor-pointer z-10 transition-all duration-200"
+            style={{
+              background: liked ? "rgba(201,169,98,0.2)" : "rgba(0,0,0,0.4)",
+              backdropFilter: "blur(4px)",
+              transform: heartAnim ? "scale(1.3)" : "scale(1)",
+            }}
+          >
+            <svg width={18} height={18} viewBox="0 0 24 24"
+              fill={liked ? "#c9a962" : "none"}
+              stroke={liked ? "#c9a962" : "#fff"}
+              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
 
           {/* Quick Add */}
           <button

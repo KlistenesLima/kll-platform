@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/authStore";
 import { useCartStore } from "./store/cartStore";
+import { useFavoritesStore } from "./store/favoritesStore";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -15,6 +16,7 @@ import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
 import Addresses from "./pages/Addresses";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import Favorites from "./pages/Favorites";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -25,13 +27,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 export default function App() {
   const { init, isAuthenticated } = useAuthStore();
   const { fetchCart } = useCartStore();
+  const { loadFavorites } = useFavoritesStore();
 
   useEffect(() => {
     init();
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) fetchCart();
+    if (isAuthenticated) {
+      fetchCart();
+      loadFavorites();
+    }
   }, [isAuthenticated]);
 
   return (
@@ -51,6 +57,7 @@ export default function App() {
             <Route path="/order/:id" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/profile/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
+            <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           </Routes>
         </main>
         <Footer />
