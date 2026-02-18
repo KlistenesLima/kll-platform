@@ -37,6 +37,15 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 app.UseCors();
 app.UseRateLimiter();
+
+// Normalize URL paths to lowercase for case-insensitive routing
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.HasValue)
+        context.Request.Path = context.Request.Path.Value.ToLowerInvariant();
+    await next();
+});
+
 app.MapReverseProxy();
 app.MapHealthChecks("/health");
 

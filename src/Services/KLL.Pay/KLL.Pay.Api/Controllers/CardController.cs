@@ -80,6 +80,19 @@ public class CardController : ControllerBase
         if (result == null)
             return StatusCode(503, new { error = "KRT Bank indisponivel" });
 
+        // Sync local transaction status
+        if (result.Status is "Approved" or "Confirmed")
+        {
+            var tx = await _txRepo.GetByBankChargeIdAsync(chargeId, ct);
+            if (tx != null && tx.Status == TransactionStatus.Pending)
+            {
+                tx.Confirm();
+                await _txRepo.UpdateAsync(tx, ct);
+                await _txRepo.SaveChangesAsync(ct);
+                _logger.LogInformation("Card transaction {TxId} synced to Confirmed from KRT charge {ChargeId}", tx.Id, chargeId);
+            }
+        }
+
         return Ok(new
         {
             chargeId = result.ChargeId,
