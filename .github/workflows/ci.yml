@@ -41,6 +41,12 @@ jobs:
           npm ci
           npm run build
 
+      - name: Build Storefront
+        working-directory: src/Web/kll-storefront
+        run: |
+          npm ci
+          npm run build
+
   docker-build:
     runs-on: ubuntu-latest
     needs: build-and-test
@@ -58,5 +64,5 @@ jobs:
           sleep 10
           docker compose up -d store-api pay-api logistics-api gateway
           sleep 15
-          curl -f http://localhost:5100/health || exit 1
+          curl -f http://localhost:5100/health/store || exit 1
           docker compose down

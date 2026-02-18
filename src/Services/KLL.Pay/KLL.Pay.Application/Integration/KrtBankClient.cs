@@ -28,7 +28,7 @@ public class KrtBankClient
             _logger.LogInformation("Creating PIX charge on KRT Bank: {Amount} for {Description}",
                 request.Amount, request.Description);
 
-            var response = await _http.PostAsJsonAsync($"{_paymentsUrl}/api/v1/pix/charge", request, ct);
+            var response = await _http.PostAsJsonAsync($"{_paymentsUrl}/api/v1/pix/charges", request, ct);
             response.EnsureSuccessStatusCode();
 
             var result = await response.Content.ReadFromJsonAsync<KrtBankChargeResponse>(cancellationToken: ct);
@@ -50,7 +50,7 @@ public class KrtBankClient
         try
         {
             var response = await _http.GetFromJsonAsync<KrtBankChargeStatus>(
-                $"{_paymentsUrl}/api/v1/pix/charge/{chargeId}/status", ct);
+                $"{_paymentsUrl}/api/v1/pix/charges/{chargeId}", ct);
             return response;
         }
         catch (Exception ex)
