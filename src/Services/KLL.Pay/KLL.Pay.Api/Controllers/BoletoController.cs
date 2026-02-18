@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace KLL.Pay.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/pay/pix")]
-public class PixController : ControllerBase
+[Route("api/v1/pay/boleto")]
+public class BoletoController : ControllerBase
 {
     private readonly KrtBankClient _krtClient;
     private readonly ITransactionRepository _txRepo;
-    private readonly ILogger<PixController> _logger;
+    private readonly ILogger<BoletoController> _logger;
 
-    public PixController(KrtBankClient krtClient, ITransactionRepository txRepo, ILogger<PixController> logger)
+    public BoletoController(KrtBankClient krtClient, ITransactionRepository txRepo, ILogger<BoletoController> logger)
     {
         _krtClient = krtClient;
         _txRepo = txRepo;
@@ -21,29 +21,31 @@ public class PixController : ControllerBase
     }
 
     [HttpPost("charge")]
-    public async Task<IActionResult> CreateCharge([FromBody] CreatePixChargeRequest request, CancellationToken ct)
+    public async Task<IActionResult> CreateCharge([FromBody] CreateBoletoChargeRequest request, CancellationToken ct)
     {
         if (request.Amount <= 0)
             return BadRequest(new { error = "Valor deve ser maior que zero" });
 
         var webhookUrl = $"{Request.Scheme}://{Request.Host}/api/v1/webhooks/krt-bank/payment-confirmed";
 
-        var krtRequest = new KrtBankPixChargeRequest(
+        var krtRequest = new KrtBankBoletoChargeRequest(
             Amount: request.Amount,
             Description: request.Description ?? $"Pedido #{request.OrderId?[..8]}",
             ExternalId: request.OrderId ?? "",
             PayerCpf: request.PayerCpf,
+            PayerName: request.PayerName,
             MerchantId: "kll-platform",
-            WebhookUrl: webhookUrl
+            WebhookUrl: webhookUrl,
+            DueDate: request.DueDate
         );
 
-        var result = await _krtClient.CreatePixChargeAsync(krtRequest, ct);
+        var result = await _krtClient.CreateBoletoChargeAsync(krtRequest, ct);
         if (result == null)
             return StatusCode(503, new { error = "KRT Bank indisponivel" });
 
         // Register local transaction
         Guid.TryParse(request.OrderId, out var orderId);
-        var tx = Transaction.CreateCharge(Guid.Empty, request.Amount, TransactionType.Pix,
+        var tx = Transaction.CreateCharge(Guid.Empty, request.Amount, TransactionType.Boleto,
             request.Description, request.PayerCpf, orderId == Guid.Empty ? null : orderId);
         tx.SetBankChargeId(result.ChargeId);
         await _txRepo.AddAsync(tx, ct);
@@ -52,11 +54,11 @@ public class PixController : ControllerBase
         return Ok(new
         {
             chargeId = result.ChargeId,
-            qrCode = result.QrCode,
-            qrCodeBase64 = result.QrCodeBase64,
+            barcode = result.Barcode,
+            digitableLine = result.DigitableLine,
             status = result.Status,
-            expiresAt = result.ExpiresAt,
             amount = request.Amount,
+            dueDate = result.DueDate,
             transactionId = tx.Id
         });
     }
@@ -67,7 +69,7 @@ public class PixController : ControllerBase
         if (!Guid.TryParse(chargeId, out _))
             return BadRequest(new { error = "chargeId invalido" });
 
-        var result = await _krtClient.GetPixChargeStatusAsync(chargeId, ct);
+        var result = await _krtClient.GetBoletoChargeStatusAsync(chargeId, ct);
         if (result == null)
             return StatusCode(503, new { error = "KRT Bank indisponivel" });
 
@@ -76,23 +78,19 @@ public class PixController : ControllerBase
             chargeId = result.ChargeId,
             status = result.Status,
             paidAt = result.PaidAt,
-            amount = result.Amount
+            amount = result.Amount,
+            barcode = result.Barcode,
+            digitableLine = result.DigitableLine,
+            dueDate = result.DueDate
         });
-    }
-
-    [HttpPost("webhook")]
-    public async Task<IActionResult> PixWebhook([FromBody] PixWebhookPayload payload, CancellationToken ct)
-    {
-        _logger.LogInformation("PIX webhook received: {ChargeId} -> {Status}", payload.ChargeId, payload.Status);
-        return Ok();
     }
 }
 
-public record CreatePixChargeRequest(
+public record CreateBoletoChargeRequest(
     decimal Amount,
     string? OrderId = null,
     string? Description = null,
-    string? PayerCpf = null
+    string? PayerCpf = null,
+    string? PayerName = null,
+    DateTime? DueDate = null
 );
-
-public record PixWebhookPayload(string ChargeId, string ExternalId, string Status, DateTime? PaidAt, decimal Amount);

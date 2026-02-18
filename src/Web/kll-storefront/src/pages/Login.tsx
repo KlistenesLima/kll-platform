@@ -61,8 +61,8 @@ export default function Login() {
             </div>
           </div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.75rem", marginBottom: "0.35rem" }}>
-            <span style={{ color: "#fff" }}>KLL </span>
-            <span style={{ color: "#c9a962" }}>Store</span>
+            <span style={{ color: "#fff" }}>AUREA </span>
+            <span style={{ color: "#c9a962" }}>Maison</span>
           </h1>
           <p style={{ color: "#6c6c7e", fontSize: "0.85rem" }}>Acesse sua conta</p>
         </div>

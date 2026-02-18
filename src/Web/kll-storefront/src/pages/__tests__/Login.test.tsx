@@ -34,10 +34,10 @@ function renderLogin() {
 }
 
 describe("Login", () => {
-  it("renders the KLL Store heading", () => {
+  it("renders the AUREA Maison heading", () => {
     renderLogin();
-    expect(screen.getByText("KLL")).toBeTruthy();
-    expect(screen.getByText("Store")).toBeTruthy();
+    expect(screen.getByText("AUREA")).toBeTruthy();
+    expect(screen.getByText("Maison")).toBeTruthy();
   });
 
   it("renders the login form", () => {

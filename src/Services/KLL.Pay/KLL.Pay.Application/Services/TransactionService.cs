@@ -38,6 +38,12 @@ public class TransactionService
         return Map(tx);
     }
 
+    public async Task<IEnumerable<TransactionResponse>> GetAllAsync(CancellationToken ct)
+    {
+        var txs = await _txRepo.GetAllAsync(ct);
+        return txs.Select(Map);
+    }
+
     public async Task<TransactionResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
         var tx = await _txRepo.GetByIdAsync(id, ct);

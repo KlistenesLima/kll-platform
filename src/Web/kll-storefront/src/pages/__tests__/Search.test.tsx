@@ -27,6 +27,14 @@ vi.mock("../../store/cartStore", () => ({
   useCartStore: vi.fn(() => ({ addItem: vi.fn() })),
 }));
 
+vi.mock("../../store/favoritesStore", () => ({
+  useFavoritesStore: vi.fn(() => ({
+    isFavorite: vi.fn(() => false),
+    toggleFavorite: vi.fn(),
+    count: 0,
+  })),
+}));
+
 vi.mock("react-hot-toast", () => ({
   default: { success: vi.fn(), error: vi.fn() },
 }));
@@ -43,7 +51,7 @@ describe("Search", () => {
   it("renders catalog heading when no query", async () => {
     renderSearch();
     await waitFor(() => {
-      expect(screen.getByText("Catalogo")).toBeTruthy();
+      expect(screen.getByText(/Nossas Pe/)).toBeTruthy();
     });
   });
 
@@ -64,21 +72,24 @@ describe("Search", () => {
   it("displays category sidebar", async () => {
     renderSearch();
     await waitFor(() => {
-      expect(screen.getByText("Eletronicos")).toBeTruthy();
+      const elements = screen.getAllByText("Eletronicos");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
   it("shows Todos link in categories", async () => {
     renderSearch();
     await waitFor(() => {
-      expect(screen.getByText("Todos")).toBeTruthy();
+      const elements = screen.getAllByText("Todos");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
   it("displays sort select", async () => {
     renderSearch();
     await waitFor(() => {
-      expect(screen.getByText("Mais Recentes")).toBeTruthy();
+      const elements = screen.getAllByText("Mais Recentes");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 

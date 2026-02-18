@@ -12,22 +12,22 @@ function renderFooter() {
 }
 
 describe("Footer", () => {
-  it("renders the KLL Store brand", () => {
+  it("renders the AUREA Maison brand", () => {
     renderFooter();
-    expect(screen.getByText("KLL")).toBeTruthy();
-    expect(screen.getByText("Store")).toBeTruthy();
+    expect(screen.getByText("AUREA")).toBeTruthy();
+    expect(screen.getByText("Maison")).toBeTruthy();
   });
 
   it("renders footer sections", () => {
     renderFooter();
-    expect(screen.getByText("Navegacao")).toBeTruthy();
-    expect(screen.getByText("Conta")).toBeTruthy();
-    expect(screen.getByText("Contato")).toBeTruthy();
+    expect(screen.getByText("Minha Conta")).toBeTruthy();
+    expect(screen.getByText("Categorias")).toBeTruthy();
+    expect(screen.getByText("Rastrear Pedido")).toBeTruthy();
   });
 
   it("renders copyright text", () => {
     renderFooter();
-    expect(screen.getByText(/KLL Store/)).toBeTruthy();
+    expect(screen.getByText(/AUREA Maison/)).toBeTruthy();
   });
 
   it("contains navigation links", () => {
