@@ -27,7 +27,11 @@ public class ShippingController : ControllerBase
             {
                 name = o.Name,
                 price = o.Price,
-                deliveryDays = $"{o.MinDays}-{o.MaxDays} dias úteis"
+                deliveryDays = o.MinDays == 0 && o.MaxDays == 0
+                    ? "Hoje"
+                    : $"{o.MinDays}-{o.MaxDays} dias uteis",
+                minDays = o.MinDays,
+                maxDays = o.MaxDays
             })
         });
     }
