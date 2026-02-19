@@ -1,13 +1,13 @@
 import axios from 'axios';
-import keycloak from './keycloak';
 import type { Product, Order, Merchant, Transaction, Shipment, Category } from '../types';
 
 const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
 const api = axios.create({ baseURL: GATEWAY, timeout: 10000 });
 
 api.interceptors.request.use((config) => {
-  if (keycloak.token) {
-    config.headers.Authorization = `Bearer ${keycloak.token}`;
+  const token = localStorage.getItem('kll_admin_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
@@ -16,7 +16,8 @@ api.interceptors.response.use(
   (r) => r,
   (err) => {
     if (err.response?.status === 401) {
-      keycloak.logout();
+      localStorage.removeItem('kll_admin_token');
+      window.location.reload();
     }
     console.error('API Error:', err.response?.data || err.message);
     return Promise.reject(err);
