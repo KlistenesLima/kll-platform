@@ -118,8 +118,8 @@ export const authApi = {
       new URLSearchParams({ grant_type: "password", client_id: "storefront", username, password }),
       { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     ).then((r) => r.data),
-  register: (username: string, email: string, password: string, firstName: string, lastName: string) =>
-    api.post("/api/v1/auth/register", { username, email, password, firstName, lastName }).then((r) => r.data),
+  register: (data: { email: string; password: string; firstName: string; lastName: string; cpf?: string }) =>
+    api.post("/api/v1/auth/register", { username: data.email, ...data }).then((r) => r.data),
 };
 
 export default api;
