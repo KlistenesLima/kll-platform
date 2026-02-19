@@ -86,8 +86,14 @@ export const logisticsApi = {
   updateShipmentStatus: (id: string, data: { status: number; description: string; location?: string }) =>
     api.put(`/api/v1/shipments/${id}/status`, data),
 };
+export const dashboardApi = {
+  getStats: () => api.get('/api/v1/dashboard/stats').then(r => r.data),
+};
 export const healthApi = {
   getAll: () => api.get<Record<string, string>>('/health/all').then(r => r.data),
+};
+export const systemApi = {
+  getStatus: () => api.get('/api/v1/system/status').then(r => r.data),
 };
 export const uploadApi = {
   uploadImage: (file: File) => {

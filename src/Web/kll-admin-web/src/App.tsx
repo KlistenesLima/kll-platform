@@ -7,6 +7,7 @@ import Shipments from './pages/Shipments';
 import Transactions from './pages/Transactions';
 import Merchants from './pages/Merchants';
 import Categories from './pages/Categories';
+import System from './pages/System';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="transactions" element={<Transactions />} />
         <Route path="merchants" element={<Merchants />} />
         <Route path="shipments" element={<Shipments />} />
+        <Route path="system" element={<System />} />
       </Route>
     </Routes>
   );
