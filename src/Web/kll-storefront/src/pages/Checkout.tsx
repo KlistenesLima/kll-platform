@@ -59,6 +59,10 @@ export default function Checkout() {
   // Boleto
   const [boletoLoading, setBoletoLoading] = useState(false);
   const [boletoCharge, setBoletoCharge] = useState<{ chargeId: string; barcode: string; digitableLine: string; dueDate: string } | null>(null);
+  const [boletoOrderId, setBoletoOrderId] = useState<string | null>(null);
+  const [boletoPolling, setBoletoPolling] = useState(false);
+  const [boletoConfirmed, setBoletoConfirmed] = useState(false);
+  const boletoPollingRef = useRef<ReturnType<typeof setInterval>>();
 
   // Card installments
   const [installments, setInstallments] = useState(1);
@@ -76,6 +80,7 @@ export default function Checkout() {
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
       if (countdownRef.current) clearInterval(countdownRef.current);
+      if (boletoPollingRef.current) clearInterval(boletoPollingRef.current);
     };
   }, []);
 
@@ -210,6 +215,21 @@ export default function Checkout() {
         description: `Pedido AUREA #${order.id.slice(0, 8).toUpperCase()}`,
       });
       setBoletoCharge({ chargeId: charge.chargeId, barcode: charge.barcode, digitableLine: charge.digitableLine, dueDate: charge.dueDate });
+      setBoletoOrderId(order.id);
+      await clearCart();
+      setBoletoPolling(true);
+      if (boletoPollingRef.current) clearInterval(boletoPollingRef.current);
+      boletoPollingRef.current = setInterval(async () => {
+        try {
+          const status = await paymentApi.getBoletoChargeStatus(charge.chargeId);
+          if (status.status === "Confirmed") {
+            if (boletoPollingRef.current) clearInterval(boletoPollingRef.current);
+            setBoletoPolling(false);
+            setBoletoConfirmed(true);
+            try { await orderApi.confirmPayment(order.id, charge.chargeId); } catch {}
+          }
+        } catch {}
+      }, 5000);
     } catch { toast.error("Erro ao gerar boleto"); }
     finally { setBoletoLoading(false); }
   };
@@ -255,8 +275,12 @@ export default function Checkout() {
     setPixPolling(false);
     setPixExpired(false);
     setBoletoCharge(null);
+    setBoletoPolling(false);
+    setBoletoConfirmed(false);
+    setBoletoOrderId(null);
     if (pollingRef.current) clearInterval(pollingRef.current);
     if (countdownRef.current) clearInterval(countdownRef.current);
+    if (boletoPollingRef.current) clearInterval(boletoPollingRef.current);
   };
 
   if (items.length === 0 && !loading) return (
@@ -600,7 +624,7 @@ export default function Checkout() {
                         <p style={{ color: "#6c6c7e", fontSize: "0.9rem" }}>Gerando boleto...</p>
                       </div>
                     )}
-                    {boletoCharge && (
+                    {boletoCharge && !boletoConfirmed && (
                       <div style={{ textAlign: "center" }}>
                         <div style={{ background: "#252542", borderRadius: 12, padding: "1.5rem", marginBottom: "1.5rem", border: "1px solid rgba(124,77,255,0.2)" }}>
                           <p style={{ color: "#6c6c7e", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1, marginBottom: "0.75rem" }}>Linha Digitavel</p>
@@ -625,9 +649,35 @@ export default function Checkout() {
                             </p>
                           </div>
                         </div>
-                        <div style={{ padding: "0.75rem", background: "rgba(255,152,0,0.08)", borderRadius: 8, color: "#ff9800", fontSize: "0.8rem" }}>
+                        {boletoPolling && (
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: "1rem" }}>
+                            <div style={{ width: 16, height: 16, border: "2px solid rgba(124,77,255,0.3)", borderTopColor: "#7c4dff", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                            <span style={{ color: "#7c4dff", fontSize: "0.85rem", fontWeight: 600 }}>Aguardando pagamento...</span>
+                          </div>
+                        )}
+                        <div style={{ padding: "0.75rem", background: "rgba(255,152,0,0.08)", borderRadius: 8, color: "#ff9800", fontSize: "0.8rem", marginBottom: "1rem" }}>
                           Seu pedido sera confirmado apos a compensacao do boleto
                         </div>
+                        <button onClick={() => nav("/orders")} style={{
+                          padding: "0.85rem 2rem", background: "transparent", border: "2px solid rgba(124,77,255,0.3)",
+                          borderRadius: 10, color: "#7c4dff", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer",
+                          fontFamily: "'Poppins', sans-serif"
+                        }}>Ver Meus Pedidos</button>
+                      </div>
+                    )}
+                    {boletoConfirmed && (
+                      <div style={{ textAlign: "center", padding: "2rem" }}>
+                        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(76,175,80,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem" }}>
+                          <svg width={32} height={32} viewBox="0 0 24 24" fill="none" stroke="#4caf50" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
+                        </div>
+                        <p style={{ color: "#4caf50", fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>Pagamento Confirmado!</p>
+                        <p style={{ color: "#6c6c7e", fontSize: "0.85rem", marginBottom: "2rem" }}>Seu boleto foi compensado com sucesso.</p>
+                        <button onClick={() => nav(`/order/${boletoOrderId}`)} style={{
+                          padding: "1rem 2rem", border: "none", borderRadius: 12, cursor: "pointer",
+                          background: "linear-gradient(135deg, #7c4dff, #651fff)", color: "#fff",
+                          fontSize: "1rem", fontWeight: 700, fontFamily: "'Poppins', sans-serif", textTransform: "uppercase",
+                          letterSpacing: 1.5, boxShadow: "0 4px 15px rgba(124,77,255,0.3)"
+                        }}>Ver Detalhes do Pedido</button>
                       </div>
                     )}
                   </>

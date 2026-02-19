@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { orderApi } from '../services/api';
 import toast from 'react-hot-toast';
 
 export default function Checkout() {
@@ -9,6 +10,7 @@ export default function Checkout() {
   const { isLoggedIn, customerId, customerEmail, customerName } = useAuthStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'boleto'>('pix');
   const [form, setForm] = useState({
     street: '', number: '', complement: '', neighborhood: '', city: '', state: '', zipCode: '',
   });
@@ -18,7 +20,7 @@ export default function Checkout() {
   if (!isLoggedIn) {
     return (
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
-        <h2 className="text-xl font-semibold mb-4">FaÃ§a login para continuar</h2>
+        <h2 className="text-xl font-semibold mb-4">Faça login para continuar</h2>
         <Link to="/login" className="btn-primary">Entrar</Link>
       </div>
     );
@@ -29,18 +31,34 @@ export default function Checkout() {
     return null;
   }
 
+  const discount = paymentMethod === 'pix' ? 0.05 : 0;
+  const finalTotal = total() * (1 - discount);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // In production: orderApi.create({...})
-      await new Promise((r) => setTimeout(r, 1500));
-      const orderId = `ord-${Date.now()}`;
+      const res = await orderApi.create({
+        customerId,
+        customerEmail,
+        street: form.street,
+        number: form.number,
+        complement: form.complement || undefined,
+        neighborhood: form.neighborhood,
+        city: form.city,
+        state: form.state,
+        zipCode: form.zipCode,
+        items: items.map(({ product, quantity }) => ({
+          productId: product.id,
+          quantity,
+        })),
+      });
+      const orderId = res.data.id;
       clearCart();
       toast.success('Pedido criado com sucesso!');
       navigate(`/order-success/${orderId}`);
-    } catch {
-      toast.error('Erro ao criar pedido');
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || err.response?.data || 'Erro ao criar pedido');
     } finally {
       setLoading(false);
     }
@@ -63,11 +81,11 @@ export default function Checkout() {
           </div>
 
           <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4">EndereÃ§o de Entrega</h2>
+            <h2 className="text-lg font-semibold mb-4">Endereço de Entrega</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">CEP</label><input className="input-field" value={form.zipCode} onChange={(e) => update('zipCode', e.target.value)} placeholder="00000-000" required /></div>
               <div className="sm:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Rua</label><input className="input-field" value={form.street} onChange={(e) => update('street', e.target.value)} required /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">NÃºmero</label><input className="input-field" value={form.number} onChange={(e) => update('number', e.target.value)} required /></div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-1">Número</label><input className="input-field" value={form.number} onChange={(e) => update('number', e.target.value)} required /></div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Complemento</label><input className="input-field" value={form.complement} onChange={(e) => update('complement', e.target.value)} /></div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Bairro</label><input className="input-field" value={form.neighborhood} onChange={(e) => update('neighborhood', e.target.value)} required /></div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Cidade</label><input className="input-field" value={form.city} onChange={(e) => update('city', e.target.value)} required /></div>
@@ -81,15 +99,28 @@ export default function Checkout() {
           </div>
 
           <div className="card p-6">
-            <h2 className="text-lg font-semibold mb-4">MÃ©todo de Pagamento</h2>
-            <div className="p-4 border-2 border-primary-500 rounded-lg bg-primary-50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">PIX</div>
-                <div>
-                  <p className="font-medium">PIX via KRT Bank</p>
-                  <p className="text-sm text-gray-500">Pagamento instantÃ¢neo com 5% de desconto</p>
+            <h2 className="text-lg font-semibold mb-4">Método de Pagamento</h2>
+            <div className="space-y-3">
+              <button type="button" onClick={() => setPaymentMethod('pix')}
+                className={`w-full p-4 rounded-lg border-2 text-left transition-colors ${paymentMethod === 'pix' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">PIX</div>
+                  <div>
+                    <p className="font-medium">PIX via KRT Bank</p>
+                    <p className="text-sm text-gray-500">Pagamento instantâneo com 5% de desconto</p>
+                  </div>
                 </div>
-              </div>
+              </button>
+              <button type="button" onClick={() => setPaymentMethod('boleto')}
+                className={`w-full p-4 rounded-lg border-2 text-left transition-colors ${paymentMethod === 'boleto' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center text-white font-bold text-xs">BOL</div>
+                  <div>
+                    <p className="font-medium">Boleto Bancário</p>
+                    <p className="text-sm text-gray-500">Compensação em até 2 minutos</p>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -106,9 +137,11 @@ export default function Checkout() {
           </div>
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm"><span className="text-gray-500">Subtotal</span><span>{formatPrice(total())}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-gray-500">Frete</span><span className="text-green-600">GrÃ¡tis</span></div>
-            <div className="flex justify-between text-sm"><span className="text-gray-500">Desconto PIX</span><span className="text-green-600">-{formatPrice(total() * 0.05)}</span></div>
-            <div className="flex justify-between text-lg font-bold pt-2 border-t"><span>Total</span><span>{formatPrice(total() * 0.95)}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-gray-500">Frete</span><span className="text-green-600">Grátis</span></div>
+            {discount > 0 && (
+              <div className="flex justify-between text-sm"><span className="text-gray-500">Desconto PIX</span><span className="text-green-600">-{formatPrice(total() * discount)}</span></div>
+            )}
+            <div className="flex justify-between text-lg font-bold pt-2 border-t"><span>Total</span><span>{formatPrice(finalTotal)}</span></div>
           </div>
           <button type="submit" disabled={loading} className="btn-primary w-full mt-4">
             {loading ? 'Processando...' : 'Confirmar Pedido'}
