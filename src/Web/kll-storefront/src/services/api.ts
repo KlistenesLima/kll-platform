@@ -112,12 +112,8 @@ export const pixApi = {
 };
 
 export const authApi = {
-  login: (username: string, password: string) =>
-    axios.post(
-      `${import.meta.env.VITE_KEYCLOAK_URL || "http://localhost:8083"}/realms/kll-platform/protocol/openid-connect/token`,
-      new URLSearchParams({ grant_type: "password", client_id: "storefront", username, password }),
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-    ).then((r) => r.data),
+  login: (identifier: string, password: string) =>
+    api.post("/api/v1/auth/login", { identifier, password }).then((r) => r.data),
   register: (data: { email: string; password: string; firstName: string; lastName: string; cpf?: string }) =>
     api.post("/api/v1/auth/register", { username: data.email, ...data }).then((r) => r.data),
 };
