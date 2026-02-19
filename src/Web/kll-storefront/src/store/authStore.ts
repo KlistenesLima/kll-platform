@@ -13,13 +13,15 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  avatarUrl: string | null;
   login: (token: string) => void;
   logout: () => void;
   init: () => void;
+  setAvatarUrl: (url: string | null) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: null, user: null, isAuthenticated: false, isAdmin: false,
+  token: null, user: null, isAuthenticated: false, isAdmin: false, avatarUrl: null,
   login: (token) => {
     localStorage.setItem("kll_token", token);
     const decoded = parseJwt(token);
@@ -29,11 +31,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       email: decoded?.email || "",
       realm_roles: decoded?.realm_roles || [],
     };
-    set({ token, user, isAuthenticated: true, isAdmin: user.realm_roles.includes("admin") });
+    const avatarUrl = localStorage.getItem("kll_avatar_url") || null;
+    set({ token, user, isAuthenticated: true, isAdmin: user.realm_roles.includes("admin"), avatarUrl });
   },
   logout: () => {
     localStorage.removeItem("kll_token");
-    set({ token: null, user: null, isAuthenticated: false, isAdmin: false });
+    localStorage.removeItem("kll_avatar_url");
+    set({ token: null, user: null, isAuthenticated: false, isAdmin: false, avatarUrl: null });
   },
   init: () => {
     const token = localStorage.getItem("kll_token");
@@ -44,8 +48,14 @@ export const useAuthStore = create<AuthState>((set) => ({
           sub: decoded.sub, preferred_username: decoded.preferred_username,
           email: decoded.email, realm_roles: decoded.realm_roles || [],
         };
-        set({ token, user, isAuthenticated: true, isAdmin: user.realm_roles.includes("admin") });
+        const avatarUrl = localStorage.getItem("kll_avatar_url") || null;
+        set({ token, user, isAuthenticated: true, isAdmin: user.realm_roles.includes("admin"), avatarUrl });
       } else { localStorage.removeItem("kll_token"); }
     }
+  },
+  setAvatarUrl: (url) => {
+    if (url) localStorage.setItem("kll_avatar_url", url);
+    else localStorage.removeItem("kll_avatar_url");
+    set({ avatarUrl: url });
   },
 }));
