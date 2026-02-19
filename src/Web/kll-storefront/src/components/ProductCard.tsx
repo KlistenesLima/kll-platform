@@ -17,18 +17,22 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const liked = isFavorite(product.id);
 
+  const outOfStock = product.stockQuantity === 0;
+
   const handleAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) { nav("/login"); return; }
+    if (outOfStock) return;
     try {
       await addItem(product.id);
       toast.success(`${product.name} adicionado ao carrinho`, {
         style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.2)", fontSize: "0.85rem" },
         iconTheme: { primary: "#c9a962", secondary: "#0f0f1a" },
       });
-    } catch {
-      toast.error("Erro ao adicionar");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.response?.data?.error || "Erro ao adicionar ao carrinho";
+      toast.error(msg);
     }
   };
 
@@ -84,20 +88,27 @@ export default function ProductCard({ product }: { product: Product }) {
           </button>
 
           {/* Quick Add */}
-          <button
-            onClick={handleAdd}
-            className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 bg-gold text-dark rounded-lg border-none cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.4)] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-10 hover:bg-gold-light"
-          >
-            <CartIcon size={16} />
-          </button>
+          {!outOfStock && (
+            <button
+              onClick={handleAdd}
+              className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 bg-gold text-dark rounded-lg border-none cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.4)] opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-10 hover:bg-gold-light"
+            >
+              <CartIcon size={16} />
+            </button>
+          )}
 
           {/* Badges */}
-          {isNew && (
+          {outOfStock && (
+            <span className="absolute top-3 left-3 px-3 py-1 bg-[#ef5350] text-white text-[0.65rem] font-bold uppercase tracking-[0.5px] rounded-md shadow-lg">
+              Esgotado
+            </span>
+          )}
+          {!outOfStock && isNew && (
             <span className="absolute top-3 left-3 px-3 py-1 bg-gold text-dark text-[0.65rem] font-bold uppercase tracking-wider rounded-md">
               Novo
             </span>
           )}
-          {!isNew && product.stockQuantity <= 5 && product.stockQuantity > 0 && (
+          {!outOfStock && !isNew && product.stockQuantity <= 5 && product.stockQuantity > 0 && (
             <span className="absolute top-3 left-3 px-3 py-1 bg-orange-500/90 text-white text-[0.65rem] font-bold uppercase tracking-[0.5px] rounded-md">
               Últimas unidades
             </span>

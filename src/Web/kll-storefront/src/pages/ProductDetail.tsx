@@ -58,8 +58,9 @@ export default function ProductDetail() {
         style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.3)" },
         iconTheme: { primary: "#c9a962", secondary: "#0f0f1a" },
       });
-    } catch {
-      toast.error("Erro ao adicionar");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.response?.data?.error || "Erro ao adicionar ao carrinho";
+      toast.error(msg);
     } finally {
       setAdding(false);
     }
@@ -118,12 +119,17 @@ export default function ProductDetail() {
               <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-gold/[0.06] to-transparent pointer-events-none" />
 
               {/* Badges */}
-              {isNew && (
+              {outOfStock && (
+                <span className="absolute top-4 left-4 px-3 py-1.5 bg-[#ef5350] text-white text-[0.65rem] font-bold uppercase tracking-[0.5px] rounded-md shadow-lg">
+                  Esgotado
+                </span>
+              )}
+              {!outOfStock && isNew && (
                 <span className="absolute top-4 left-4 px-3 py-1.5 bg-gold text-dark text-[0.65rem] font-bold uppercase tracking-wider rounded-md shadow-lg">
                   Novo
                 </span>
               )}
-              {!isNew && lowStock && (
+              {!outOfStock && !isNew && lowStock && (
                 <span className="absolute top-4 left-4 px-3 py-1.5 bg-orange-500/90 text-white text-[0.65rem] font-bold uppercase tracking-[0.5px] rounded-md shadow-lg">
                   Últimas unidades
                 </span>
