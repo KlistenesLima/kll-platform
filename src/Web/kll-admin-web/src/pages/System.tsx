@@ -9,6 +9,7 @@ interface ServiceInfo {
   name: string;
   host: string;
   port: number;
+  externalPort: number;
   status: string;
   responseTimeMs: number;
   description: string;
@@ -93,10 +94,11 @@ export default function System() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{
                 width: 8, height: 8, borderRadius: '50%', bgcolor: GREEN,
-                animation: 'pulse 2s ease-in-out infinite',
-                '@keyframes pulse': {
-                  '0%, 100%': { opacity: 1, transform: 'scale(1)' },
-                  '50%': { opacity: 0.5, transform: 'scale(1.3)' },
+                animation: 'livePulse 2s ease-in-out infinite',
+                '@keyframes livePulse': {
+                  '0%': { boxShadow: `0 0 0 0 rgba(16,185,129,0.7)` },
+                  '70%': { boxShadow: `0 0 0 8px rgba(16,185,129,0)` },
+                  '100%': { boxShadow: `0 0 0 0 rgba(16,185,129,0)` },
                 },
               }} />
               <Typography sx={{ fontSize: 13, color: GREEN, fontWeight: 600, fontFamily: 'monospace' }}>
@@ -123,7 +125,7 @@ export default function System() {
       <SectionLabel label="CORE" />
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2, mb: 3 }}>
         {loading && !data
-          ? Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
+          ? Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)
           : coreServices.map(svc => <ServiceCard key={svc.name} service={svc} />)
         }
       </Box>
@@ -151,7 +153,7 @@ export default function System() {
             {data?.krtIntegration && (
               <Card sx={{
                 bgcolor: BG_CARD, border: '1px solid rgba(255,255,255,0.06)',
-                borderLeft: `3px solid ${data.krtIntegration.available ? GREEN : RED}`,
+                borderLeft: `4px solid ${data.krtIntegration.available ? GREEN : RED}`,
                 p: 2.5, display: 'flex', flexDirection: 'column', justifyContent: 'center',
                 transition: 'all 0.3s ease',
               }}>
@@ -220,39 +222,43 @@ function SectionLabel({ label }: { label: string }) {
 function ServiceCard({ service }: { service: ServiceInfo }) {
   const isOnline = service.status === 'Online';
   const statusColor = isOnline ? GREEN : RED;
+  const displayPort = service.externalPort || service.port;
 
   return (
-    <Tooltip title={service.description} arrow placement="top">
-      <Card sx={{
-        bgcolor: BG_CARD, border: '1px solid rgba(255,255,255,0.06)',
-        borderLeft: `3px solid ${statusColor}`,
-        p: 2, transition: 'all 0.3s ease',
-        '&:hover': { borderColor: alpha(statusColor, 0.3), transform: 'translateY(-1px)' },
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-          <Box sx={{
-            width: 8, height: 8, borderRadius: '50%', bgcolor: statusColor,
-            boxShadow: `0 0 6px ${statusColor}`,
-          }} />
-          <Typography sx={{ fontSize: 12, fontWeight: 600, color: statusColor }}>
-            {service.status}
-          </Typography>
-        </Box>
-        <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#fff', mb: 0.5 }}>
-          {service.name}
+    <Card sx={{
+      bgcolor: BG_CARD, border: '1px solid rgba(255,255,255,0.06)',
+      borderLeft: `4px solid ${statusColor}`,
+      p: 2, transition: 'all 0.3s ease',
+      '&:hover': { borderColor: alpha(statusColor, 0.3), transform: 'translateY(-1px)' },
+    }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        <Box sx={{
+          width: 8, height: 8, borderRadius: '50%', bgcolor: statusColor,
+          boxShadow: `0 0 6px ${statusColor}`,
+        }} />
+        <Typography sx={{ fontSize: 12, fontWeight: 600, color: statusColor }}>
+          {service.status}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography sx={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
-            :{service.port}
+      </Box>
+      <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#fff', mb: 0.3 }}>
+        {service.name}
+      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+        <Typography sx={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+          :{displayPort}
+        </Typography>
+        {isOnline && (
+          <Typography sx={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>
+            {service.responseTimeMs}ms
           </Typography>
-          {isOnline && (
-            <Typography sx={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>
-              {service.responseTimeMs}ms
-            </Typography>
-          )}
-        </Box>
-      </Card>
-    </Tooltip>
+        )}
+      </Box>
+      {service.description && (
+        <Typography sx={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', lineHeight: 1.3, mt: 0.3 }}>
+          {service.description}
+        </Typography>
+      )}
+    </Card>
   );
 }
 
