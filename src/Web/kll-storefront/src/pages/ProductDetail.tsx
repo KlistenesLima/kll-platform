@@ -266,22 +266,22 @@ export default function ProductDetail() {
             </div>
 
             {/* Info Cards */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <div className="bg-surface/50 rounded-lg p-3 flex flex-col items-center text-center gap-2">
-                <TruckIcon size={20} color="#c9a962" />
-                <span className="text-text-secondary text-[0.7rem] font-poppins leading-tight">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+              <div className="bg-surface/50 rounded-lg p-2 sm:p-3 flex flex-col items-center text-center gap-1 sm:gap-2">
+                <TruckIcon size={18} color="#c9a962" />
+                <span className="text-text-secondary text-[0.6rem] sm:text-[0.7rem] font-poppins leading-tight">
                   Frete Grátis acima de R$ 299
                 </span>
               </div>
-              <div className="bg-surface/50 rounded-lg p-3 flex flex-col items-center text-center gap-2">
-                <FiCreditCard size={20} className="text-gold shrink-0" />
-                <span className="text-text-secondary text-[0.7rem] font-poppins leading-tight">
+              <div className="bg-surface/50 rounded-lg p-2 sm:p-3 flex flex-col items-center text-center gap-1 sm:gap-2">
+                <FiCreditCard size={18} className="text-gold shrink-0" />
+                <span className="text-text-secondary text-[0.6rem] sm:text-[0.7rem] font-poppins leading-tight">
                   Até 12x sem juros
                 </span>
               </div>
-              <div className="bg-surface/50 rounded-lg p-3 flex flex-col items-center text-center gap-2">
-                <ShieldIcon size={20} color="#c9a962" />
-                <span className="text-text-secondary text-[0.7rem] font-poppins leading-tight">
+              <div className="bg-surface/50 rounded-lg p-2 sm:p-3 flex flex-col items-center text-center gap-1 sm:gap-2">
+                <ShieldIcon size={18} color="#c9a962" />
+                <span className="text-text-secondary text-[0.6rem] sm:text-[0.7rem] font-poppins leading-tight">
                   Garantia Vitalícia
                 </span>
               </div>
@@ -376,7 +376,7 @@ export default function ProductDetail() {
               </h2>
               <div className="w-16 h-0.5 bg-gold mx-auto" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
               {relatedProducts.map((rp) => (
                 <ProductCard key={rp.id} product={rp} />
               ))}

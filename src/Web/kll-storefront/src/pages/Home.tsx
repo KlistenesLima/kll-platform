@@ -138,7 +138,7 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
@@ -152,7 +152,7 @@ export default function Home() {
             ))}
           </div>
         ) : latestProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             {latestProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
