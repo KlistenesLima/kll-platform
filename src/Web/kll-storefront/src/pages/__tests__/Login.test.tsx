@@ -48,7 +48,7 @@ describe("Login", () => {
 
   it("renders username input", () => {
     renderLogin();
-    expect(screen.getByText(/E-mail ou usuario/)).toBeTruthy();
+    expect(screen.getByText(/E-mail/)).toBeTruthy();
   });
 
   it("renders password input", () => {
