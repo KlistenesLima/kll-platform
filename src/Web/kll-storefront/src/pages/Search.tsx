@@ -662,8 +662,8 @@ export default function Search() {
 
   const gridClass =
     gridCols === 3
-      ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
-      : "grid-cols-1 sm:grid-cols-2";
+      ? "grid-cols-2 xl:grid-cols-3"
+      : "grid-cols-2";
 
   return (
     <div
@@ -819,7 +819,7 @@ export default function Search() {
         {/* ── Product Grid ── */}
         <div className="flex-1 min-w-0">
           {loading ? (
-            <div className={`grid gap-5 ${gridClass}`}>
+            <div className={`grid gap-3 sm:gap-5 ${gridClass}`}>
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
@@ -835,7 +835,7 @@ export default function Search() {
             </div>
           ) : products.length > 0 ? (
             <>
-              <div className={`grid gap-5 ${gridClass}`}>
+              <div className={`grid gap-3 sm:gap-5 ${gridClass}`}>
                 {products.map((p) => (
                   <ProductCard key={p.id} product={p} />
                 ))}
