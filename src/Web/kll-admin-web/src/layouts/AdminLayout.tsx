@@ -12,6 +12,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CategoryIcon from '@mui/icons-material/Category';
 import StoreIcon from '@mui/icons-material/Store';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -29,6 +30,7 @@ const pageLabels: Record<string, string> = {
   shipments: 'Entregas',
   transactions: 'Transações',
   merchants: 'Merchants',
+  system: 'Sistema',
 };
 
 interface NavItem {
@@ -52,6 +54,10 @@ const financeNav: NavItem[] = [
 
 const operationsNav: NavItem[] = [
   { label: 'Entregas', icon: <LocalShippingIcon />, path: '/shipments' },
+];
+
+const infraNav: NavItem[] = [
+  { label: 'Sistema', icon: <MonitorHeartIcon />, path: '/system' },
 ];
 
 export default function AdminLayout() {
@@ -172,6 +178,29 @@ export default function AdminLayout() {
         }
       >
         {operationsNav.map(renderNavItem)}
+      </List>
+
+      {/* Infrastructure Section */}
+      <List
+        sx={{ px: 1.5, pt: 0.5 }}
+        subheader={
+          <ListSubheader
+            sx={{
+              bgcolor: 'transparent',
+              color: 'rgba(255,255,255,0.3)',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1.5,
+              textTransform: 'uppercase',
+              lineHeight: '32px',
+              pl: 2,
+            }}
+          >
+            Infraestrutura
+          </ListSubheader>
+        }
+      >
+        {infraNav.map(renderNavItem)}
       </List>
 
       {/* Footer */}
