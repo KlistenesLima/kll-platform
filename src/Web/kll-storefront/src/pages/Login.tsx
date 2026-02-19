@@ -77,9 +77,9 @@ export default function Login() {
             <label style={{
               display: "block", marginBottom: "0.5rem", fontWeight: 500,
               color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
-            }}>E-mail</label>
+            }}>E-mail ou CPF</label>
             <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-              required autoComplete="username" placeholder="seuemail@exemplo.com"
+              required autoComplete="email" placeholder="seuemail@exemplo.com ou 000.000.000-00"
               style={inputStyle}
               onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
