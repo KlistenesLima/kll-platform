@@ -55,7 +55,7 @@ public class SystemController : ControllerBase
             CheckTcp("Redis", redisHost, redisPort, "Cache distribuído", "Infraestrutura"),
             CheckTcp("RabbitMQ", rabbitmqHost, rabbitmqPort, "Mensageria", "Infraestrutura"),
             CheckTcp("Kafka", kafkaHost, kafkaPort, "Event streaming", "Infraestrutura"),
-            CheckHttp("Keycloak", keycloakHost, keycloakPort, "/health", "Autenticação IAM", "Infraestrutura"),
+            CheckHttp("Keycloak", keycloakHost, keycloakPort, "/realms/master", "Autenticação IAM", "Infraestrutura"),
             CheckHttp("Seq", seqHost, seqPort, "/", "Logging/Observabilidade", "Infraestrutura"),
         };
 
