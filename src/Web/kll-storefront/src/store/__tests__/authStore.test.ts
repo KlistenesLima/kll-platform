@@ -15,6 +15,7 @@ describe("authStore", () => {
       user: null,
       isAuthenticated: false,
       isAdmin: false,
+      avatarUrl: null,
     });
   });
 
