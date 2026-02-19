@@ -11,6 +11,24 @@
 </head>
 <body>
   <div id="root"></div>
+  <script>
+    // Clean up old Keycloak session data (one-time migration)
+    if (!sessionStorage.getItem('kc_cleanup_done')) {
+      Object.keys(localStorage).forEach(function(k) {
+        if (k.startsWith('kc-') || k.startsWith('keycloak')) localStorage.removeItem(k);
+      });
+      Object.keys(sessionStorage).forEach(function(k) {
+        if (k.startsWith('kc-') || k.startsWith('keycloak')) sessionStorage.removeItem(k);
+      });
+      // Unregister any service workers
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(r) { r.unregister(); });
+        });
+      }
+      sessionStorage.setItem('kc_cleanup_done', '1');
+    }
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
