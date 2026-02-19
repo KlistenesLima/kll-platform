@@ -76,8 +76,20 @@ builder.Services.AddHostedService<PaymentConfirmedConsumer>();
 builder.Services.AddHostedService<ShipmentCreatedConsumer>();
 
 // CORS
-builder.Services.AddCors(opt => opt.AddPolicy("AllowAll", p =>
-    p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddCors(opt => opt.AddPolicy("CorsPolicy", p =>
+        p.WithOrigins(
+            "https://store.klisteneslima.dev",
+            "https://admin.klisteneslima.dev",
+            "https://api-kll.klisteneslima.dev")
+         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+}
+else
+{
+    builder.Services.AddCors(opt => opt.AddPolicy("CorsPolicy", p =>
+        p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+}
 
 var app = builder.Build();
 
@@ -91,7 +103,7 @@ using (var scope = app.Services.CreateScope())
         await db.Database.EnsureCreatedAsync();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("CorsPolicy");
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseMiddleware<CorrelationIdMiddleware>();
 

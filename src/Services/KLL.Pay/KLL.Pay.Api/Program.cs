@@ -2,6 +2,7 @@ using KLL.BuildingBlocks.Infrastructure.Extensions;
 using KLL.BuildingBlocks.Infrastructure.Logging;
 using KLL.BuildingBlocks.Infrastructure.Resilience;
 using KLL.Pay.Api.Consumers;
+using KLL.Pay.Api.Handlers;
 using KLL.Pay.Application.Integration;
 using KLL.Pay.Application.Services;
 using KLL.Pay.Domain.Interfaces;
@@ -28,12 +29,14 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<MerchantService>();
 builder.Services.AddScoped<TransactionService>();
 
-// KRT Bank Integration with Polly
+// KRT Bank Integration with Polly + API Key
+builder.Services.AddTransient<KrtApiKeyHandler>();
 builder.Services.AddHttpClient<KrtBankClient>(c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["KrtBank:BaseUrl"] ?? "http://localhost:5002");
     c.Timeout = TimeSpan.FromSeconds(30);
-}).AddResiliencePolicies();
+}).AddHttpMessageHandler<KrtApiKeyHandler>()
+  .AddResiliencePolicies();
 
 // HttpClientFactory for health checks
 builder.Services.AddHttpClient();
@@ -46,15 +49,32 @@ builder.Services.AddKLLHealthChecks(builder.Configuration);
 builder.Services.AddHostedService<OrderCreatedConsumer>();
 builder.Services.AddHostedService<BankPaymentConfirmedConsumer>();
 
-builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:5173", "http://localhost:5100")
-     .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
+        p.WithOrigins(
+            "https://store.klisteneslima.dev",
+            "https://admin.klisteneslima.dev",
+            "https://api-kll.klisteneslima.dev")
+         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+}
+else
+{
+    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
+        p.WithOrigins("http://localhost:5173", "http://localhost:5100")
+         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+}
 
 var app = builder.Build();
 app.UseKllInfrastructure();
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseCors();
+
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors("CorsPolicy");
 app.MapControllers();
 app.MapHealthChecks("/health");
 

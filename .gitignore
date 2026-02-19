@@ -26,6 +26,13 @@ Thumbs.db
 ## Docker
 docker-compose.override.yml
 
+## Environment secrets
+.env
+.env.production
+.env.local
+!.env.example
+appsettings.*.local.json
+
 ## Product images (local cache, source of truth is B2)
 src/Web/kll-storefront/public/products/
 
