@@ -61,6 +61,7 @@ export default function Profile() {
     try {
       const { url } = await profileApi.uploadAvatar(file);
       setProfile((prev) => prev ? { ...prev, avatarUrl: url } : prev);
+      useAuthStore.getState().setAvatarUrl(url);
       toast.success("Foto atualizada!");
     } catch { toast.error("Erro ao enviar foto"); }
     finally { setUploading(false); }

@@ -110,7 +110,7 @@ const megaColumns = [
 ];
 
 export default function Header() {
-  const { isAuthenticated, user, isAdmin, logout } = useAuthStore();
+  const { isAuthenticated, user, isAdmin, logout, avatarUrl, setAvatarUrl } = useAuthStore();
   const { itemCount } = useCartStore();
   const { count: favCount } = useFavoritesStore();
   const [query, setQuery] = useState("");
@@ -119,7 +119,6 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileJoiasOpen, setMobileJoiasOpen] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const megaTimer = useRef<ReturnType<typeof setTimeout>>();
   const nav = useNavigate();
@@ -130,7 +129,7 @@ export default function Header() {
         if (data.avatarUrl) setAvatarUrl(data.avatarUrl);
       }).catch(() => {});
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, setAvatarUrl]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
