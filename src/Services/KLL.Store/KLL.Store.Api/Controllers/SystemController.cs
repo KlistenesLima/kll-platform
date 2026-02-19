@@ -11,7 +11,6 @@ public class SystemController : ControllerBase
     private readonly IConfiguration _config;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<SystemController> _logger;
-    private static readonly DateTime _startTime = DateTime.UtcNow;
 
     public SystemController(IConfiguration config, IHttpClientFactory httpClientFactory, ILogger<SystemController> logger)
     {
@@ -29,6 +28,8 @@ public class SystemController : ControllerBase
         var payHost = isDocker ? "pay-api" : "localhost";
         var logisticsHost = isDocker ? "logistics-api" : "localhost";
         var gatewayHost = isDocker ? "gateway" : "localhost";
+        var storefrontHost = isDocker ? "storefront" : "localhost";
+        var adminHost = isDocker ? "admin-web" : "localhost";
         var postgresHost = isDocker ? "postgres" : "localhost";
         var redisHost = isDocker ? "redis" : "localhost";
         var rabbitmqHost = isDocker ? "rabbitmq" : "localhost";
@@ -37,26 +38,29 @@ public class SystemController : ControllerBase
         var seqHost = isDocker ? "seq" : "localhost";
         var krtHost = isDocker ? "host.docker.internal" : "localhost";
 
+        var storefrontPort = isDocker ? 80 : 5174;
+        var adminPort = isDocker ? 80 : 5173;
         var postgresPort = isDocker ? 5432 : 5434;
         var redisPort = isDocker ? 6379 : 6381;
         var rabbitmqPort = isDocker ? 5672 : 5673;
-        var rabbitmqMgmtPort = isDocker ? 15672 : 15673;
         var kafkaPort = isDocker ? 9092 : 39092;
         var keycloakPort = isDocker ? 8080 : 8083;
         var seqPort = isDocker ? 80 : 8082;
 
         var checks = new List<Task<ServiceStatus>>
         {
-            CheckHttp("KLL Gateway", gatewayHost, 5100, "/health", "YARP Reverse Proxy", "Core"),
-            CheckHttp("KLL Store API", storeHost, 5200, "/health", "Produtos, Pedidos, Categorias", "Core"),
-            CheckHttp("KLL Pay API", payHost, 5300, "/health", "Pagamentos, Integração KRT", "Core"),
-            CheckHttp("KLL Logistics API", logisticsHost, 5400, "/health", "Envios, Rastreamento", "Core"),
-            CheckTcp("PostgreSQL", postgresHost, postgresPort, "Banco de dados principal", "Infraestrutura"),
-            CheckTcp("Redis", redisHost, redisPort, "Cache distribuído", "Infraestrutura"),
-            CheckTcp("RabbitMQ", rabbitmqHost, rabbitmqPort, "Mensageria", "Infraestrutura"),
-            CheckTcp("Kafka", kafkaHost, kafkaPort, "Event streaming", "Infraestrutura"),
-            CheckHttp("Keycloak", keycloakHost, keycloakPort, "/realms/master", "Autenticação IAM", "Infraestrutura"),
-            CheckHttp("Seq", seqHost, seqPort, "/", "Logging/Observabilidade", "Infraestrutura"),
+            CheckHttp("KLL Gateway", gatewayHost, 5100, 5100, "/health", "YARP Reverse Proxy", "Core"),
+            CheckHttp("KLL Store API", storeHost, 5200, 5200, "/health", "Produtos, Pedidos, Categorias", "Core"),
+            CheckHttp("KLL Pay API", payHost, 5300, 5300, "/health", "Pagamentos \u00b7 Anti-Corruption Layer", "Core"),
+            CheckHttp("KLL Logistics API", logisticsHost, 5400, 5400, "/health", "Envios, Rastreamento", "Core"),
+            CheckHttp("KLL Storefront", storefrontHost, storefrontPort, 5174, "/", "React/Vite \u00b7 Loja do Cliente", "Core"),
+            CheckHttp("KLL Admin Web", adminHost, adminPort, 5173, "/", "React \u00b7 Painel Administrativo", "Core"),
+            CheckTcp("PostgreSQL", postgresHost, postgresPort, 5434, "Banco de Dados v16", "Infraestrutura"),
+            CheckTcp("Redis", redisHost, redisPort, 6381, "Cache \u00b7 Sess\u00f5es", "Infraestrutura"),
+            CheckTcp("RabbitMQ", rabbitmqHost, rabbitmqPort, 5673, "Mensageria \u00b7 AMQP", "Infraestrutura"),
+            CheckTcp("Kafka", kafkaHost, kafkaPort, 39092, "Event Streaming", "Infraestrutura"),
+            CheckHttp("Keycloak", keycloakHost, keycloakPort, 8083, "/realms/master", "Autentica\u00e7\u00e3o \u00b7 OAuth2/OIDC", "Infraestrutura"),
+            CheckHttp("Seq", seqHost, seqPort, 8082, "/", "Logging \u00b7 Observabilidade", "Infraestrutura"),
         };
 
         var krtCheck = CheckKrtIntegration(krtHost, ct);
@@ -65,16 +69,16 @@ public class SystemController : ControllerBase
 
         var services = checks.Select(t => t.Result).ToList();
 
-        // KRT Bank como serviço
         var krtResult = await krtCheck;
         services.Add(new ServiceStatus
         {
             Name = "KRT Gateway",
             Host = krtHost,
             Port = 5000,
+            ExternalPort = 5000,
             Status = krtResult.Available ? "Online" : "Offline",
             ResponseTimeMs = krtResult.ResponseTimeMs,
-            Description = "KRT Bank Gateway",
+            Description = "Integra\u00e7\u00e3o Banc\u00e1ria",
             Category = "Integração"
         });
 
@@ -102,7 +106,7 @@ public class SystemController : ControllerBase
         });
     }
 
-    private async Task<ServiceStatus> CheckHttp(string name, string host, int port, string path, string description, string category)
+    private async Task<ServiceStatus> CheckHttp(string name, string host, int port, int externalPort, string path, string description, string category)
     {
         var sw = Stopwatch.StartNew();
         try
@@ -113,13 +117,9 @@ public class SystemController : ControllerBase
             sw.Stop();
             return new ServiceStatus
             {
-                Name = name,
-                Host = host,
-                Port = port,
+                Name = name, Host = host, Port = port, ExternalPort = externalPort,
                 Status = response.IsSuccessStatusCode ? "Online" : "Offline",
-                ResponseTimeMs = sw.ElapsedMilliseconds,
-                Description = description,
-                Category = category
+                ResponseTimeMs = sw.ElapsedMilliseconds, Description = description, Category = category
             };
         }
         catch
@@ -127,18 +127,14 @@ public class SystemController : ControllerBase
             sw.Stop();
             return new ServiceStatus
             {
-                Name = name,
-                Host = host,
-                Port = port,
-                Status = "Offline",
-                ResponseTimeMs = sw.ElapsedMilliseconds,
-                Description = description,
-                Category = category
+                Name = name, Host = host, Port = port, ExternalPort = externalPort,
+                Status = "Offline", ResponseTimeMs = sw.ElapsedMilliseconds,
+                Description = description, Category = category
             };
         }
     }
 
-    private async Task<ServiceStatus> CheckTcp(string name, string host, int port, string description, string category)
+    private async Task<ServiceStatus> CheckTcp(string name, string host, int port, int externalPort, string description, string category)
     {
         var sw = Stopwatch.StartNew();
         try
@@ -150,13 +146,9 @@ public class SystemController : ControllerBase
 
             return new ServiceStatus
             {
-                Name = name,
-                Host = host,
-                Port = port,
+                Name = name, Host = host, Port = port, ExternalPort = externalPort,
                 Status = completed == connectTask && tcp.Connected ? "Online" : "Offline",
-                ResponseTimeMs = sw.ElapsedMilliseconds,
-                Description = description,
-                Category = category
+                ResponseTimeMs = sw.ElapsedMilliseconds, Description = description, Category = category
             };
         }
         catch
@@ -164,13 +156,9 @@ public class SystemController : ControllerBase
             sw.Stop();
             return new ServiceStatus
             {
-                Name = name,
-                Host = host,
-                Port = port,
-                Status = "Offline",
-                ResponseTimeMs = sw.ElapsedMilliseconds,
-                Description = description,
-                Category = category
+                Name = name, Host = host, Port = port, ExternalPort = externalPort,
+                Status = "Offline", ResponseTimeMs = sw.ElapsedMilliseconds,
+                Description = description, Category = category
             };
         }
     }
@@ -210,6 +198,7 @@ public class SystemController : ControllerBase
         public string Name { get; set; } = "";
         public string Host { get; set; } = "";
         public int Port { get; set; }
+        public int ExternalPort { get; set; }
         public string Status { get; set; } = "Offline";
         public long ResponseTimeMs { get; set; }
         public string Description { get; set; } = "";
