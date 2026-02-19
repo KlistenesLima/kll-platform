@@ -6,6 +6,23 @@ import { useCartStore } from "../store/cartStore";
 import { DiamondIcon, EyeIcon, EyeOffIcon } from "../components/Icons";
 import toast from "react-hot-toast";
 
+function formatIdentifier(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  // If only digits/dots/dashes and no letters → CPF mode
+  if (digits.length > 0 && !/[a-zA-Z@]/.test(value)) {
+    const d = digits.slice(0, 11);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+    if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+    return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+  }
+  return value;
+}
+
+function isCpfMode(value: string): boolean {
+  return value.replace(/\D/g, "").length > 0 && !/[a-zA-Z@]/.test(value);
+}
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +31,8 @@ export default function Login() {
   const { login, isAuthenticated } = useAuthStore();
   const { fetchCart } = useCartStore();
   const nav = useNavigate();
+
+  const cpfMode = isCpfMode(username);
 
   useEffect(() => {
     if (isAuthenticated) nav("/", { replace: true });
@@ -78,11 +97,19 @@ export default function Login() {
               display: "block", marginBottom: "0.5rem", fontWeight: 500,
               color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
             }}>E-mail ou CPF</label>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-              required autoComplete="email" placeholder="seuemail@exemplo.com ou 000.000.000-00"
+            <input type="text" value={username}
+              onChange={(e) => setUsername(formatIdentifier(e.target.value))}
+              required autoComplete="email"
+              inputMode={cpfMode ? "numeric" : "email"}
+              placeholder="seuemail@exemplo.com ou CPF"
               style={inputStyle}
               onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
+            {username && (
+              <div style={{ marginTop: 6, fontSize: "0.7rem", color: "#c9a962", opacity: 0.7 }}>
+                {cpfMode ? "CPF detectado" : "E-mail"}
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: "2rem" }}>
