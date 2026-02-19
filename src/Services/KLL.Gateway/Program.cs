@@ -20,6 +20,7 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddRateLimiter(options =>
 {
+    options.RejectionStatusCode = 429;
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
         RateLimitPartition.GetFixedWindowLimiter(
             ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -30,18 +31,49 @@ builder.Services.AddRateLimiter(options =>
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 QueueLimit = 10
             }));
-    options.RejectionStatusCode = 429;
+    options.AddPolicy("checkout", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 5
+            }));
 });
 
-builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:4200")
-     .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
+        p.WithOrigins(
+            "https://store.klisteneslima.dev",
+            "https://admin.klisteneslima.dev")
+         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+}
+else
+{
+    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
+        p.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:4200")
+         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
+}
 
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
-app.UseCors();
+app.UseCors("CorsPolicy");
 app.UseRateLimiter();
+
+// Security headers
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    ctx.Response.Headers.Append("X-Frame-Options", "DENY");
+    ctx.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    ctx.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    ctx.Response.Headers.Append("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    await next();
+});
 
 // Normalize URL paths to lowercase for case-insensitive routing
 app.Use(async (context, next) =>
