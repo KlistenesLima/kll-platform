@@ -235,6 +235,12 @@ function ServiceCard({ service }: { service: ServiceInfo }) {
         <Box sx={{
           width: 8, height: 8, borderRadius: '50%', bgcolor: statusColor,
           boxShadow: `0 0 6px ${statusColor}`,
+          animation: isOnline ? 'statusPulse 2s ease-in-out infinite' : 'none',
+          '@keyframes statusPulse': {
+            '0%': { boxShadow: '0 0 0 0 rgba(16,185,129,0.6)' },
+            '70%': { boxShadow: '0 0 0 6px rgba(16,185,129,0)' },
+            '100%': { boxShadow: '0 0 0 0 rgba(16,185,129,0)' },
+          },
         }} />
         <Typography sx={{ fontSize: 12, fontWeight: 600, color: statusColor }}>
           {service.status}
