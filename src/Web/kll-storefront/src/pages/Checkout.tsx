@@ -64,6 +64,9 @@ export default function Checkout() {
   const [boletoConfirmed, setBoletoConfirmed] = useState(false);
   const boletoPollingRef = useRef<ReturnType<typeof setInterval>>();
 
+  // Order lifecycle — prevents "carrinho vazio" after clearCart
+  const [orderCreated, setOrderCreated] = useState(false);
+
   // Card installments
   const [installments, setInstallments] = useState(1);
 
@@ -183,6 +186,7 @@ export default function Checkout() {
             if (countdownRef.current) clearInterval(countdownRef.current);
             setPixPolling(false);
             try { await orderApi.confirmPayment(order.id, charge.chargeId); } catch {}
+            setOrderCreated(true);
             await clearCart();
             nav(`/order/${order.id}`, { state: { confirmed: true, total: grandTotal, shipping: shippingOpts[selectedShipping] } });
           } else if (status.status === "Expired") {
@@ -216,6 +220,7 @@ export default function Checkout() {
       });
       setBoletoCharge({ chargeId: charge.chargeId, barcode: charge.barcode, digitableLine: charge.digitableLine, dueDate: charge.dueDate });
       setBoletoOrderId(order.id);
+      setOrderCreated(true);
       await clearCart();
       setBoletoPolling(true);
       if (boletoPollingRef.current) clearInterval(boletoPollingRef.current);
@@ -263,6 +268,7 @@ export default function Checkout() {
       } else {
         try { await orderApi.confirmPayment(order.id, `SIM_${Date.now()}`); } catch {}
       }
+      setOrderCreated(true);
       await clearCart();
       nav(`/order/${order.id}`, { state: { confirmed: true, total: grandTotal, shipping: shippingOpts[selectedShipping] } });
     } catch { toast.error("Erro ao finalizar pedido"); }
@@ -283,7 +289,7 @@ export default function Checkout() {
     if (boletoPollingRef.current) clearInterval(boletoPollingRef.current);
   };
 
-  if (items.length === 0 && !loading) return (
+  if (items.length === 0 && !loading && !orderCreated) return (
     <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
         <p style={{ color: "#6c6c7e", fontSize: "1.1rem", marginBottom: "1.5rem" }}>Seu carrinho esta vazio</p>
