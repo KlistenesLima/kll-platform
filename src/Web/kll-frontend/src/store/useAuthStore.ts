@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface AuthState {
   customerId: string;
@@ -9,20 +10,25 @@ interface AuthState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  customerId: '',
-  customerEmail: '',
-  customerName: '',
-  isLoggedIn: false,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      customerId: '',
+      customerEmail: '',
+      customerName: '',
+      isLoggedIn: false,
 
-  login: (name, email) =>
-    set({
-      customerId: `cust-${Date.now()}`,
-      customerEmail: email,
-      customerName: name,
-      isLoggedIn: true,
+      login: (name, email) =>
+        set({
+          customerId: `cust-${Date.now()}`,
+          customerEmail: email,
+          customerName: name,
+          isLoggedIn: true,
+        }),
+
+      logout: () =>
+        set({ customerId: '', customerEmail: '', customerName: '', isLoggedIn: false }),
     }),
-
-  logout: () =>
-    set({ customerId: '', customerEmail: '', customerName: '', isLoggedIn: false }),
-}));
+    { name: 'kll-auth' }
+  )
+);

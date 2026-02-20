@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Services\KLL.Store\KLL.Store.Domain\KLL.Store.Domain.csproj" />
     <ProjectReference Include="..\..\src\Services\KLL.Store\KLL.Store.Application\KLL.Store.Application.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\KLL.BuildingBlocks.EventBus\KLL.BuildingBlocks.EventBus.csproj" />
   </ItemGroup>
 </Project>

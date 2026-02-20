@@ -12,7 +12,7 @@ public class ProductTests
         var product = Product.Create("Smartphone", "Latest model", 2999.90m, 50, "Electronics");
 
         product.Name.Should().Be("Smartphone");
-        product.Price.Amount.Should().Be(2999.90m);
+        product.Price.Should().Be(2999.90m);
         product.StockQuantity.Should().Be(50);
         product.IsActive.Should().BeTrue();
         product.DomainEvents.Should().HaveCount(1);
@@ -45,10 +45,10 @@ public class ProductTests
     {
         var product = Product.Create("Old Name", "Old Desc", 100m, 10, "OldCat");
 
-        product.Update("New Name", "New Desc", 200m, "NewCat", "http://img.jpg");
+        product.Update("New Name", "New Desc", 200m, 10, "NewCat", null, "http://img.jpg");
 
         product.Name.Should().Be("New Name");
-        product.Price.Amount.Should().Be(200m);
+        product.Price.Should().Be(200m);
         product.Category.Should().Be("NewCat");
         product.UpdatedAt.Should().NotBeNull();
     }

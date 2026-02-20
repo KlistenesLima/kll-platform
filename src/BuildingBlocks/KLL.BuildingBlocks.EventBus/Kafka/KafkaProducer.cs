@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Confluent.Kafka;
 using KLL.BuildingBlocks.EventBus.Interfaces;
 using Microsoft.Extensions.Configuration;

@@ -1,5 +1,5 @@
-﻿using KLL.BuildingBlocks.CQRS.Abstractions;
-using KLL.BuildingBlocks.CQRS;
+using KLL.BuildingBlocks.CQRS.Abstractions;
+using KLL.BuildingBlocks.Domain.Results;
 using KLL.Store.Domain.Entities;
 using KLL.Store.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,7 @@ public class CreateProductHandler : ICommandHandler<CreateProductCommand, Guid>
 
     public async Task<Result<Guid>> Handle(CreateProductCommand cmd, CancellationToken ct)
     {
-        var product = Product.Create(cmd.Name, cmd.Description, cmd.Price, cmd.StockQuantity, cmd.Category, cmd.ImageUrl);
+        var product = new Product(cmd.Name, cmd.Description, cmd.Price, cmd.StockQuantity, cmd.Category, null, cmd.ImageUrl);
         await _repository.AddAsync(product, ct);
         await _repository.SaveChangesAsync(ct);
 

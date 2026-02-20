@@ -16,4 +16,5 @@ public class TransactionRepository : ITransactionRepository
     public async Task DeleteAsync(Guid id, CancellationToken ct) { var t = await GetByIdAsync(id, ct); if (t != null) _ctx.Transactions.Remove(t); }
     public Task<int> SaveChangesAsync(CancellationToken ct) => _ctx.SaveChangesAsync(ct);
     public async Task<IEnumerable<Transaction>> GetByMerchantIdAsync(Guid mid, CancellationToken ct) => await _ctx.Transactions.Where(t => t.MerchantId == mid).OrderByDescending(t => t.CreatedAt).ToListAsync(ct);
+    public async Task<Transaction?> GetByBankChargeIdAsync(string bankChargeId, CancellationToken ct) => await _ctx.Transactions.FirstOrDefaultAsync(t => t.BankChargeId == bankChargeId, ct);
 }

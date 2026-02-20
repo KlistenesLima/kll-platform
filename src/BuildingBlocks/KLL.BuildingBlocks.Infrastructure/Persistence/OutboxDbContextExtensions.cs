@@ -1,8 +1,6 @@
-﻿using KLL.BuildingBlocks.Outbox;
+using KLL.BuildingBlocks.Domain.Outbox;
 using Microsoft.EntityFrameworkCore;
-
 namespace KLL.BuildingBlocks.Infrastructure.Persistence;
-
 public static class OutboxDbContextExtensions
 {
     public static ModelBuilder ConfigureOutbox(this ModelBuilder modelBuilder)
@@ -13,7 +11,7 @@ public static class OutboxDbContextExtensions
             b.HasKey(x => x.Id);
             b.Property(x => x.Type).HasMaxLength(500).IsRequired();
             b.Property(x => x.Content).IsRequired();
-            b.HasIndex(x => x.ProcessedOn).HasFilter("processed_on IS NULL");
+            b.HasIndex(x => x.ProcessedOn);
         });
         return modelBuilder;
     }

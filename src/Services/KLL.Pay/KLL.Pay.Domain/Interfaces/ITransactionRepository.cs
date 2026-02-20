@@ -6,4 +6,5 @@ namespace KLL.Pay.Domain.Interfaces;
 public interface ITransactionRepository : IRepository<Transaction>
 {
     Task<IEnumerable<Transaction>> GetByMerchantIdAsync(Guid merchantId, CancellationToken ct = default);
+    Task<Transaction?> GetByBankChargeIdAsync(string bankChargeId, CancellationToken ct = default);
 }
