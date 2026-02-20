@@ -6,6 +6,7 @@ obj/
 *.userosscache
 *.sln.docstates
 *.DotSettings.user
+*.userprefs
 .vs/
 [Dd]ebug/
 [Rr]elease/
@@ -13,7 +14,9 @@ obj/
 ## Node
 node_modules/
 dist/
-.env.local
+.angular/
+.vite/
+*.tsbuildinfo
 
 ## IDE
 .idea/
@@ -26,12 +29,25 @@ Thumbs.db
 ## Docker
 docker-compose.override.yml
 
-## Environment secrets
+# ===== SECRETS =====
 .env
-.env.production
-.env.local
+.env.*
 !.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.cert
+*.crt
+
+# ===== .NET Config =====
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Secret.json
+appsettings.Production.json
 appsettings.*.local.json
+!appsettings.json
+launchSettings.json
 
 ## Product images (local cache, source of truth is B2)
 src/Web/kll-storefront/public/products/
@@ -40,3 +56,4 @@ src/Web/kll-storefront/public/products/
 *.log
 *.bak
 *.swp
+*.swo
