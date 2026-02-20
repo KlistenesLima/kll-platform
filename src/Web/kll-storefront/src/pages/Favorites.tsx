@@ -26,7 +26,7 @@ export default function Favorites() {
         </p>
 
         {loading ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(220px, 100%), 1fr))", gap: "1.5rem" }}>
             {[1, 2, 3, 4].map((i) => (
               <div key={i} style={{
                 background: "#1a1a2e", borderRadius: 16, height: 380,
@@ -62,7 +62,7 @@ export default function Favorites() {
         ) : (
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fill, minmax(min(220px, 100%), 1fr))",
             gap: "1.5rem"
           }}>
             {products.map((product) => (

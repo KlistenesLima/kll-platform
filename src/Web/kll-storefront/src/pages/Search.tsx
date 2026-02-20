@@ -769,7 +769,7 @@ export default function Search() {
 
         {/* ── Mobile Drawer ── */}
         <div
-          className={`fixed top-0 left-0 bottom-0 w-[300px] bg-dark z-[70] lg:hidden border-r border-gold/10 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col ${
+          className={`fixed top-0 left-0 bottom-0 w-[min(300px,85vw)] bg-dark z-[70] lg:hidden border-r border-gold/10 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col ${
             drawerOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
