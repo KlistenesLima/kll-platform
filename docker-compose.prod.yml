@@ -88,7 +88,7 @@ services:
   # ==================== MICROSERVICES (internal ports CLOSED) ====================
   store-api:
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Docker
     ports: !reset []
     restart: unless-stopped
     logging:
@@ -99,9 +99,11 @@ services:
 
   pay-api:
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Docker
       KrtBank__ApiKey: ${KRT_API_KEY}
-      KrtBank__BaseUrl: ${KRT_BANK_URL:-https://api-krt.klisteneslima.dev}
+      KrtBank__BaseUrl: ${KRT_BANK_URL:-http://host.docker.internal:5000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports: !reset []
     restart: unless-stopped
     logging:
@@ -112,7 +114,7 @@ services:
 
   logistics-api:
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Docker
     ports: !reset []
     restart: unless-stopped
     logging:
@@ -124,7 +126,7 @@ services:
   # ==================== EXPOSED SERVICES ====================
   gateway:
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Docker
     ports:
       - "5100:5100"
     restart: unless-stopped
@@ -136,7 +138,7 @@ services:
 
   notifications-worker:
     environment:
-      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_ENVIRONMENT: Docker
     restart: unless-stopped
     logging:
       driver: json-file
