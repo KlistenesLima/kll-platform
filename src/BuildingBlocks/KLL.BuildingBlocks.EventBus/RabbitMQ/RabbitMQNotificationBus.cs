@@ -20,7 +20,7 @@ public class RabbitMQNotificationBus : INotificationBus, IDisposable
             HostName = config["RabbitMQ:Host"] ?? "localhost",
             Port = int.Parse(config["RabbitMQ:Port"] ?? "5673"),
             UserName = config["RabbitMQ:User"] ?? "kll",
-            Password = config["RabbitMQ:Password"] ?? "REDACTED_RABBITMQ_PASSWORD",
+            Password = config["RabbitMQ:Password"] ?? "",
             VirtualHost = config["RabbitMQ:VHost"] ?? "/",
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(10)

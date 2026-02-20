@@ -21,7 +21,7 @@ public class RabbitMQPublisher : INotificationPublisher, IDisposable
             HostName = config["RabbitMQ:Host"] ?? "localhost",
             Port = int.Parse(config["RabbitMQ:Port"] ?? "5673"),
             UserName = config["RabbitMQ:Username"] ?? "kll",
-            Password = config["RabbitMQ:Password"] ?? "REDACTED_RABBITMQ_PASSWORD",
+            Password = config["RabbitMQ:Password"] ?? "",
             AutomaticRecoveryEnabled = true,
             NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
         };

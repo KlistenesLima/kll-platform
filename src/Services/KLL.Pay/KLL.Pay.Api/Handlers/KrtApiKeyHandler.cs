@@ -9,7 +9,7 @@ public class KrtApiKeyHandler : DelegatingHandler
     protected override Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var apiKey = _config["KrtBank:ApiKey"] ?? "REDACTED_API_KEY";
+        var apiKey = _config["KrtBank:ApiKey"] ?? throw new InvalidOperationException("KrtBank:ApiKey not configured");
         request.Headers.Add("X-Api-Key", apiKey);
         return base.SendAsync(request, cancellationToken);
     }

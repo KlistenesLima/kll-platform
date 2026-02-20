@@ -85,7 +85,7 @@
       "enabled": true,
       "firstName": "Admin",
       "lastName": "KLL",
-      "credentials": [{ "type": "password", "value": "REDACTED_SEQ_PASSWORD", "temporary": false }],
+      "credentials": [{ "type": "password", "value": "CHANGE_ME_ADMIN_PASSWORD", "temporary": false }],
       "realmRoles": ["admin", "customer"]
     },
     {
@@ -94,7 +94,7 @@
       "enabled": true,
       "firstName": "Cliente",
       "lastName": "Teste",
-      "credentials": [{ "type": "password", "value": "Cliente123!", "temporary": false }],
+      "credentials": [{ "type": "password", "value": "CHANGE_ME_CLIENT_PASSWORD", "temporary": false }],
       "realmRoles": ["customer"]
     }
   ]
