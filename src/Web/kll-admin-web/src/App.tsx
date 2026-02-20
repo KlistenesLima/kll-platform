@@ -8,10 +8,12 @@ import Transactions from './pages/Transactions';
 import Merchants from './pages/Merchants';
 import Categories from './pages/Categories';
 import System from './pages/System';
+import Portfolio from './pages/Portfolio';
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/portfolio" element={<Portfolio />} />
       <Route path="/" element={<AdminLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
