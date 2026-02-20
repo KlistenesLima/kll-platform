@@ -1,26 +1,44 @@
 import { useState, useEffect } from 'react';
 
+const BriefcaseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
+
 const LinkedInIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
   </svg>
 );
 
+const CvIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+  </svg>
+);
+
 const GitHubIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
     <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
   </svg>
 );
 
-const RepoIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+const DocIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
   </svg>
 );
 
-const CvIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+const InfoIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
   </svg>
 );
 
@@ -28,14 +46,14 @@ interface BannerLink {
   href: string;
   icon: React.ReactNode;
   label: string;
-  external: boolean;
 }
 
 const links: BannerLink[] = [
-  { href: 'https://www.linkedin.com/in/klistenes-de-lima-leite-257209194/', icon: <LinkedInIcon />, label: 'LinkedIn', external: true },
-  { href: 'https://github.com/KlistenesLima', icon: <GitHubIcon />, label: 'GitHub', external: true },
-  { href: 'https://github.com/KlistenesLima/kll-platform', icon: <RepoIcon />, label: 'Repositório', external: true },
-  { href: '/portfolio', icon: <CvIcon />, label: 'Currículo', external: false },
+  { href: 'https://www.linkedin.com/in/klistenes-de-lima-leite-257209194/', icon: <LinkedInIcon />, label: 'LinkedIn' },
+  { href: 'https://store.klisteneslima.dev/resume', icon: <CvIcon />, label: 'Curr\u00edculo' },
+  { href: 'https://github.com/KlistenesLima/kll-platform', icon: <GitHubIcon />, label: 'GitHub' },
+  { href: 'https://store.klisteneslima.dev/docs', icon: <DocIcon />, label: 'Docs' },
+  { href: 'https://store.klisteneslima.dev/about', icon: <InfoIcon />, label: 'Sobre' },
 ];
 
 export default function DemoBanner() {
@@ -54,46 +72,50 @@ export default function DemoBanner() {
       transition: 'opacity 0.5s ease',
     }}>
       <div style={{
-        display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center',
+        display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between',
         padding: '6px 16px', maxWidth: '1440px', margin: '0 auto', gap: '8px',
       }}>
-        {/* Text */}
-        <span style={{
-          color: '#c9a962', fontSize: '13px', fontWeight: 500,
-          fontFamily: 'Poppins, sans-serif', letterSpacing: '0.3px',
-          textAlign: 'center', whiteSpace: 'nowrap',
-        }}>
-          Projeto Demo — Case de portfólio de{' '}
-          <span style={{ color: '#fff', fontWeight: 600 }}>Klístenes Lima</span>
-        </span>
+        {/* Left — Briefcase + Text */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c9a962' }}>
+          <BriefcaseIcon />
+          <span style={{
+            color: '#c9a962', fontSize: '13px', fontWeight: 500,
+            fontFamily: 'Poppins, sans-serif', letterSpacing: '0.3px',
+            whiteSpace: 'nowrap',
+          }}>
+            Case de Portf&oacute;lio &mdash;{' '}
+            <span style={{ color: '#fff', fontWeight: 600 }}>Kl&iacute;stenes Lima</span>
+            <span className="title-suffix" style={{ display: 'inline' }}>, Senior Full Stack Engineer (.NET)</span>
+          </span>
+        </div>
 
-        {/* Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Right — Icon Links */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {links.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              target={link.external ? '_blank' : undefined}
-              rel={link.external ? 'noopener noreferrer' : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
               title={link.label}
               style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: '28px', height: '28px', borderRadius: '50%',
-                color: 'rgba(201,169,98,0.7)', transition: 'all 0.3s',
-                textDecoration: 'none',
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '4px 10px', borderRadius: '20px',
+                color: 'rgba(201,169,98,0.7)', textDecoration: 'none',
+                transition: 'all 0.3s', fontSize: '11px',
+                fontFamily: 'Poppins, sans-serif', fontWeight: 500,
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.color = '#c9a962';
-                e.currentTarget.style.transform = 'scale(1.15)';
-                e.currentTarget.style.filter = 'drop-shadow(0 0 6px rgba(201,169,98,0.4))';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.color = 'rgba(201,169,98,0.7)';
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.filter = 'none';
+                e.currentTarget.style.background = 'transparent';
               }}
             >
               {link.icon}
+              <span className="link-label" style={{ display: 'inline' }}>{link.label}</span>
             </a>
           ))}
         </div>
@@ -104,6 +126,13 @@ export default function DemoBanner() {
         height: '1px',
         background: 'linear-gradient(90deg, transparent, rgba(201,169,98,0.5), transparent)',
       }} />
+
+      <style>{`
+        @media (max-width: 768px) {
+          .title-suffix { display: none !important; }
+          .link-label { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

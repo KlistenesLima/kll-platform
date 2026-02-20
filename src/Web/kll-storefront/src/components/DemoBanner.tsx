@@ -45,8 +45,15 @@ interface BannerLink {
   external: boolean;
 }
 
+const CvIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+  </svg>
+);
+
 const links: BannerLink[] = [
   { href: 'https://www.linkedin.com/in/klistenes-de-lima-leite-257209194/', icon: <LinkedInIcon />, label: 'LinkedIn', external: true },
+  { href: '/resume', icon: <CvIcon />, label: 'Currículo', external: false },
   { href: 'https://github.com/KlistenesLima/kll-platform', icon: <GitHubIcon />, label: 'GitHub', external: true },
   { href: '/docs', icon: <DocIcon />, label: 'Docs', external: false },
   { href: '/about', icon: <InfoIcon />, label: 'Sobre', external: false },
@@ -73,7 +80,7 @@ export default function DemoBanner() {
             style={{ fontFamily: 'Poppins, sans-serif' }}>
             Case de Portfólio —{' '}
             <span className="text-white font-semibold">Klístenes Lima</span>
-            <span className="hidden md:inline">, Engenheiro de Software .NET Sênior</span>
+            <span className="hidden md:inline">, Senior Full Stack Engineer (.NET)</span>
           </span>
         </div>
 
