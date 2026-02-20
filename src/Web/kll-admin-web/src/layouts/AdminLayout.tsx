@@ -219,6 +219,7 @@ export default function AdminLayout() {
       <AppBar
         position="fixed"
         sx={{
+          top: '36px',
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           ml: { sm: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
@@ -310,7 +311,7 @@ export default function AdminLayout() {
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, bgcolor: '#0c1222', borderRight: 'none' },
+            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, bgcolor: '#0c1222', borderRight: 'none', top: '36px', height: 'calc(100vh - 36px)' },
           }}
         >
           {drawer}
@@ -323,6 +324,8 @@ export default function AdminLayout() {
               width: DRAWER_WIDTH,
               bgcolor: '#0c1222',
               borderRight: '1px solid rgba(255,255,255,0.06)',
+              top: '36px',
+              height: 'calc(100vh - 36px)',
             },
           }}
           open
@@ -338,9 +341,9 @@ export default function AdminLayout() {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          mt: '64px',
+          mt: '100px',
           bgcolor: 'background.default',
-          minHeight: 'calc(100vh - 64px)',
+          minHeight: 'calc(100vh - 100px)',
         }}
       >
         <Outlet />

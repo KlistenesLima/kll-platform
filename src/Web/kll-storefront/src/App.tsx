@@ -6,6 +6,7 @@ import { useCartStore } from "./store/cartStore";
 import { useFavoritesStore } from "./store/favoritesStore";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import DemoBanner from "./components/DemoBanner";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Search from "./pages/Search";
@@ -42,6 +43,8 @@ export default function App() {
   }, [isAuthenticated]);
 
   return (
+    <>
+    <DemoBanner />
     <BrowserRouter>
       <Toaster position="top-right" />
       <div className="min-h-screen flex flex-col">
@@ -65,5 +68,6 @@ export default function App() {
         <Footer />
       </div>
     </BrowserRouter>
+    </>
   );
 }
