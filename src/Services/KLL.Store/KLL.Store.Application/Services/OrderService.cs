@@ -1,4 +1,4 @@
-﻿using KLL.BuildingBlocks.EventBus.Interfaces;
+using KLL.BuildingBlocks.EventBus.Interfaces;
 using KLL.BuildingBlocks.Domain.ValueObjects;
 using KLL.Store.Application.DTOs.Requests;
 using KLL.Store.Application.DTOs.Responses;
@@ -28,18 +28,17 @@ public class OrderService : IOrderService
             var product = await _productRepo.GetByIdAsync(item.ProductId, ct)
                 ?? throw new KeyNotFoundException($"Product {item.ProductId} not found");
             product.DeductStock(item.Quantity);
-            order.AddItem(product.Id, product.Name, product.Price.Amount, item.Quantity);
+            order.AddItem(product.Id, product.Name, product.Price, item.Quantity);
             await _productRepo.UpdateAsync(product, ct);
         }
 
         await _orderRepo.AddAsync(order, ct);
         await _orderRepo.SaveChangesAsync(ct);
 
-        // Publish integration event for KLL Pay
         await _eventBus.PublishAsync(new OrderCreatedIntegrationEvent
         {
             OrderId = order.Id, CustomerId = order.CustomerId,
-            CustomerEmail = order.CustomerEmail, TotalAmount = order.TotalAmount.Amount,
+            CustomerEmail = order.CustomerEmail, TotalAmount = order.TotalAmount,
             Items = order.Items.Select(i => new OrderItemDto
             {
                 ProductId = i.ProductId, ProductName = i.ProductName,
@@ -70,7 +69,6 @@ public class OrderService : IOrderService
         await _orderRepo.UpdateAsync(order, ct);
         await _orderRepo.SaveChangesAsync(ct);
 
-        // Request shipment from KLL Logistics
         await _eventBus.PublishAsync(new ShipmentRequestedIntegrationEvent
         {
             OrderId = order.Id, RecipientName = order.CustomerId,
@@ -82,6 +80,6 @@ public class OrderService : IOrderService
     }
 
     private static OrderResponse MapOrder(Order o) => new(o.Id, o.CustomerId, o.Status.ToString(),
-        o.TotalAmount.Amount, o.TrackingCode, o.CreatedAt,
+        o.TotalAmount, o.TrackingCode, o.CreatedAt,
         o.Items.Select(i => new OrderItemResponse(i.ProductId, i.ProductName, i.UnitPrice, i.Quantity)).ToList());
 }

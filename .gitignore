@@ -1,8 +1,42 @@
+## .NET
 bin/
 obj/
-.vs/
 *.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.DotSettings.user
+.vs/
+[Dd]ebug/
+[Rr]elease/
+
+## Node
 node_modules/
 dist/
+.env.local
+
+## IDE
+.idea/
+.vscode/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Docker
+docker-compose.override.yml
+
+## Environment secrets
 .env
-appsettings.Development.json
+.env.production
+.env.local
+!.env.example
+appsettings.*.local.json
+
+## Product images (local cache, source of truth is B2)
+src/Web/kll-storefront/public/products/
+
+## Misc
+*.log
+*.bak
+*.swp

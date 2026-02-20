@@ -1,4 +1,5 @@
-﻿using MediatR;
+using KLL.BuildingBlocks.Domain.Results;
+using MediatR;
 
 namespace KLL.BuildingBlocks.CQRS.Abstractions;
 

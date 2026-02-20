@@ -1,4 +1,4 @@
-﻿namespace KLL.BuildingBlocks.Domain.ValueObjects;
+namespace KLL.BuildingBlocks.Domain.ValueObjects;
 
 public record Money
 {
@@ -12,7 +12,8 @@ public record Money
         Currency = currency;
     }
 
-    public static Money Zero(string currency = "BRL") => new(0, currency);
+    public static Money Zero => new(0);
+    public static Money ZeroOf(string currency = "BRL") => new(0, currency);
     public static Money Of(decimal amount) => new(amount);
 
     public Money Add(Money other)

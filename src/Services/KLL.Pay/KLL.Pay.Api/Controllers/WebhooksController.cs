@@ -1,5 +1,5 @@
-﻿using KLL.BuildingBlocks.EventBus.Interfaces;
-using KLL.Pay.Api.Consumers;
+using KLL.BuildingBlocks.Domain.IntegrationEvents;
+using KLL.BuildingBlocks.EventBus.Interfaces;
 using KLL.Pay.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +23,12 @@ public class WebhooksController : ControllerBase
 
         await _txService.ConfirmFromBankAsync(payload.TransactionId, payload.ChargeId, ct);
 
-        await _eventBus.PublishAsync(new PaymentConfirmedEvent(payload.OrderId, payload.ChargeId, payload.Amount), ct);
+        await _eventBus.PublishAsync(new PaymentConfirmedIntegrationEvent
+        {
+            OrderId = payload.OrderId,
+            ChargeId = payload.ChargeId,
+            Amount = payload.Amount
+        }, ct);
 
         _logger.LogInformation("Payment confirmed for order {OrderId}", payload.OrderId);
         return Ok(new { received = true });
