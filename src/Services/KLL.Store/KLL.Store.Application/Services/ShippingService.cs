@@ -5,55 +5,71 @@ public record ShippingResult(bool Valid, string? Error, List<ShippingOption> Opt
 
 public class ShippingService
 {
-    private const decimal FreeShippingThreshold = 299m;
+    private const decimal FreeStandardThreshold = 5000m;
+    private const decimal FreeExpressThreshold = 10000m;
 
     public ShippingResult Calculate(string cep, decimal cartTotal)
     {
         var digits = new string(cep.Where(char.IsDigit).ToArray());
         if (digits.Length != 8)
-            return new ShippingResult(false, "CEP inválido. Informe 8 dígitos.", []);
+            return new ShippingResult(false, "CEP invalido. Informe 8 digitos.", []);
 
-        var prefix = int.Parse(digits[..3]);
-        var (region, basePrice, minDays, maxDays) = GetRegionInfo(prefix);
-
+        var prefix = int.Parse(digits[..2]);
+        var info = GetRegionInfo(prefix);
         var options = new List<ShippingOption>();
 
-        if (cartTotal >= FreeShippingThreshold)
+        // Standard
+        var stdPrice = cartTotal >= FreeStandardThreshold ? 0m : info.StdPrice;
+        var stdLabel = stdPrice == 0 ? "Entrega Padrao — FRETE GRATIS" : "Entrega Padrao";
+        options.Add(new ShippingOption(stdLabel, stdPrice, info.StdMinDays, info.StdMaxDays));
+
+        // Express
+        if (info.ExpPrice > 0)
         {
-            options.Add(new ShippingOption($"Padrão ({region}) — Frete Grátis", 0, minDays, maxDays));
-        }
-        else
-        {
-            options.Add(new ShippingOption($"Padrão ({region})", basePrice, minDays, maxDays));
+            var expPrice = cartTotal >= FreeExpressThreshold ? 0m : info.ExpPrice;
+            var expLabel = expPrice == 0 ? "Entrega Expressa — FRETE GRATIS" : "Entrega Expressa";
+            options.Add(new ShippingOption(expLabel, expPrice, info.ExpMinDays, info.ExpMaxDays));
         }
 
-        options.Add(new ShippingOption("Expresso", basePrice * 1.8m, Math.Max(1, minDays - 2), Math.Max(2, maxDays - 2)));
+        // SameDay (only for SP)
+        if (prefix >= 1 && prefix <= 19)
+        {
+            options.Add(new ShippingOption("Entrega no Mesmo Dia", 60m, 0, 0));
+        }
 
         return new ShippingResult(true, null, options);
     }
 
-    private static (string Region, decimal Price, int MinDays, int MaxDays) GetRegionInfo(int cepPrefix)
+    private record RegionInfo(decimal StdPrice, int StdMinDays, int StdMaxDays, decimal ExpPrice, int ExpMinDays, int ExpMaxDays);
+
+    private static RegionInfo GetRegionInfo(int prefix)
     {
-        return cepPrefix switch
+        return prefix switch
         {
-            // SP
-            >= 10 and <= 199 => ("SP", 15.90m, 3, 5),
-            // RJ
-            >= 200 and <= 289 => ("RJ", 15.90m, 3, 5),
-            // MG
-            >= 300 and <= 399 => ("MG", 15.90m, 3, 5),
-            // Sul (PR, SC, RS)
-            >= 800 and <= 899 or >= 880 and <= 899 or >= 900 and <= 999 => ("Sul", 19.90m, 4, 6),
-            // Nordeste (BA, SE, AL, PE, PB, RN, CE, PI, MA)
-            >= 400 and <= 659 => ("Nordeste", 22.90m, 5, 8),
-            // Norte (PA, AM, AC, RR, RO, AP, TO)
-            >= 660 and <= 699 or >= 760 and <= 799 or >= 690 and <= 699 => ("Norte", 29.90m, 8, 12),
-            // Centro-Oeste (DF, GO, MT, MS)
-            >= 700 and <= 759 => ("Centro-Oeste", 19.90m, 4, 7),
-            // ES
-            >= 290 and <= 299 => ("ES", 18.90m, 4, 6),
-            // Default
-            _ => ("Brasil", 22.90m, 5, 10),
+            >= 1 and <= 19   => new(15m, 5, 7, 35m, 2, 3),    // SP
+            >= 20 and <= 28  => new(20m, 5, 8, 40m, 3, 4),    // RJ
+            29               => new(22m, 6, 8, 42m, 3, 4),    // ES
+            >= 30 and <= 39  => new(18m, 5, 7, 38m, 2, 3),    // MG
+            >= 40 and <= 48  => new(25m, 6, 9, 45m, 3, 5),    // BA
+            >= 49 and <= 49  => new(27m, 7, 10, 48m, 4, 5),   // SE
+            >= 50 and <= 56  => new(25m, 6, 9, 45m, 3, 5),    // PE
+            57               => new(27m, 7, 10, 48m, 4, 5),   // AL
+            58               => new(27m, 7, 10, 48m, 4, 5),   // PB
+            >= 59 and <= 59  => new(27m, 7, 10, 48m, 4, 5),   // RN
+            >= 60 and <= 63  => new(25m, 6, 9, 45m, 3, 5),    // CE
+            64               => new(28m, 7, 10, 50m, 4, 5),   // PI
+            65               => new(30m, 8, 11, 52m, 4, 6),   // MA
+            >= 66 and <= 68  => new(35m, 9, 12, 55m, 5, 6),   // PA
+            69               => new(40m, 10, 14, 65m, 6, 8),  // AM
+            >= 70 and <= 73  => new(20m, 5, 8, 40m, 3, 4),    // DF/GO
+            >= 74 and <= 76  => new(25m, 6, 9, 45m, 4, 5),    // GO/TO
+            77               => new(28m, 7, 10, 50m, 4, 5),   // TO
+            78               => new(30m, 7, 10, 50m, 4, 5),   // MT
+            79               => new(25m, 6, 9, 45m, 3, 5),    // MS
+            >= 80 and <= 87  => new(18m, 5, 7, 38m, 2, 3),    // PR
+            >= 88 and <= 89  => new(20m, 5, 8, 40m, 3, 4),    // SC
+            >= 90 and <= 99  => new(22m, 6, 8, 42m, 3, 4),    // RS
+            _                => new(30m, 8, 12, 55m, 5, 7),   // Demais
         };
     }
 }

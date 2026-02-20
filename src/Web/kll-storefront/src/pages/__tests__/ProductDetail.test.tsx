@@ -16,6 +16,7 @@ vi.mock("../../services/api", () => ({
       isActive: true,
       createdAt: "2026-01-01",
     }),
+    getByCategory: vi.fn().mockResolvedValue([]),
   },
 }));
 
@@ -25,6 +26,14 @@ vi.mock("../../store/authStore", () => ({
 
 vi.mock("../../store/cartStore", () => ({
   useCartStore: vi.fn(() => ({ addItem: vi.fn().mockResolvedValue(undefined) })),
+}));
+
+vi.mock("../../store/favoritesStore", () => ({
+  useFavoritesStore: vi.fn(() => ({
+    isFavorite: vi.fn(() => false),
+    toggleFavorite: vi.fn(),
+    count: 0,
+  })),
 }));
 
 vi.mock("react-hot-toast", () => ({
@@ -45,21 +54,24 @@ describe("ProductDetail", () => {
   it("loads and displays product name", async () => {
     renderProductDetail();
     await waitFor(() => {
-      expect(screen.getByText("Premium Headphones")).toBeTruthy();
+      const elements = screen.getAllByText("Premium Headphones");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
   it("displays product description", async () => {
     renderProductDetail();
     await waitFor(() => {
-      expect(screen.getByText("Wireless noise cancelling headphones")).toBeTruthy();
+      const elements = screen.getAllByText("Wireless noise cancelling headphones");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
   it("displays product category", async () => {
     renderProductDetail();
     await waitFor(() => {
-      expect(screen.getByText("Audio")).toBeTruthy();
+      const elements = screen.getAllByText("Audio");
+      expect(elements.length).toBeGreaterThan(0);
     });
   });
 
@@ -73,14 +85,14 @@ describe("ProductDetail", () => {
   it("displays stock availability", async () => {
     renderProductDetail();
     await waitFor(() => {
-      expect(screen.getByText(/25 disponiveis/)).toBeTruthy();
+      expect(screen.getByText(/25 dispon/)).toBeTruthy();
     });
   });
 
   it("renders add to cart button", async () => {
     renderProductDetail();
     await waitFor(() => {
-      expect(screen.getByText(/Adicionar ao Carrinho/)).toBeTruthy();
+      expect(screen.getByText(/ADICIONAR AO CARRINHO/)).toBeTruthy();
     });
   });
 

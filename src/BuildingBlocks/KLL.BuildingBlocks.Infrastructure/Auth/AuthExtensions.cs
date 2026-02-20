@@ -10,7 +10,7 @@ public static class AuthExtensions
 {
     public static IServiceCollection AddKllAuth(this IServiceCollection services, IConfiguration config)
     {
-        var authority = config["Keycloak:Authority"] ?? "http://localhost:8081/realms/kll-platform";
+        var authority = config["Keycloak:Authority"] ?? "http://localhost:8083/realms/kll-platform";
         var validIssuer = config["Keycloak:ValidIssuer"] ?? authority;
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

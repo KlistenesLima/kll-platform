@@ -129,7 +129,7 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_RELATIVE_PATH: /
     ports:
-      - "8081:8080"
+      - "8083:8080"
     volumes:
       - ./infra/keycloak/kll-platform-realm.json:/opt/keycloak/data/import/kll-platform-realm.json
     depends_on:
@@ -148,6 +148,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Docker
     ports:
       - "5200:5200"
+    volumes:
+      - ./src/Web/kll-storefront/public/products:/app/products-local
     depends_on:
       postgres:
         condition: service_healthy

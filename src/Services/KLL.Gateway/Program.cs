@@ -10,6 +10,11 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024; // 10 MB
+});
+
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
@@ -29,7 +34,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.WithOrigins("http://localhost:5173", "http://localhost:4200")
+    p.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:4200")
      .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
 builder.Services.AddHealthChecks();
@@ -37,18 +42,32 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 app.UseCors();
 app.UseRateLimiter();
+
+// Normalize URL paths to lowercase for case-insensitive routing
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.HasValue)
+        context.Request.Path = context.Request.Path.Value.ToLowerInvariant();
+    await next();
+});
+
 app.MapReverseProxy();
 app.MapHealthChecks("/health");
 
-// Aggregated health
+// Aggregated health — resolve service hosts based on environment
+var isDocker = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Docker";
+var storeHost = isDocker ? "store-api" : "localhost";
+var payHost = isDocker ? "pay-api" : "localhost";
+var logisticsHost = isDocker ? "logistics-api" : "localhost";
+
 app.MapGet("/health/all", async (HttpContext ctx) =>
 {
     var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
     var services = new Dictionary<string, string>
     {
-        ["store"] = "http://localhost:5200/health",
-        ["pay"] = "http://localhost:5300/health",
-        ["logistics"] = "http://localhost:5400/health"
+        ["store"] = $"http://{storeHost}:5200/health",
+        ["pay"] = $"http://{payHost}:5300/health",
+        ["logistics"] = $"http://{logisticsHost}:5400/health"
     };
 
     var results = new Dictionary<string, string>();

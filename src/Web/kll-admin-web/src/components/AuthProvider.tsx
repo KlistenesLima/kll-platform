@@ -1,10 +1,37 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type KeycloakType from 'keycloak-js';
-import keycloak from '../services/keycloak';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import {
+  Box, Paper, TextField, Button, Typography, CircularProgress,
+  InputAdornment, IconButton, Alert, Snackbar,
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import axios from 'axios';
+
+const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
+
+function parseJwt(token: string): any {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch { return null; }
+}
+
+function formatIdentifier(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length > 0 && !/[a-zA-Z@]/.test(value)) {
+    const d = digits.slice(0, 11);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+    if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+    return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+  }
+  return value;
+}
+
+function isCpfMode(value: string): boolean {
+  return value.replace(/\D/g, '').length > 0 && !/[a-zA-Z@]/.test(value);
+}
 
 interface AuthContextType {
-  keycloak: KeycloakType;
   authenticated: boolean;
   token: string | undefined;
   username: string;
@@ -21,49 +48,199 @@ export const useAuth = () => {
 };
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [ready, setReady] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('kll_admin_token'));
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [checking, setChecking] = useState(true);
 
+  // Check stored token on mount
   useEffect(() => {
-    keycloak.init({ onLoad: 'login-required', pkceMethod: 'S256' })
-      .then((auth) => {
-        setAuthenticated(auth);
-        setReady(true);
-        setInterval(() => {
-          keycloak.updateToken(30).catch(() => keycloak.logout());
-        }, 30_000);
-      })
-      .catch((err) => {
-        console.error('Keycloak init failed', err);
-        setReady(true);
-      });
+    if (token) {
+      const decoded = parseJwt(token);
+      if (decoded && decoded.exp * 1000 > Date.now()) {
+        const roles: string[] = decoded.realm_roles || [];
+        if (!roles.includes('admin')) {
+          localStorage.removeItem('kll_admin_token');
+          setToken(null);
+          setError('Acesso restrito a administradores');
+        }
+      } else {
+        localStorage.removeItem('kll_admin_token');
+        setToken(null);
+      }
+    }
+    setChecking(false);
   }, []);
 
-  if (!ready) {
-    return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: 2 }}>
-        <CircularProgress sx={{ color: '#6366f1' }} />
-        <Typography variant="body2" color="text.secondary">Autenticando...</Typography>
-      </Box>
-    );
-  }
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await axios.post(`${GATEWAY}/api/v1/auth/login`, {
+        identifier, password,
+      });
+      const decoded = parseJwt(data.access_token);
+      const roles: string[] = decoded?.realm_roles || [];
+      if (!roles.includes('admin')) {
+        setError('Acesso restrito a administradores');
+        setLoading(false);
+        return;
+      }
+      localStorage.setItem('kll_admin_token', data.access_token);
+      setToken(data.access_token);
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Credenciais invalidas');
+    } finally { setLoading(false); }
+  };
 
-  if (!authenticated) {
+  const logout = () => {
+    localStorage.removeItem('kll_admin_token');
+    setToken(null);
+    setIdentifier('');
+    setPassword('');
+  };
+
+  if (checking) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-        <Typography color="error">Falha na autenticacao. Recarregue a pagina.</Typography>
+        <CircularProgress sx={{ color: '#c9a962' }} />
       </Box>
     );
   }
 
-  const tokenParsed = keycloak.tokenParsed as Record<string, any> | undefined;
+  // Not authenticated → show login
+  if (!token) {
+    const cpfMode = isCpfMode(identifier);
+    return (
+      <Box sx={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        bgcolor: '#0f172a', p: 2,
+      }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 5, maxWidth: 420, width: '100%', borderRadius: 4,
+            bgcolor: 'rgba(30,41,59,0.8)', border: '1px solid rgba(201,169,98,0.1)',
+            backdropFilter: 'blur(20px)',
+          }}
+        >
+          {/* Logo */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Box sx={{
+              width: 56, height: 56, borderRadius: 3, mx: 'auto', mb: 2,
+              bgcolor: 'rgba(201,169,98,0.08)', border: '1px solid rgba(201,169,98,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#c9a962" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 3h12l4 6-10 13L2 9z" /><path d="M11 3l1 6h9" /><path d="M2 9h20" /><path d="M13 3l-1 6H3" />
+              </svg>
+            </Box>
+            <Typography sx={{ fontWeight: 700, fontSize: 28, letterSpacing: 1 }}>
+              <Box component="span" sx={{ color: '#fff' }}>AUREA </Box>
+              <Box component="span" sx={{ color: '#c9a962' }}>Maison</Box>
+            </Typography>
+            <Typography sx={{ color: 'rgba(255,255,255,0.4)', fontSize: 14, mt: 0.5 }}>
+              Painel Administrativo
+            </Typography>
+          </Box>
+
+          <form onSubmit={handleLogin}>
+            <TextField
+              fullWidth
+              label="E-mail ou CPF"
+              value={identifier}
+              onChange={(e) => setIdentifier(formatIdentifier(e.target.value))}
+              placeholder="seuemail@exemplo.com ou CPF"
+              inputMode={cpfMode ? 'numeric' : 'email'}
+              autoComplete="email"
+              required
+              helperText={identifier ? (cpfMode ? 'CPF detectado' : 'E-mail') : ' '}
+              FormHelperTextProps={{ sx: { color: 'rgba(201,169,98,0.5)', fontSize: 11 } }}
+              sx={{
+                mb: 1.5,
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: 'rgba(201,169,98,0.15)' },
+                  '&:hover fieldset': { borderColor: 'rgba(201,169,98,0.3)' },
+                  '&.Mui-focused fieldset': { borderColor: '#c9a962' },
+                },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#c9a962' },
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Senha"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      size="small"
+                      sx={{ color: showPassword ? '#c9a962' : 'text.secondary' }}
+                    >
+                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                mb: 3,
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: 'rgba(201,169,98,0.15)' },
+                  '&:hover fieldset': { borderColor: 'rgba(201,169,98,0.3)' },
+                  '&.Mui-focused fieldset': { borderColor: '#c9a962' },
+                },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#c9a962' },
+              }}
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              disabled={loading}
+              sx={{
+                py: 1.5, fontWeight: 700, fontSize: 13, letterSpacing: 2,
+                textTransform: 'uppercase', borderRadius: 2.5,
+                background: 'linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)',
+                color: '#0f172a',
+                '&:hover': { background: 'linear-gradient(135deg, #d4b872 0%, #b89a5a 100%)' },
+                '&.Mui-disabled': { opacity: 0.6 },
+              }}
+            >
+              {loading ? <CircularProgress size={22} sx={{ color: '#0f172a' }} /> : 'Entrar'}
+            </Button>
+          </form>
+        </Paper>
+
+        <Snackbar open={!!error} autoHideDuration={4000} onClose={() => setError('')}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+          <Alert onClose={() => setError('')} severity="error" variant="filled" sx={{ width: '100%' }}>
+            {error}
+          </Alert>
+        </Snackbar>
+      </Box>
+    );
+  }
+
+  // Authenticated
+  const decoded = parseJwt(token);
   const value: AuthContextType = {
-    keycloak,
-    authenticated,
-    token: keycloak.token,
-    username: tokenParsed?.preferred_username || '',
-    roles: tokenParsed?.realm_roles || [],
-    logout: () => keycloak.logout({ redirectUri: window.location.origin }),
+    authenticated: true,
+    token,
+    username: decoded?.preferred_username || '',
+    roles: decoded?.realm_roles || [],
+    logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

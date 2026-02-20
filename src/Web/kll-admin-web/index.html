@@ -7,10 +7,28 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <title>KLL Platform - Admin</title>
+  <title>AUREA Maison — Admin</title>
 </head>
 <body>
   <div id="root"></div>
+  <script>
+    // Clean up old Keycloak session data (one-time migration)
+    if (!sessionStorage.getItem('kc_cleanup_done')) {
+      Object.keys(localStorage).forEach(function(k) {
+        if (k.startsWith('kc-') || k.startsWith('keycloak')) localStorage.removeItem(k);
+      });
+      Object.keys(sessionStorage).forEach(function(k) {
+        if (k.startsWith('kc-') || k.startsWith('keycloak')) sessionStorage.removeItem(k);
+      });
+      // Unregister any service workers
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(r) { r.unregister(); });
+        });
+      }
+      sessionStorage.setItem('kc_cleanup_done', '1');
+    }
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

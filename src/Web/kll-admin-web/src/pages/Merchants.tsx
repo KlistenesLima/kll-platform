@@ -19,7 +19,7 @@ export default function Merchants() {
   return (
     <Box>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>Merchants</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Gerenciamento de lojistas — KLL Pay</Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Gerenciamento de lojistas</Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>Erro ao carregar merchants.</Alert>}
 

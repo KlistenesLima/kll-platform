@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/authStore";
 import { useCartStore } from "./store/cartStore";
+import { useFavoritesStore } from "./store/favoritesStore";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -14,6 +15,9 @@ import Checkout from "./pages/Checkout";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
 import Addresses from "./pages/Addresses";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import Favorites from "./pages/Favorites";
+import Register from "./pages/Register";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -24,13 +28,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 export default function App() {
   const { init, isAuthenticated } = useAuthStore();
   const { fetchCart } = useCartStore();
+  const { loadFavorites } = useFavoritesStore();
 
   useEffect(() => {
     init();
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) fetchCart();
+    if (isAuthenticated) {
+      fetchCart();
+      loadFavorites();
+    }
   }, [isAuthenticated]);
 
   return (
@@ -42,14 +50,16 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/search" element={<Search />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-            <Route path="/order/:id" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+            <Route path="/order/:id" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/profile/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
+            <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           </Routes>
         </main>
         <Footer />

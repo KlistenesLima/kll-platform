@@ -65,6 +65,7 @@ export interface Transaction {
 
 // Logistics
 export interface TrackingEvent {
+  id?: string;
   description: string;
   location: string;
   timestamp: string;
@@ -77,6 +78,11 @@ export interface Shipment {
   trackingCode: string;
   status: string;
   destinationCity: string;
+  destinationState?: string;
+  destinationAddress?: string;
+  destinationZipCode?: string;
+  weight?: number;
+  driverId?: string;
   estimatedDelivery?: string;
   deliveredAt?: string;
   trackingEvents: TrackingEvent[];

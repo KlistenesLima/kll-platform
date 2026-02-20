@@ -18,6 +18,7 @@ public class StoreDbContext : DbContext
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<Favorite> Favorites => Set<Favorite>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -123,6 +124,14 @@ public class StoreDbContext : DbContext
             b.Property(p => p.FirstName).HasMaxLength(100).IsRequired();
             b.Property(p => p.LastName).HasMaxLength(100).IsRequired();
             b.HasIndex(p => p.CustomerId).IsUnique();
+        });
+
+        modelBuilder.Entity<Favorite>(b =>
+        {
+            b.HasKey(f => f.Id);
+            b.Property(f => f.CustomerId).HasMaxLength(200).IsRequired();
+            b.HasIndex(f => new { f.CustomerId, f.ProductId }).IsUnique();
+            b.HasIndex(f => f.CustomerId);
         });
     }
 }

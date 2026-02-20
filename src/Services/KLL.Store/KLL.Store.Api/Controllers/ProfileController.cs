@@ -69,7 +69,7 @@ public class ProfileController : ControllerBase
     }
 
     [HttpPost("avatar")]
-    [RequestSizeLimit(5 * 1024 * 1024)]
+    [RequestSizeLimit(10 * 1024 * 1024)]
     public async Task<IActionResult> UploadAvatar(IFormFile file, CancellationToken ct)
     {
         var userId = User.GetUserId();

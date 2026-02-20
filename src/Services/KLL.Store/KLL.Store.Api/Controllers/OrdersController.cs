@@ -1,6 +1,9 @@
 using KLL.BuildingBlocks.Infrastructure.Auth;
 using KLL.Store.Application.Commands.CreateOrder;
 using KLL.Store.Application.Commands.ConfirmPayment;
+using KLL.Store.Application.Commands.UpdateOrderStatus;
+using KLL.Store.Application.Commands.CancelOrder;
+using KLL.Store.Application.Queries.GetAllOrders;
 using KLL.Store.Application.Queries.GetOrderById;
 using KLL.Store.Application.Queries.GetOrdersByCustomer;
 using MediatR;
@@ -16,6 +19,13 @@ public class OrdersController : ControllerBase
     private readonly IMediator _mediator;
 
     public OrdersController(IMediator mediator) => _mediator = mediator;
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetAllOrdersQuery(), ct);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateOrderCommand command, CancellationToken ct)
@@ -56,6 +66,22 @@ public class OrdersController : ControllerBase
         var result = await _mediator.Send(new ConfirmPaymentCommand(id, request.ChargeId), ct);
         return result.IsSuccess ? Ok() : BadRequest(result.Error);
     }
+
+    [HttpPut("{id:guid}/status")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateStatusRequest request, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new UpdateOrderStatusCommand(id, request.Status), ct);
+        return result.IsSuccess ? Ok() : BadRequest(result.Error);
+    }
+
+    [HttpPost("{id:guid}/cancel")]
+    public async Task<IActionResult> Cancel(Guid id, [FromBody] CancelOrderRequest? request, CancellationToken ct)
+    {
+        var result = await _mediator.Send(new CancelOrderCommand(id, request?.Reason), ct);
+        return result.IsSuccess ? Ok() : BadRequest(result.Error);
+    }
 }
 
 public record ConfirmPaymentRequest(string ChargeId);
+public record UpdateStatusRequest(string Status);
+public record CancelOrderRequest(string? Reason);

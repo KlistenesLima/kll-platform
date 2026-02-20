@@ -5,9 +5,11 @@ using KLL.BuildingBlocks.Infrastructure.Extensions;
 using KLL.BuildingBlocks.Infrastructure.Middleware;
 using KLL.BuildingBlocks.Infrastructure.Persistence;
 using KLL.Store.Api.Consumers;
+using KLL.BuildingBlocks.EventBus.Outbox;
 using KLL.Store.Application.Commands.CreateProduct;
 using KLL.Store.Application.Interfaces;
 using KLL.Store.Application.Options;
+using KLL.Store.Application.Services;
 using KLL.Store.Domain.Interfaces;
 using KLL.Store.Infra.Data.Context;
 using KLL.Store.Infra.Data.Repositories;
@@ -22,6 +24,7 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
+builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -40,10 +43,15 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 
 // Outbox
 builder.Services.AddScoped<DbContext>(sp => sp.GetRequiredService<StoreDbContext>());
 builder.Services.AddScoped<IOutboxRepository, OutboxRepository>();
+builder.Services.AddHostedService<OutboxProcessor>();
+
+// Services
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Shipping
 builder.Services.AddSingleton<KLL.Store.Application.Services.ShippingService>();

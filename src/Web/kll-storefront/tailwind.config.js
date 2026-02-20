@@ -4,8 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        kll: { 50: "#eff6ff", 100: "#dbeafe", 500: "#3b82f6", 600: "#2563eb", 700: "#1d4ed8", 800: "#1e40af", 900: "#1e3a5f" },
-        accent: { 400: "#facc15", 500: "#eab308" },
+        dark: '#0f0f1a',
+        surface: '#1a1a2e',
+        gold: '#c9a962',
+        'gold-light': '#d4b87a',
+        'gold-dark': '#b08942',
+        'text-primary': '#e0e0e0',
+        'text-secondary': '#a0a0b0',
+      },
+      fontFamily: {
+        playfair: ['Playfair Display', 'serif'],
+        poppins: ['Poppins', 'sans-serif'],
       },
     },
   },

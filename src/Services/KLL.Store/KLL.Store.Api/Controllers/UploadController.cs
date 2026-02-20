@@ -14,7 +14,7 @@ public class UploadController : ControllerBase
     {
         "image/jpeg", "image/png", "image/webp", "image/gif"
     };
-    private const long MaxFileSize = 5 * 1024 * 1024; // 5 MB
+    private const long MaxFileSize = 10 * 1024 * 1024; // 10 MB
 
     public UploadController(IImageUploadService uploadService)
     {
@@ -29,7 +29,7 @@ public class UploadController : ControllerBase
             return BadRequest("Arquivo vazio");
 
         if (file.Length > MaxFileSize)
-            return BadRequest("Arquivo excede o limite de 5MB");
+            return BadRequest("Arquivo excede o limite de 10MB");
 
         if (!AllowedTypes.Contains(file.ContentType))
             return BadRequest("Tipo de arquivo não permitido. Use JPEG, PNG, WebP ou GIF.");

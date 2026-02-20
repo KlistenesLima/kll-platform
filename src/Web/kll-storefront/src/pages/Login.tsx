@@ -1,18 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { authApi } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
-import { DiamondIcon } from "../components/Icons";
+import { DiamondIcon, EyeIcon, EyeOffIcon } from "../components/Icons";
 import toast from "react-hot-toast";
+
+function formatIdentifier(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  // If only digits/dots/dashes and no letters → CPF mode
+  if (digits.length > 0 && !/[a-zA-Z@]/.test(value)) {
+    const d = digits.slice(0, 11);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
+    if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
+    return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+  }
+  return value;
+}
+
+function isCpfMode(value: string): boolean {
+  return value.replace(/\D/g, "").length > 0 && !/[a-zA-Z@]/.test(value);
+}
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, isAuthenticated } = useAuthStore();
   const { fetchCart } = useCartStore();
   const nav = useNavigate();
+
+  const cpfMode = isCpfMode(username);
+
+  useEffect(() => {
+    if (isAuthenticated) nav("/", { replace: true });
+  }, [isAuthenticated]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +85,8 @@ export default function Login() {
             </div>
           </div>
           <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.75rem", marginBottom: "0.35rem" }}>
-            <span style={{ color: "#fff" }}>KLL </span>
-            <span style={{ color: "#c9a962" }}>Store</span>
+            <span style={{ color: "#fff" }}>AUREA </span>
+            <span style={{ color: "#c9a962" }}>Maison</span>
           </h1>
           <p style={{ color: "#6c6c7e", fontSize: "0.85rem" }}>Acesse sua conta</p>
         </div>
@@ -72,12 +96,20 @@ export default function Login() {
             <label style={{
               display: "block", marginBottom: "0.5rem", fontWeight: 500,
               color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
-            }}>E-mail ou usuario</label>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
-              required autoComplete="username"
+            }}>E-mail ou CPF</label>
+            <input type="text" value={username}
+              onChange={(e) => setUsername(formatIdentifier(e.target.value))}
+              required autoComplete="email"
+              inputMode={cpfMode ? "numeric" : "email"}
+              placeholder="seuemail@exemplo.com ou CPF"
               style={inputStyle}
               onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
+            {username && (
+              <div style={{ marginTop: 6, fontSize: "0.7rem", color: "#c9a962", opacity: 0.7 }}>
+                {cpfMode ? "CPF detectado" : "E-mail"}
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: "2rem" }}>
@@ -85,11 +117,22 @@ export default function Login() {
               display: "block", marginBottom: "0.5rem", fontWeight: 500,
               color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
             }}>Senha</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-              required autoComplete="current-password"
-              style={inputStyle}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
+            <div style={{ position: "relative" }}>
+              <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                required autoComplete="current-password"
+                style={{ ...inputStyle, paddingRight: "3rem" }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.4)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(201,169,98,0.06)"; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer", padding: 4,
+                  color: showPassword ? "#c9a962" : "#6c6c7e", transition: "color 0.2s",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" disabled={loading} style={{
@@ -104,7 +147,7 @@ export default function Login() {
 
         <p style={{ textAlign: "center", marginTop: "2rem", fontSize: "0.8rem", color: "#6c6c7e" }}>
           Ainda nao tem conta?{" "}
-          <Link to="/login" style={{ color: "#c9a962", fontWeight: 500, textDecoration: "none" }}>Criar conta</Link>
+          <Link to="/register" style={{ color: "#c9a962", fontWeight: 500, textDecoration: "none" }}>Criar conta</Link>
         </p>
       </div>
     </div>
