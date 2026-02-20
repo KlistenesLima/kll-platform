@@ -10,6 +10,7 @@ using KLL.Store.Application.Commands.CreateProduct;
 using KLL.Store.Application.Interfaces;
 using KLL.Store.Application.Options;
 using KLL.Store.Application.Services;
+using KLL.Store.Domain.Entities;
 using KLL.Store.Domain.Interfaces;
 using KLL.Store.Infra.Data.Context;
 using KLL.Store.Infra.Data.Repositories;
@@ -75,25 +76,24 @@ builder.Services.AddKllBuildingBlocks(builder.Configuration, "KLL.Store",
 builder.Services.AddHostedService<PaymentConfirmedConsumer>();
 builder.Services.AddHostedService<ShipmentCreatedConsumer>();
 
-// CORS
-if (builder.Environment.IsProduction())
-{
-    builder.Services.AddCors(opt => opt.AddPolicy("CorsPolicy", p =>
-        p.WithOrigins(
-            "https://store.klisteneslima.dev",
-            "https://admin.klisteneslima.dev",
-            "https://api-kll.klisteneslima.dev")
-         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
-}
-else
-{
-    builder.Services.AddCors(opt => opt.AddPolicy("CorsPolicy", p =>
-        p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
-}
+// CORS (configurável via appsettings ou default)
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] {
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:4200",
+        "https://store.klisteneslima.dev",
+        "https://admin.klisteneslima.dev",
+        "https://bank.klisteneslima.dev",
+        "https://api-kll.klisteneslima.dev"
+    };
+builder.Services.AddCors(opt => opt.AddPolicy("CorsPolicy", p =>
+    p.WithOrigins(allowedOrigins)
+     .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
 var app = builder.Build();
 
-// Auto migrate
+// Auto migrate + seed
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
@@ -101,6 +101,32 @@ using (var scope = app.Services.CreateScope())
         await db.Database.MigrateAsync();
     else
         await db.Database.EnsureCreatedAsync();
+
+    // Seed categories and products if empty
+    if (!await db.Categories.AnyAsync())
+    {
+        var catAneis = new Category("Anéis", "Anéis em ouro e pedras preciosas");
+        var catColares = new Category("Colares", "Colares e correntes finas");
+        var catBrincos = new Category("Brincos", "Brincos artesanais e clássicos");
+        var catPulseiras = new Category("Pulseiras", "Pulseiras em ouro e prata");
+        var catAliancas = new Category("Alianças", "Alianças de casamento e noivado");
+        var catRelogios = new Category("Relógios", "Relógios de luxo");
+        db.Categories.AddRange(catAneis, catColares, catBrincos, catPulseiras, catAliancas, catRelogios);
+        await db.SaveChangesAsync();
+
+        var products = new[]
+        {
+            Product.Create("Anel Solitário Eternité", "Anel solitário em ouro 18k com diamante central de 0.30ct", 4890m, 15, "Anéis", catAneis.Id),
+            Product.Create("Colar Riviera Diamantes", "Colar riviera com 25 diamantes naturais em ouro branco 18k", 15900m, 5, "Colares", catColares.Id),
+            Product.Create("Brinco Argola Ouro 18k", "Brinco argola clássico em ouro amarelo 18k polido", 1290m, 30, "Brincos", catBrincos.Id),
+            Product.Create("Pulseira Tennis Safiras", "Pulseira tennis em ouro 18k com safiras azuis naturais", 8750m, 8, "Pulseiras", catPulseiras.Id),
+            Product.Create("Aliança Clássica Ouro 18k", "Aliança reta clássica em ouro amarelo 18k, 4mm", 890m, 50, "Alianças", catAliancas.Id),
+            Product.Create("Relógio Automático Heritage", "Relógio automático com caixa em aço e pulseira de couro", 12500m, 10, "Relógios", catRelogios.Id),
+        };
+        db.Products.AddRange(products);
+        await db.SaveChangesAsync();
+        Log.Information("[KLL.Store] Seed data: {CatCount} categories, {ProdCount} products created", 6, products.Length);
+    }
 }
 
 app.UseCors("CorsPolicy");

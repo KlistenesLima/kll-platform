@@ -276,7 +276,7 @@ export default function Header() {
               <>
                 {isAdmin && (
                   <a
-                    href="http://localhost:5173"
+                    href={import.meta.env.VITE_ADMIN_URL || "http://localhost:5173"}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-center w-10 h-10 rounded-full text-text-secondary hover:text-gold no-underline transition-colors duration-200"
@@ -676,7 +676,7 @@ export default function Header() {
 
               {isAdmin && (
                 <a
-                  href="http://localhost:5173"
+                  href={import.meta.env.VITE_ADMIN_URL || "http://localhost:5173"}
                   target="_blank"
                   rel="noreferrer"
                   className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200"

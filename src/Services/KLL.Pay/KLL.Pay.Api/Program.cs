@@ -49,21 +49,19 @@ builder.Services.AddKLLHealthChecks(builder.Configuration);
 builder.Services.AddHostedService<OrderCreatedConsumer>();
 builder.Services.AddHostedService<BankPaymentConfirmedConsumer>();
 
-if (builder.Environment.IsProduction())
-{
-    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
-        p.WithOrigins(
-            "https://store.klisteneslima.dev",
-            "https://admin.klisteneslima.dev",
-            "https://api-kll.klisteneslima.dev")
-         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
-}
-else
-{
-    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
-        p.WithOrigins("http://localhost:5173", "http://localhost:5100")
-         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
-}
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] {
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5100",
+        "https://store.klisteneslima.dev",
+        "https://admin.klisteneslima.dev",
+        "https://bank.klisteneslima.dev",
+        "https://api-kll.klisteneslima.dev"
+    };
+builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
+    p.WithOrigins(allowedOrigins)
+     .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
 var app = builder.Build();
 app.UseKllInfrastructure();

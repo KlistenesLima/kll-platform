@@ -1,9 +1,10 @@
 using System.Threading.RateLimiting;
 using Serilog;
 
+var seqUrl = Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5342";
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.Seq("http://localhost:5342")
+    .WriteTo.Seq(seqUrl)
     .Enrich.FromLogContext()
     .CreateLogger();
 
@@ -43,20 +44,18 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-if (builder.Environment.IsProduction())
-{
-    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
-        p.WithOrigins(
-            "https://store.klisteneslima.dev",
-            "https://admin.klisteneslima.dev")
-         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
-}
-else
-{
-    builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
-        p.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:4200")
-         .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
-}
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] {
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:4200",
+        "https://store.klisteneslima.dev",
+        "https://admin.klisteneslima.dev",
+        "https://bank.klisteneslima.dev"
+    };
+builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", p =>
+    p.WithOrigins(allowedOrigins)
+     .AllowAnyMethod().AllowAnyHeader().AllowCredentials()));
 
 builder.Services.AddHealthChecks();
 
