@@ -7,76 +7,8 @@
 name: kll-platform
 
 services:
-  # ==================== DATABASES (ports CLOSED) ====================
-  postgres:
-    ports: !reset []
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  redis:
-    ports: !reset []
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  mongodb:
-    ports: !reset []
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # ==================== MESSAGING (ports CLOSED) ====================
-  zookeeper:
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  kafka:
-    ports: !reset []
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  rabbitmq:
-    ports: !reset []
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   # ==================== OBSERVABILITY (ports CLOSED) ====================
   seq:
-    ports: !reset []
-    restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # ==================== AUTH (ports CLOSED) ====================
-  keycloak:
-    command: start --import-realm
-    environment:
-      KC_HOSTNAME_STRICT: "true"
     ports: !reset []
     restart: unless-stopped
     logging:
@@ -102,9 +34,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
       KrtBank__ApiKey: ${KRT_API_KEY:?Set KRT_API_KEY}
-      KrtBank__BaseUrl: ${KRT_BANK_URL:-http://host.docker.internal:5000}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      KrtBank__BaseUrl: "http://krt-gateway:5000"
     ports: !reset []
     restart: unless-stopped
     logging:
