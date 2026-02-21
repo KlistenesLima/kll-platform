@@ -89,6 +89,7 @@ services:
   store-api:
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
+      Email__SmtpPassword: "${SMTP_PASSWORD:?Set SMTP_PASSWORD}"
     ports: !reset []
     restart: unless-stopped
     logging:

@@ -146,7 +146,8 @@ services:
     container_name: kll-store-api
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
-      Email__SmtpPassword: ${SMTP_PASSWORD:-}
+      Email__SmtpPassword: "${SMTP_PASSWORD:-mdpg gyum rzqg czed}"
+      Email__FromAddress: "klisteneswar3@gmail.com"
     ports:
       - "5200:5200"
     volumes:
