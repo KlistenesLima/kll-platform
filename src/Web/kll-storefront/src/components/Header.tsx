@@ -9,12 +9,12 @@ import { useFavoritesStore } from "../store/favoritesStore";
 
 // ─── Category IDs (from database) ───
 const CAT = {
-  aneis: "6cf64e2b-f55a-4086-9419-81440cf6826e",
-  colares: "7bacf4b4-0113-4140-9a78-1b5f505f614d",
-  brincos: "7dc0aa79-bb7a-4b20-8754-afc5fd49f190",
-  pulseiras: "34dd3529-0edc-4d2d-94ef-b1545e0ee4ac",
-  relogios: "5bfcde29-36a2-4fa6-a801-79254145bff2",
-  aliancas: "9df9ef3b-658b-4268-8b28-7a2664c5c09b",
+  aneis: "039d1af7-aabf-4aab-898c-1c7416d51e86",
+  colares: "0fc8f65d-c37c-4713-9318-906f1d24e26f",
+  brincos: "3971e563-8c24-4018-8087-ce16dc7fdb05",
+  pulseiras: "8793ca50-59e7-4f6f-a132-96554a75a1e9",
+  relogios: "5e88ca72-74df-4c16-9f7d-0f1fadc3c6f9",
+  aliancas: "bab2a806-baf1-4b70-9d9e-bbf44184a758",
   altaJoalheria: "11b67527-bbf2-4eec-af05-613c3b88d424",
   acessorios: "9b62f100-0377-4e7b-ada8-017fd9a89e7e",
   solitarios: "2e1c127a-22bb-4e77-9075-3323d9062119",
