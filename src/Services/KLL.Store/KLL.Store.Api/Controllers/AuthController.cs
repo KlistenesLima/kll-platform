@@ -56,10 +56,11 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.EmailOrDocument) || string.IsNullOrWhiteSpace(request.Password))
+        var login = request.ResolvedLogin;
+        if (string.IsNullOrWhiteSpace(login) || string.IsNullOrWhiteSpace(request.Password))
             return BadRequest(new { success = false, message = "Email/CPF e senha são obrigatórios" });
 
-        var command = new LoginCommand(request.EmailOrDocument, request.Password);
+        var command = new LoginCommand(login, request.Password);
         var result = await _mediator.Send(command);
 
         if (!result.Success)
@@ -104,6 +105,12 @@ public class AuthController : ControllerBase
 // Request DTOs
 public record RegisterRequest(string FullName, string Email, string Document, string Password);
 public record ConfirmEmailRequest(string Email, string Code);
-public record LoginRequest(string EmailOrDocument, string Password);
+public class LoginRequest
+{
+    public string? EmailOrDocument { get; set; }
+    public string? Identifier { get; set; }
+    public string Password { get; set; } = "";
+    public string ResolvedLogin => !string.IsNullOrWhiteSpace(EmailOrDocument) ? EmailOrDocument : Identifier ?? "";
+}
 public record ForgotPasswordRequest(string Email);
 public record ResetPasswordRequest(string Email, string Code, string NewPassword);

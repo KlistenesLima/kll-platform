@@ -2,6 +2,8 @@
   <h1>💎 KLL Platform — AUREA Maison</h1>
   <p><strong>E-commerce de Joias de Luxo — Microsserviços com .NET 8</strong></p>
   <p>
+    <a href="https://github.com/KlistenesLima/kll-platform/actions/workflows/ci.yml"><img src="https://github.com/KlistenesLima/kll-platform/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+    <br/>
     <img src="https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 8" />
     <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 18" />
     <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
@@ -455,7 +457,7 @@ cd src/Web/kll-storefront && npm test    # 87 testes Vitest
 - [ ] Cupons de desconto e promoções
 - [ ] Notificações push em tempo real (SignalR no storefront)
 - [ ] Deploy cloud (Oracle Cloud Free Tier / AWS)
-- [ ] CI/CD completo com GitHub Actions
+- [x] CI/CD com GitHub Actions (build + testes)
 
 ---
 

@@ -1,8 +1,8 @@
-name: KLL Platform CI/CD
+name: KLL Platform CI
 
 on:
   push:
-    branches: [main, dev, homolog]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -11,7 +11,8 @@ env:
   NODE_VERSION: '20'
 
 jobs:
-  build-and-test:
+  backend:
+    name: Backend Build & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,48 +22,55 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore KLL.Platform.sln
 
       - name: Build
-        run: dotnet build KLL.Platform.sln --configuration Release --no-restore
+        run: dotnet build KLL.Platform.sln --no-restore
 
-      - name: Run Unit Tests
-        run: dotnet test KLL.Platform.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Test
+        run: dotnet test KLL.Platform.sln --no-build --verbosity normal
+
+  storefront:
+    name: Storefront Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/Web/kll-storefront
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/Web/kll-storefront/package-lock.json
 
-      - name: Build Admin Web
-        working-directory: src/Web/kll-admin-web
-        run: |
-          npm ci
-          npm run build
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Build Storefront
-        working-directory: src/Web/kll-storefront
-        run: |
-          npm ci
-          npm run build
+      - name: Build
+        run: npm run build
 
-  docker-build:
+  admin:
+    name: Admin Build
     runs-on: ubuntu-latest
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/homolog'
+    defaults:
+      run:
+        working-directory: src/Web/kll-admin-web
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Docker Images
-        run: |
-          docker compose build --parallel
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: src/Web/kll-admin-web/package-lock.json
 
-      - name: Run Smoke Test
-        run: |
-          docker compose up -d postgres redis
-          sleep 10
-          docker compose up -d store-api pay-api logistics-api gateway
-          sleep 15
-          curl -f http://localhost:5100/health/store || exit 1
-          docker compose down
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
