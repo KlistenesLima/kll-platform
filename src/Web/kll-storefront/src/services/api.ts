@@ -14,8 +14,12 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem("kll_token");
-      window.location.href = "/login";
+      const url = err.config?.url || "";
+      // Don't redirect on auth endpoints (login, register, etc.) — let the page handle the error
+      if (!url.includes("/auth/")) {
+        localStorage.removeItem("kll_token");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(err);
   }

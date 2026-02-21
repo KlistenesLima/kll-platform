@@ -7,11 +7,19 @@ import type { Product } from "../types";
 export default function Favorites() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     favoriteApi.getAll().then((data: Product[]) => {
-      setProducts(data);
-    }).catch(() => {}).finally(() => setLoading(false));
+      setProducts(Array.isArray(data) ? data : []);
+    }).catch((err) => {
+      const status = err?.response?.status;
+      if (status === 401) {
+        setError("Faca login para ver seus favoritos.");
+      } else {
+        setError("Erro ao carregar favoritos. Tente novamente.");
+      }
+    }).finally(() => setLoading(false));
   }, []);
 
   return (
@@ -25,7 +33,25 @@ export default function Favorites() {
           {products.length > 0 ? `${products.length} item(ns) na sua lista` : ""}
         </p>
 
-        {loading ? (
+        {error ? (
+          <div style={{
+            textAlign: "center", padding: "4rem 2rem",
+            background: "#1a1a2e", borderRadius: 16,
+            border: "1px solid rgba(244,67,54,0.2)"
+          }}>
+            <svg width={48} height={48} viewBox="0 0 24 24" fill="none" stroke="rgba(244,67,54,0.5)" strokeWidth="1.5" style={{ marginBottom: "1rem" }}>
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p style={{ color: "#f44336", fontSize: "1rem", marginBottom: "1.5rem" }}>{error}</p>
+            <Link to="/login" style={{
+              display: "inline-block", padding: "0.85rem 2.5rem",
+              background: "linear-gradient(135deg, #c9a962, #a68b4b)",
+              color: "#0f0f1a", borderRadius: 10, textDecoration: "none",
+              fontWeight: 700, fontSize: "0.85rem", textTransform: "uppercase",
+              letterSpacing: 1.5, fontFamily: "'Poppins', sans-serif"
+            }}>Fazer Login</Link>
+          </div>
+        ) : loading ? (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(220px, 100%), 1fr))", gap: "1.5rem" }}>
             {[1, 2, 3, 4].map((i) => (
               <div key={i} style={{

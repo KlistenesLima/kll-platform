@@ -21,11 +21,17 @@ public class KrtBankClient
     {
         try
         {
-            var response = await _http.GetAsync($"{_baseUrl}/api/v1/health", ct);
-            return response.IsSuccessStatusCode;
+            _logger.LogInformation("Checking KRT Bank health at {BaseUrl}/api/v1/health", _baseUrl);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var response = await _http.GetAsync($"{_baseUrl}/api/v1/health", cts.Token);
+            var available = response.IsSuccessStatusCode;
+            _logger.LogInformation("KRT Bank health check result: {Available} (StatusCode: {StatusCode})", available, response.StatusCode);
+            return available;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "KRT Bank health check failed at {BaseUrl}", _baseUrl);
             return false;
         }
     }

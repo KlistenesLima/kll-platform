@@ -18,8 +18,9 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
     set({ loading: true });
     try {
       const ids: string[] = await favoriteApi.getIds();
-      set({ favoriteIds: new Set(ids), count: ids.length });
-    } catch {
+      set({ favoriteIds: new Set(Array.isArray(ids) ? ids : []), count: Array.isArray(ids) ? ids.length : 0 });
+    } catch (err: any) {
+      console.warn("[Favorites] Failed to load favorites:", err?.response?.status || err?.message);
       set({ favoriteIds: new Set(), count: 0 });
     } finally {
       set({ loading: false });
