@@ -63,6 +63,18 @@ export interface Transaction {
   createdAt: string;
 }
 
+// Users
+export interface AppUser {
+  id: string;
+  fullName: string;
+  email: string;
+  document: string;
+  role: 'Cliente' | 'Tecnico' | 'Administrador';
+  status: 'PendingEmailConfirmation' | 'PendingApproval' | 'Active' | 'Inactive' | 'Rejected';
+  createdAt: string;
+  approvedAt?: string;
+}
+
 // Logistics
 export interface TrackingEvent {
   id?: string;

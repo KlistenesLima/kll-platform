@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Product, Order, Merchant, Transaction, Shipment, Category } from '../types';
+import type { Product, Order, Merchant, Transaction, Shipment, Category, AppUser } from '../types';
 
 const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
 const api = axios.create({ baseURL: GATEWAY, timeout: 10000 });
@@ -94,6 +94,22 @@ export const healthApi = {
 };
 export const systemApi = {
   getStatus: () => api.get('/api/v1/system/status').then(r => r.data),
+};
+export const usersApi = {
+  getAll: () =>
+    api.get<{ success: boolean; data: AppUser[] }>('/api/v1/users').then(r => r.data.data),
+  getPending: () =>
+    api.get<{ success: boolean; data: AppUser[] }>('/api/v1/users/pending').then(r => r.data.data),
+  getById: (id: string) =>
+    api.get<{ success: boolean; data: AppUser }>(`/api/v1/users/${id}`).then(r => r.data.data),
+  approve: (id: string) =>
+    api.post(`/api/v1/users/${id}/approve`).then(r => r.data),
+  reject: (id: string) =>
+    api.post(`/api/v1/users/${id}/reject`).then(r => r.data),
+  changeRole: (id: string, newRole: number) =>
+    api.put(`/api/v1/users/${id}/role`, { newRole }).then(r => r.data),
+  changeStatus: (id: string, activate: boolean) =>
+    api.put(`/api/v1/users/${id}/status`, { activate }).then(r => r.data),
 };
 export const uploadApi = {
   uploadImage: (file: File) => {

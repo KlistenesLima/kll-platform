@@ -1,4 +1,5 @@
 using KLL.Store.Domain.Entities;
+using KLL.Store.Domain.Enums;
 using KLL.BuildingBlocks.Domain.Outbox;
 using KLL.BuildingBlocks.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ public class StoreDbContext : DbContext
     public DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
+    public DbSet<AppUser> AppUsers { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -132,6 +134,23 @@ public class StoreDbContext : DbContext
             b.Property(f => f.CustomerId).HasMaxLength(200).IsRequired();
             b.HasIndex(f => new { f.CustomerId, f.ProductId }).IsUnique();
             b.HasIndex(f => f.CustomerId);
+        });
+
+        modelBuilder.Entity<AppUser>(b =>
+        {
+            b.ToTable("AppUsers");
+            b.HasKey(u => u.Id);
+            b.Property(u => u.FullName).HasMaxLength(200).IsRequired();
+            b.Property(u => u.Email).HasMaxLength(200).IsRequired();
+            b.Property(u => u.Document).HasMaxLength(14).IsRequired();
+            b.Property(u => u.PasswordHash).IsRequired();
+            b.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
+            b.Property(u => u.Status).HasConversion<string>().HasMaxLength(30);
+            b.Property(u => u.EmailConfirmationCode).HasMaxLength(6);
+            b.Property(u => u.PasswordResetCode).HasMaxLength(6);
+            b.Property(u => u.ApprovedBy).HasMaxLength(200);
+            b.HasIndex(u => u.Email).IsUnique();
+            b.HasIndex(u => u.Document).IsUnique();
         });
     }
 }

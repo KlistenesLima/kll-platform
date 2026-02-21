@@ -19,6 +19,7 @@ import Addresses from "./pages/Addresses";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Favorites from "./pages/Favorites";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
 import PortfolioPage from "./pages/Portfolio/PortfolioPage";
 import About from "./pages/About";
 import Resume from "./pages/Resume";
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/portfolio" element={<PortfolioPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/resume" element={<Resume />} />

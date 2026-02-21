@@ -12,6 +12,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CategoryIcon from '@mui/icons-material/Category';
 import StoreIcon from '@mui/icons-material/Store';
+import PeopleIcon from '@mui/icons-material/People';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -30,6 +31,7 @@ const pageLabels: Record<string, string> = {
   shipments: 'Entregas',
   transactions: 'Transações',
   merchants: 'Merchants',
+  users: 'Usuários',
   system: 'Sistema',
 };
 
@@ -45,6 +47,7 @@ const mainNav: NavItem[] = [
   { label: 'Pedidos', icon: <ShoppingCartIcon />, path: '/orders' },
   { label: 'Produtos', icon: <InventoryIcon />, path: '/products' },
   { label: 'Categorias', icon: <CategoryIcon />, path: '/categories' },
+  { label: 'Usuários', icon: <PeopleIcon />, path: '/users' },
 ];
 
 const financeNav: NavItem[] = [
