@@ -6,16 +6,16 @@ services:
     image: postgres:16-alpine
     container_name: kll-postgres
     environment:
-      POSTGRES_USER: kll
-      POSTGRES_PASSWORD: REDACTED_DB_PASSWORD
-      POSTGRES_DB: kll_store
+      POSTGRES_USER: ${POSTGRES_USER:-kll}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-kll_store}
     ports:
       - "5434:5432"
     volumes:
       - kll_pgdata:/var/lib/postgresql/data
       - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kll -d kll_store"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kll} -d ${POSTGRES_DB:-kll_store}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,8 +55,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "42181:2181"
     networks:
       - kll-net
 
@@ -66,12 +64,14 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "39092:9092"
+      - "39092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:39092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:39092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     healthcheck:
@@ -86,8 +86,8 @@ services:
     image: rabbitmq:3-management
     container_name: kll-rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: kll
-      RABBITMQ_DEFAULT_PASS: REDACTED_RABBITMQ_PASSWORD
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-kll}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:?Set RABBITMQ_DEFAULT_PASS in .env}
     ports:
       - "5673:5672"
       - "15673:15672"
@@ -105,11 +105,154 @@ services:
     container_name: kll-seq
     environment:
       ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: ${SEQ_ADMIN_PASSWORD:?Set SEQ_ADMIN_PASSWORD in .env}
     ports:
       - "5342:5341"
       - "8082:80"
     volumes:
       - kll_seq_data:/data
+    networks:
+      - kll-net
+
+  # ==================== AUTH ====================
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: kll-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/kll_keycloak
+      KC_DB_USERNAME: ${POSTGRES_USER:-kll}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_RELATIVE_PATH: /
+    ports:
+      - "8083:8080"
+    volumes:
+      - ./infra/keycloak/kll-platform-realm.json:/opt/keycloak/data/import/kll-platform-realm.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kll-net
+
+  # ==================== MICROSERVICES ====================
+  store-api:
+    build:
+      context: .
+      dockerfile: src/Services/KLL.Store/KLL.Store.Api/Dockerfile
+    container_name: kll-store-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
+      Email__SmtpPassword: ${SMTP_PASSWORD:-}
+    ports:
+      - "5200:5200"
+    volumes:
+      - ./src/Web/kll-storefront/public/products:/app/products-local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - kll-net
+
+  pay-api:
+    build:
+      context: .
+      dockerfile: src/Services/KLL.Pay/KLL.Pay.Api/Dockerfile
+    container_name: kll-pay-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
+      KrtBank__ApiKey: ${KRT_API_KEY:?Set KRT_API_KEY in .env}
+      KrtBank__BaseUrl: ${KRT_BANK_URL:-http://host.docker.internal:5000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "5300:5300"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - kll-net
+
+  logistics-api:
+    build:
+      context: .
+      dockerfile: src/Services/KLL.Logistics/KLL.Logistics.Api/Dockerfile
+    container_name: kll-logistics-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
+    ports:
+      - "5400:5400"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - kll-net
+
+  gateway:
+    build:
+      context: .
+      dockerfile: src/Services/KLL.Gateway/Dockerfile
+    container_name: kll-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
+    ports:
+      - "5100:5100"
+    depends_on:
+      - store-api
+      - pay-api
+      - logistics-api
+    networks:
+      - kll-net
+
+  notifications-worker:
+    build:
+      context: .
+      dockerfile: src/Services/KLL.Notifications/KLL.Notifications.Worker/Dockerfile
+    container_name: kll-notifications
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - kll-net
+
+  storefront:
+    build:
+      context: src/Web/kll-storefront
+      dockerfile: Dockerfile
+    container_name: kll-storefront
+    ports:
+      - "5174:80"
+    depends_on:
+      - gateway
+    networks:
+      - kll-net
+
+  admin-web:
+    build:
+      context: src/Web/kll-admin-web
+      dockerfile: Dockerfile
+    container_name: kll-admin-web
+    ports:
+      - "5173:80"
+    depends_on:
+      - gateway
     networks:
       - kll-net
 

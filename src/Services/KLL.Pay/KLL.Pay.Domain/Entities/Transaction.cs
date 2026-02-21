@@ -33,12 +33,24 @@ public class Transaction : BaseEntity
         return tx;
     }
 
+    public void SetBankChargeId(string bankChargeId)
+    {
+        BankChargeId = bankChargeId;
+        SetUpdated();
+    }
+
     public void ConfirmPayment(string bankChargeId)
     {
         BankChargeId = bankChargeId;
         Status = TransactionStatus.Confirmed;
         SetUpdated();
         AddDomainEvent(new TransactionConfirmedEvent(Id, MerchantId, Amount, bankChargeId));
+    }
+
+    public void Confirm()
+    {
+        Status = TransactionStatus.Confirmed;
+        SetUpdated();
     }
 
     public void Fail(string reason)

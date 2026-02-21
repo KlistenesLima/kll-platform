@@ -1,5 +1,3 @@
-﻿using KLL.BuildingBlocks.Domain.Events;
-
 namespace KLL.BuildingBlocks.Domain.Entities;
 
 public abstract class BaseEntity
@@ -8,10 +6,10 @@ public abstract class BaseEntity
     public DateTime CreatedAt { get; protected set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; protected set; }
 
-    private readonly List<DomainEvent> _domainEvents = new();
-    public IReadOnlyCollection<DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+    private readonly List<Events.DomainEvent> _domainEvents = new();
+    public IReadOnlyCollection<Events.DomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    public void AddDomainEvent(DomainEvent domainEvent) => _domainEvents.Add(domainEvent);
+    public void AddDomainEvent(Events.DomainEvent domainEvent) => _domainEvents.Add(domainEvent);
     public void ClearDomainEvents() => _domainEvents.Clear();
     protected void SetUpdated() => UpdatedAt = DateTime.UtcNow;
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Confluent.Kafka;
 using KLL.BuildingBlocks.EventBus.Interfaces;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +18,9 @@ public class KafkaEventBus : IEventBus, IDisposable
         {
             BootstrapServers = config["Kafka:BootstrapServers"] ?? "localhost:39092",
             Acks = Acks.All,
-            EnableIdempotence = true
+            EnableIdempotence = true,
+            MessageSendMaxRetries = 3,
+            RetryBackoffMs = 1000
         };
         _producer = new ProducerBuilder<string, string>(producerConfig).Build();
     }
@@ -26,8 +28,10 @@ public class KafkaEventBus : IEventBus, IDisposable
     public async Task PublishAsync<T>(T @event, CancellationToken ct = default) where T : class
     {
         var topic = typeof(T).Name.Replace("IntegrationEvent", "").Replace("Event", "").ToLowerInvariant();
+        var key = Guid.NewGuid().ToString();
         var value = JsonSerializer.Serialize(@event, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        await PublishAsync(topic, value, null, ct);
+
+        await PublishAsync(topic, value, key, ct);
     }
 
     public async Task PublishAsync(string topic, string message, string? key = null, CancellationToken ct = default)
@@ -39,7 +43,9 @@ public class KafkaEventBus : IEventBus, IDisposable
                 Key = key ?? Guid.NewGuid().ToString(),
                 Value = message
             }, ct);
-            _logger.LogInformation("Published to {Topic} offset {Offset}", topic, result.Offset.Value);
+
+            _logger.LogInformation("Published to {Topic} partition {Partition} offset {Offset}",
+                topic, result.Partition.Value, result.Offset.Value);
         }
         catch (ProduceException<string, string> ex)
         {

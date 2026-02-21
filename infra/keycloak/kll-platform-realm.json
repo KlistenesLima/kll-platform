@@ -10,59 +10,92 @@
   "bruteForceProtected": true,
   "roles": {
     "realm": [
-      { "name": "customer", "description": "E-commerce customer" },
       { "name": "admin", "description": "Platform administrator" },
-      { "name": "driver", "description": "Delivery driver" }
+      { "name": "customer", "description": "Platform customer" }
     ]
   },
+  "defaultRoles": ["customer"],
   "clients": [
     {
-      "clientId": "kll-platform-app",
-      "name": "KLL Platform App",
+      "clientId": "storefront",
+      "name": "KLL Storefront",
       "enabled": true,
       "publicClient": true,
       "directAccessGrantsEnabled": true,
+      "redirectUris": ["http://localhost:5174/*", "http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5174", "http://localhost:5173"],
+      "protocol": "openid-connect",
       "standardFlowEnabled": true,
-      "redirectUris": ["http://localhost:5173/*", "http://localhost:5500/*"],
-      "webOrigins": ["http://localhost:5173", "http://localhost:5500"],
-      "defaultRoles": ["customer"]
+      "implicitFlowEnabled": false,
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "realm_roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
     },
     {
-      "clientId": "kll-platform-api",
-      "name": "KLL Platform API",
+      "clientId": "admin-web",
+      "name": "KLL Admin Panel",
       "enabled": true,
-      "publicClient": false,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "realm_roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "store-api",
+      "name": "KLL Store API",
+      "enabled": true,
       "bearerOnly": true,
-      "standardFlowEnabled": false
+      "protocol": "openid-connect"
     }
   ],
   "users": [
     {
-      "username": "cliente@kll.com",
-      "email": "cliente@kll.com",
-      "firstName": "JoÃ£o",
-      "lastName": "Silva",
-      "enabled": true,
-      "credentials": [{ "type": "password", "value": "Senha@123", "temporary": false }],
-      "realmRoles": ["customer"]
-    },
-    {
-      "username": "admin@kll.com",
+      "username": "admin",
       "email": "admin@kll.com",
+      "enabled": true,
       "firstName": "Admin",
       "lastName": "KLL",
-      "enabled": true,
-      "credentials": [{ "type": "password", "value": "Admin@123", "temporary": false }],
-      "realmRoles": ["admin"]
+      "credentials": [{ "type": "password", "value": "CHANGE_ME_ADMIN_PASSWORD", "temporary": false }],
+      "realmRoles": ["admin", "customer"]
     },
     {
-      "username": "motorista@kll.com",
-      "email": "motorista@kll.com",
-      "firstName": "Pedro",
-      "lastName": "Costa",
+      "username": "cliente",
+      "email": "cliente@email.com",
       "enabled": true,
-      "credentials": [{ "type": "password", "value": "Senha@123", "temporary": false }],
-      "realmRoles": ["driver"]
+      "firstName": "Cliente",
+      "lastName": "Teste",
+      "credentials": [{ "type": "password", "value": "CHANGE_ME_CLIENT_PASSWORD", "temporary": false }],
+      "realmRoles": ["customer"]
     }
   ]
 }
