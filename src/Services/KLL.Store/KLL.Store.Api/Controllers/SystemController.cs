@@ -30,13 +30,13 @@ public class SystemController : ControllerBase
         var gatewayHost = isDocker ? "gateway" : "localhost";
         var storefrontHost = isDocker ? "storefront" : "localhost";
         var adminHost = isDocker ? "admin-web" : "localhost";
-        var postgresHost = isDocker ? "postgres" : "localhost";
-        var redisHost = isDocker ? "redis" : "localhost";
-        var rabbitmqHost = isDocker ? "rabbitmq" : "localhost";
-        var kafkaHost = isDocker ? "kafka" : "localhost";
-        var keycloakHost = isDocker ? "keycloak" : "localhost";
-        var seqHost = isDocker ? "seq" : "localhost";
-        var krtHost = isDocker ? "host.docker.internal" : "localhost";
+        var postgresHost = isDocker ? "shared-postgres" : "localhost";
+        var redisHost = isDocker ? "shared-redis" : "localhost";
+        var rabbitmqHost = isDocker ? "shared-rabbitmq" : "localhost";
+        var kafkaHost = isDocker ? "shared-kafka" : "localhost";
+        var keycloakHost = isDocker ? "shared-keycloak" : "localhost";
+        var seqHost = isDocker ? "kll-seq" : "localhost";
+        var krtHost = isDocker ? "krt-gateway" : "localhost";
 
         var storefrontPort = isDocker ? 80 : 5174;
         var adminPort = isDocker ? 80 : 5173;
@@ -63,7 +63,9 @@ public class SystemController : ControllerBase
             CheckHttp("Seq", seqHost, seqPort, 8082, "/", "Logging \u00b7 Observabilidade", "Infraestrutura"),
         };
 
-        var krtCheck = CheckKrtIntegration(krtHost, ct);
+        var krtPort = isDocker ? 80 : 5000;
+
+        var krtCheck = CheckKrtIntegration(krtHost, krtPort, ct);
 
         await Task.WhenAll(checks.Concat(new[] { krtCheck.ContinueWith(_ => (ServiceStatus)null!, ct) }));
 
@@ -74,7 +76,7 @@ public class SystemController : ControllerBase
         {
             Name = "KRT Gateway",
             Host = krtHost,
-            Port = 5000,
+            Port = krtPort,
             ExternalPort = 5000,
             Status = krtResult.Available ? "Online" : "Offline",
             ResponseTimeMs = krtResult.ResponseTimeMs,
@@ -163,14 +165,14 @@ public class SystemController : ControllerBase
         }
     }
 
-    private async Task<KrtIntegrationResult> CheckKrtIntegration(string krtHost, CancellationToken ct)
+    private async Task<KrtIntegrationResult> CheckKrtIntegration(string krtHost, int krtPort, CancellationToken ct)
     {
         var sw = Stopwatch.StartNew();
         try
         {
             var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(3);
-            var response = await client.GetAsync($"http://{krtHost}:5000/api/v1/health", ct);
+            var response = await client.GetAsync($"http://{krtHost}:{krtPort}/api/v1/health", ct);
             sw.Stop();
 
             if (response.IsSuccessStatusCode)
