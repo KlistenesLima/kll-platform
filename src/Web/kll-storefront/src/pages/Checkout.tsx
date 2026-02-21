@@ -76,10 +76,23 @@ export default function Checkout() {
 
   useEffect(() => {
     fetchCart();
-    paymentApi.healthCheck().then((data: { available: boolean; methods: string[] }) => {
-      setKrtAvailable(data.available);
-      setKrtMethods(data.methods || []);
-    }).catch(() => { setKrtAvailable(false); setKrtMethods(["credit_card_sim"]); });
+    const checkHealth = (attempt = 1) => {
+      paymentApi.healthCheck().then((data: { available: boolean; methods: string[] }) => {
+        setKrtAvailable(data.available);
+        setKrtMethods(data.methods || []);
+        if (!data.available && attempt < 3) {
+          setTimeout(() => checkHealth(attempt + 1), 2000);
+        }
+      }).catch(() => {
+        if (attempt < 3) {
+          setTimeout(() => checkHealth(attempt + 1), 2000);
+        } else {
+          setKrtAvailable(false);
+          setKrtMethods(["credit_card_sim"]);
+        }
+      });
+    };
+    checkHealth();
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
       if (countdownRef.current) clearInterval(countdownRef.current);
