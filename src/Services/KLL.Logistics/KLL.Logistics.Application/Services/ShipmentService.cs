@@ -27,6 +27,18 @@ public class ShipmentService
         return Map(shipment);
     }
 
+    public async Task<IEnumerable<ShipmentResponse>> GetAllAsync(CancellationToken ct)
+    {
+        var shipments = await _repo.GetAllAsync(ct);
+        return shipments.Select(Map);
+    }
+
+    public async Task<ShipmentResponse?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
+    {
+        var s = await _repo.GetByOrderIdAsync(orderId, ct);
+        return s is null ? null : Map(s);
+    }
+
     public async Task<ShipmentResponse?> GetByTrackingCodeAsync(string code, CancellationToken ct)
     {
         var s = await _repo.GetByTrackingCodeAsync(code, ct);
@@ -45,6 +57,20 @@ public class ShipmentService
         s.AssignDriver(driverId);
         await _repo.UpdateAsync(s, ct);
         await _repo.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateStatusAsync(Guid shipmentId, int status, string description, string? location, CancellationToken ct)
+    {
+        var s = await _repo.GetWithTrackingAsync(shipmentId, ct) ?? throw new KeyNotFoundException("Shipment not found");
+        var newStatus = (ShipmentStatus)status;
+        s.UpdateStatus(newStatus, description, location);
+        await _repo.SaveChangesAsync(ct);
+
+        if (newStatus == ShipmentStatus.Delivered)
+        {
+            await _eventBus.PublishAsync(new ShipmentDeliveredIntegrationEvent
+            { ShipmentId = s.Id, OrderId = s.OrderId, TrackingCode = s.TrackingCode }, ct);
+        }
     }
 
     public async Task MarkDeliveredAsync(Guid shipmentId, CancellationToken ct)

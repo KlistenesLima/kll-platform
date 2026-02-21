@@ -9,7 +9,7 @@ public class ShipmentTests
     [Fact]
     public void Create_ShouldGenerateTrackingCode()
     {
-        var shipment = Shipment.Create(Guid.NewGuid(), "JoÃ£o", "joao@email.com",
+        var shipment = Shipment.Create(Guid.NewGuid(), "João", "joao@email.com",
             "Rua Test 123", "Recife", "PE", "50000-000", 2.5m);
 
         shipment.TrackingCode.Should().StartWith("KLL");

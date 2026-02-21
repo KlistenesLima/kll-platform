@@ -154,7 +154,7 @@ export default function Categories() {
             pageSizeOptions={[10, 25]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
             disableRowSelectionOnClick
-            sx={{ border: 'none', '& .MuiDataGrid-cell': { borderColor: 'rgba(255,255,255,0.06)' } }}
+            sx={{ border: 'none', '& .MuiDataGrid-cell': { borderColor: 'rgba(255,255,255,0.06)' }, '& .MuiDataGrid-virtualScroller': { overflowX: 'auto' }, minWidth: 0 }}
           />
         </CardContent>
       </Card>

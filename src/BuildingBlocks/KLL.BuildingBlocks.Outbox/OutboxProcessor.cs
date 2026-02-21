@@ -1,4 +1,5 @@
-﻿using KLL.BuildingBlocks.EventBus.Interfaces;
+using System.Text.Json;
+using KLL.BuildingBlocks.EventBus.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -31,9 +32,7 @@ public class OutboxProcessor : BackgroundService
                 {
                     try
                     {
-                        string topic = msg.Type;
-                        string content = msg.Content;
-                        await eventBus.PublishAsync(topic, content, null, ct);
+                        await eventBus.PublishAsync(msg.Type, msg.Content, null, ct);
                         await outbox.MarkAsProcessedAsync(msg.Id, ct);
                         _logger.LogInformation("Outbox message {Id} ({Type}) published", msg.Id, msg.Type);
                     }

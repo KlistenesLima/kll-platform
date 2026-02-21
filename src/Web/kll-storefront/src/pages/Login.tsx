@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 
 function formatIdentifier(value: string): string {
   const digits = value.replace(/\D/g, "");
-  // If only digits/dots/dashes and no letters → CPF mode
   if (digits.length > 0 && !/[a-zA-Z@]/.test(value)) {
     const d = digits.slice(0, 11);
     if (d.length <= 3) return d;
@@ -43,15 +42,16 @@ export default function Login() {
     setLoading(true);
     try {
       const data = await authApi.login(username, password);
-      login(data.access_token);
+      login(data.token);
       await fetchCart();
       toast.success("Bem-vindo de volta!", {
         style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(201,169,98,0.2)" },
         iconTheme: { primary: "#c9a962", secondary: "#0f0f1a" }
       });
       nav("/");
-    } catch {
-      toast.error("Credenciais invalidas", {
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Credenciais inválidas";
+      toast.error(msg, {
         style: { background: "#1a1a2e", color: "#fff", border: "1px solid rgba(244,67,54,0.3)" }
       });
     } finally { setLoading(false); }
@@ -112,7 +112,7 @@ export default function Login() {
             )}
           </div>
 
-          <div style={{ marginBottom: "2rem" }}>
+          <div style={{ marginBottom: "1.25rem" }}>
             <label style={{
               display: "block", marginBottom: "0.5rem", fontWeight: 500,
               color: "#8888a0", fontSize: "0.8rem", letterSpacing: "0.5px"
@@ -135,6 +135,12 @@ export default function Login() {
             </div>
           </div>
 
+          <div style={{ textAlign: "right", marginBottom: "1.5rem" }}>
+            <Link to="/forgot-password" style={{ color: "#c9a962", fontSize: "0.78rem", textDecoration: "none", fontWeight: 500 }}>
+              Esqueci minha senha
+            </Link>
+          </div>
+
           <button type="submit" disabled={loading} style={{
             width: "100%", padding: "0.9rem", fontFamily: "'Poppins', sans-serif",
             fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px",
@@ -146,7 +152,7 @@ export default function Login() {
         </form>
 
         <p style={{ textAlign: "center", marginTop: "2rem", fontSize: "0.8rem", color: "#6c6c7e" }}>
-          Ainda nao tem conta?{" "}
+          Ainda não tem conta?{" "}
           <Link to="/register" style={{ color: "#c9a962", fontWeight: 500, textDecoration: "none" }}>Criar conta</Link>
         </p>
       </div>

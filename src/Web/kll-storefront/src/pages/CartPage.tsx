@@ -28,82 +28,79 @@ export default function CartPage() {
     try { await removeItem(productId); await fetchCart(); toast.success("Removido"); } catch {}
   };
 
-  if (loading) return <div style={{ display: "flex", justifyContent: "center", padding: "5rem 0" }}><div style={{ width: 48, height: 48, border: "3px solid rgba(201,169,98,0.2)", borderTopColor: "#c9a962", borderRadius: "50%", animation: "spin 1s linear infinite" }} /><style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style></div>;
+  if (loading) return <div className="flex justify-center py-20"><div className="w-12 h-12 border-[3px] border-[rgba(201,169,98,0.2)] border-t-[#c9a962] rounded-full animate-spin" /></div>;
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: "3rem 1.5rem" }}>
-      <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.25rem", marginBottom: "2rem" }}>
-        Carrinho <span style={{ color: "#6c6c7e", fontSize: "1rem", fontFamily: "'Poppins', sans-serif" }}>({itemCount} itens)</span>
+    <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <h1 className="font-[Playfair_Display] text-2xl sm:text-4xl mb-6 sm:mb-8">
+        Carrinho <span className="text-[#6c6c7e] text-sm sm:text-base font-[Poppins]">({itemCount} itens)</span>
       </h1>
 
       {items.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "4rem", background: "#1a1a2e", borderRadius: 20, border: "1px solid rgba(201,169,98,0.2)" }}>
-          <div style={{ marginBottom: "1rem", opacity: 0.3, display: "flex", justifyContent: "center" }}>
+        <div className="text-center p-8 sm:p-16 bg-[#1a1a2e] rounded-2xl border border-[rgba(201,169,98,0.2)]">
+          <div className="mb-4 opacity-30 flex justify-center">
             <CartIcon size={64} color="#6c6c7e" />
           </div>
-          <p style={{ color: "#6c6c7e", fontSize: "1.1rem", marginBottom: "2rem" }}>Seu carrinho esta vazio</p>
-          <Link to="/search" style={{
-            display: "inline-block", padding: "1rem 2.5rem", background: "linear-gradient(135deg, #c9a962, #a68b4b)",
-            color: "#1a1a2e", borderRadius: 8, fontWeight: 600, textDecoration: "none",
-            textTransform: "uppercase", letterSpacing: 1
-          }}>Explorar Produtos</Link>
+          <p className="text-[#6c6c7e] text-lg mb-6">Seu carrinho esta vazio</p>
+          <Link to="/search" className="inline-block px-8 py-3 bg-gradient-to-r from-[#c9a962] to-[#a68b4b] text-[#1a1a2e] rounded-lg font-semibold uppercase tracking-wider text-sm no-underline">
+            Explorar Produtos
+          </Link>
         </div>
       ) : (
         <>
-          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div className="flex flex-col gap-3 sm:gap-4">
             {items.map((item) => (
-              <div key={item.productId} style={{
-                display: "flex", alignItems: "center", gap: "1.5rem", padding: "1.25rem",
-                background: "#1a1a2e", border: "1px solid rgba(201,169,98,0.2)", borderRadius: 12
-              }}>
-                <div style={{ width: 80, height: 80, background: "#252542", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <ProductImage imageUrl={item.imageUrl} alt={item.productName} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} />
+              <div key={item.productId} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 p-4 sm:p-5 bg-[#1a1a2e] border border-[rgba(201,169,98,0.2)] rounded-xl">
+                {/* Image + Info row on mobile */}
+                <div className="flex items-center gap-3 sm:gap-6">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#252542] rounded-lg flex items-center justify-center shrink-0">
+                    <ProductImage imageUrl={item.imageUrl} alt={item.productName} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-[Playfair_Display] text-sm sm:text-base font-semibold text-white truncate">{item.productName}</h3>
+                    <p className="text-[#c9a962] font-semibold text-sm">{fmt(item.unitPrice)}</p>
+                  </div>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1rem", fontWeight: 600, color: "#fff" }}>{item.productName}</h3>
-                  <p style={{ color: "#c9a962", fontWeight: 600, fontSize: "0.95rem" }}>{fmt(item.unitPrice)}</p>
+
+                {/* Actions row */}
+                <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pl-0 sm:pl-0">
+                  <div className="flex items-center border-2 border-[rgba(201,169,98,0.2)] rounded-lg">
+                    <button onClick={() => handleUpdate(item.productId, item.quantity - 1)}
+                      className="p-2 sm:p-2.5 bg-transparent border-none text-white cursor-pointer flex items-center justify-center">
+                      <MinusIcon size={14} color="#fff" />
+                    </button>
+                    <span className="px-3 font-semibold text-white text-sm">{item.quantity}</span>
+                    <button onClick={() => handleUpdate(item.productId, item.quantity + 1)}
+                      className="p-2 sm:p-2.5 bg-transparent border-none text-white cursor-pointer flex items-center justify-center">
+                      <PlusIcon size={14} color="#fff" />
+                    </button>
+                  </div>
+                  <p className="font-[Playfair_Display] font-bold text-[#c9a962] text-base sm:text-lg w-20 sm:w-24 text-right">{fmt(item.total)}</p>
+                  <button onClick={() => handleRemove(item.productId)}
+                    className="bg-transparent border-none text-[#f44336] cursor-pointer p-2 flex items-center justify-center">
+                    <XIcon size={16} color="#f44336" />
+                  </button>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", border: "2px solid rgba(201,169,98,0.2)", borderRadius: 8 }}>
-                  <button onClick={() => handleUpdate(item.productId, item.quantity - 1)} style={{
-                    padding: "0.4rem 0.8rem", background: "none", border: "none", color: "#fff", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center"
-                  }}><MinusIcon size={14} color="#fff" /></button>
-                  <span style={{ padding: "0.4rem 0.75rem", fontWeight: 600, color: "#fff", fontSize: "0.9rem" }}>{item.quantity}</span>
-                  <button onClick={() => handleUpdate(item.productId, item.quantity + 1)} style={{
-                    padding: "0.4rem 0.8rem", background: "none", border: "none", color: "#fff", cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center"
-                  }}><PlusIcon size={14} color="#fff" /></button>
-                </div>
-                <p style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, color: "#c9a962", width: 100, textAlign: "right", fontSize: "1.1rem" }}>{fmt(item.total)}</p>
-                <button onClick={() => handleRemove(item.productId)} style={{
-                  background: "none", border: "none", color: "#f44336", cursor: "pointer", padding: "0.5rem",
-                  display: "flex", alignItems: "center", justifyContent: "center"
-                }}><XIcon size={16} color="#f44336" /></button>
               </div>
             ))}
           </div>
 
-          <div style={{
-            marginTop: "2rem", padding: "2rem", background: "#1a1a2e",
-            border: "1px solid rgba(201,169,98,0.2)", borderRadius: 16
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <span style={{ fontSize: "1.1rem", color: "#b8b8c7" }}>Total:</span>
-              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#c9a962" }}>{fmt(total)}</span>
+          <div className="mt-6 sm:mt-8 p-5 sm:p-8 bg-[#1a1a2e] border border-[rgba(201,169,98,0.2)] rounded-2xl">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <span className="text-base sm:text-lg text-[#b8b8c7]">Total:</span>
+              <span className="font-[Playfair_Display] text-xl sm:text-3xl font-bold text-[#c9a962]">{fmt(total)}</span>
             </div>
             <ShippingCalculator cartTotal={total} />
 
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-              <button onClick={() => { clearCart(); toast.success("Carrinho limpo"); }} style={{
-                padding: "1rem 1.5rem", background: "transparent", border: "2px solid rgba(201,169,98,0.2)",
-                borderRadius: 8, color: "#b8b8c7", cursor: "pointer", fontFamily: "'Poppins', sans-serif"
-              }}>Limpar</button>
-              <Link to="/checkout" style={{
-                flex: 1, textAlign: "center", padding: "1rem", borderRadius: 8,
-                background: "linear-gradient(135deg, #c9a962, #a68b4b)", color: "#1a1a2e",
-                fontWeight: 600, textDecoration: "none", textTransform: "uppercase", letterSpacing: 1,
-                fontFamily: "'Poppins', sans-serif"
-              }}>Finalizar Compra</Link>
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <button onClick={() => { clearCart(); toast.success("Carrinho limpo"); }}
+                className="px-6 py-3 bg-transparent border-2 border-[rgba(201,169,98,0.2)] rounded-lg text-[#b8b8c7] cursor-pointer font-[Poppins] text-sm sm:text-base">
+                Limpar
+              </button>
+              <Link to="/checkout"
+                className="flex-1 text-center py-3 rounded-lg bg-gradient-to-r from-[#c9a962] to-[#a68b4b] text-[#1a1a2e] font-semibold no-underline uppercase tracking-wider text-sm font-[Poppins]">
+                Finalizar Compra
+              </Link>
             </div>
           </div>
         </>

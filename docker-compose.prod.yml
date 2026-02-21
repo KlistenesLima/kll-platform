@@ -100,7 +100,7 @@ services:
   pay-api:
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
-      KrtBank__ApiKey: ${KRT_API_KEY}
+      KrtBank__ApiKey: ${KRT_API_KEY:?Set KRT_API_KEY}
       KrtBank__BaseUrl: ${KRT_BANK_URL:-http://host.docker.internal:5000}
     extra_hosts:
       - "host.docker.internal:host-gateway"

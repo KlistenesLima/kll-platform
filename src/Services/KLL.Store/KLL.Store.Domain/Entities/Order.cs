@@ -1,4 +1,4 @@
-﻿using KLL.BuildingBlocks.Domain.Entities;
+using KLL.BuildingBlocks.Domain.Entities;
 using KLL.BuildingBlocks.Domain.ValueObjects;
 using KLL.Store.Domain.Events;
 
@@ -8,7 +8,7 @@ public class Order : BaseEntity
 {
     public string CustomerId { get; private set; } = string.Empty;
     public string CustomerEmail { get; private set; } = string.Empty;
-    public Money TotalAmount { get; private set; } = Money.Zero();
+    public Money TotalAmount { get; private set; } = Money.Zero;
     public OrderStatus Status { get; private set; } = OrderStatus.Pending;
     public Address? ShippingAddress { get; private set; }
     public string? PaymentChargeId { get; private set; }
@@ -70,6 +70,7 @@ public class Order : BaseEntity
 public class OrderItem
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid OrderId { get; private set; }
     public Guid ProductId { get; private set; }
     public string ProductName { get; private set; }
     public decimal UnitPrice { get; private set; }

@@ -1,4 +1,4 @@
-﻿using KLL.BuildingBlocks.EventBus.Interfaces;
+using KLL.BuildingBlocks.EventBus.Interfaces;
 using KLL.BuildingBlocks.Infrastructure.RealTime;
 using KLL.Store.Domain.Entities;
 using KLL.Store.Domain.Events;
@@ -147,4 +147,3 @@ public class OrderSagaOrchestrator
         await _notifier.NotifyOrderStatusChanged(orderId.ToString(), "Cancelled");
     }
 }
-

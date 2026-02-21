@@ -1,4 +1,4 @@
-﻿import { create } from "zustand";
+import { create } from "zustand";
 import type { User } from "../types";
 
 function parseJwt(token: string): any {
@@ -6,6 +6,31 @@ function parseJwt(token: string): any {
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(atob(base64));
   } catch { return null; }
+}
+
+function extractUser(decoded: any): User {
+  // Custom JWT claims (ClaimTypes.Role, ClaimTypes.Name)
+  const role = decoded?.role ||
+    decoded?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || "";
+  const fullName = decoded?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+    decoded?.name || decoded?.preferred_username || "";
+
+  // Build realm_roles for backward compat with Keycloak tokens
+  const realmRoles: string[] = decoded?.realm_roles || [];
+  if (role && !realmRoles.includes(role)) {
+    // Map custom roles to admin check
+    if (role === "Administrador" || role === "Tecnico") realmRoles.push("admin");
+  }
+
+  return {
+    sub: decoded?.sub || "",
+    preferred_username: decoded?.preferred_username || decoded?.email || fullName || "",
+    email: decoded?.email || "",
+    realm_roles: realmRoles,
+    fullName,
+    role,
+    document: decoded?.document || "",
+  };
 }
 
 interface AuthState {
@@ -25,14 +50,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (token) => {
     localStorage.setItem("kll_token", token);
     const decoded = parseJwt(token);
-    const user: User = {
-      sub: decoded?.sub || "",
-      preferred_username: decoded?.preferred_username || "",
-      email: decoded?.email || "",
-      realm_roles: decoded?.realm_roles || [],
-    };
+    const user = extractUser(decoded);
     const avatarUrl = localStorage.getItem("kll_avatar_url") || null;
-    set({ token, user, isAuthenticated: true, isAdmin: user.realm_roles.includes("admin"), avatarUrl });
+    const isAdmin = user.realm_roles.includes("admin") ||
+      user.role === "Administrador" || user.role === "Tecnico";
+    set({ token, user, isAuthenticated: true, isAdmin, avatarUrl });
   },
   logout: () => {
     localStorage.removeItem("kll_token");
@@ -44,12 +66,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     if (token) {
       const decoded = parseJwt(token);
       if (decoded && decoded.exp * 1000 > Date.now()) {
-        const user: User = {
-          sub: decoded.sub, preferred_username: decoded.preferred_username,
-          email: decoded.email, realm_roles: decoded.realm_roles || [],
-        };
+        const user = extractUser(decoded);
         const avatarUrl = localStorage.getItem("kll_avatar_url") || null;
-        set({ token, user, isAuthenticated: true, isAdmin: user.realm_roles.includes("admin"), avatarUrl });
+        const isAdmin = user.realm_roles.includes("admin") ||
+          user.role === "Administrador" || user.role === "Tecnico";
+        set({ token, user, isAuthenticated: true, isAdmin, avatarUrl });
       } else { localStorage.removeItem("kll_token"); }
     }
   },

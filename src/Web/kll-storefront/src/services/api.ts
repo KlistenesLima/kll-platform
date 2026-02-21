@@ -1,4 +1,4 @@
-﻿import axios from "axios";
+import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -112,10 +112,16 @@ export const pixApi = {
 };
 
 export const authApi = {
-  login: (identifier: string, password: string) =>
-    api.post("/api/v1/auth/login", { identifier, password }).then((r) => r.data),
-  register: (data: { email: string; password: string; firstName: string; lastName: string; cpf?: string }) =>
-    api.post("/api/v1/auth/register", { username: data.email, ...data }).then((r) => r.data),
+  login: (emailOrDocument: string, password: string) =>
+    api.post("/api/v1/auth/login", { emailOrDocument, password }).then((r) => r.data),
+  register: (data: { fullName: string; email: string; document: string; password: string }) =>
+    api.post("/api/v1/auth/register", data).then((r) => r.data),
+  confirmEmail: (email: string, code: string) =>
+    api.post("/api/v1/auth/confirm-email", { email, code }).then((r) => r.data),
+  forgotPassword: (email: string) =>
+    api.post("/api/v1/auth/forgot-password", { email }).then((r) => r.data),
+  resetPassword: (email: string, code: string, newPassword: string) =>
+    api.post("/api/v1/auth/reset-password", { email, code, newPassword }).then((r) => r.data),
 };
 
 export default api;

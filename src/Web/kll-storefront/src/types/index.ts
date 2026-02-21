@@ -1,4 +1,4 @@
-﻿export interface Product {
+export interface Product {
   id: string; name: string; description: string; price: number;
   oldPrice?: number; stockQuantity: number; category: string; categoryId?: string;
   imageUrl?: string; isActive: boolean; createdAt: string;
@@ -25,7 +25,15 @@ export interface Shipment {
   deliveredAt?: string; trackingEvents: TrackingEvent[];
 }
 export interface PagedResult<T> { items: T[]; totalCount: number; page: number; pageSize: number; totalPages: number; }
-export interface User { sub: string; preferred_username: string; email: string; realm_roles: string[]; }
+export interface User {
+  sub: string;
+  preferred_username: string;
+  email: string;
+  realm_roles: string[];
+  fullName?: string;
+  role?: string;
+  document?: string;
+}
 export interface UserProfile { firstName: string; lastName: string; email: string; avatarUrl?: string; }
 export interface CustomerAddress {
   id: string; customerId: string; label: string; street: string; number: string;

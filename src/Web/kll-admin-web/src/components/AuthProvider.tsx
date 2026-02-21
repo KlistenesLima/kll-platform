@@ -15,6 +15,32 @@ function parseJwt(token: string): any {
   } catch { return null; }
 }
 
+function extractRoles(decoded: any): string[] {
+  const roles: string[] = [];
+  // Keycloak tokens
+  if (decoded?.realm_roles) roles.push(...decoded.realm_roles);
+  // Custom JWT: role claim (plain) or ClaimTypes.Role
+  const customRole = decoded?.role ||
+    decoded?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
+  if (customRole) {
+    roles.push(customRole);
+    // Map Administrador/Tecnico to 'admin' for backwards compat
+    if (customRole === 'Administrador' || customRole === 'Tecnico') {
+      if (!roles.includes('admin')) roles.push('admin');
+    }
+  }
+  return roles;
+}
+
+function extractUsername(decoded: any): string {
+  return decoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+    decoded?.name || decoded?.preferred_username || decoded?.email || '';
+}
+
+function isAdminRole(roles: string[]): boolean {
+  return roles.includes('admin') || roles.includes('Administrador') || roles.includes('Tecnico');
+}
+
 function formatIdentifier(value: string): string {
   const digits = value.replace(/\D/g, '');
   if (digits.length > 0 && !/[a-zA-Z@]/.test(value)) {
@@ -56,16 +82,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState('');
   const [checking, setChecking] = useState(true);
 
-  // Check stored token on mount
   useEffect(() => {
     if (token) {
       const decoded = parseJwt(token);
       if (decoded && decoded.exp * 1000 > Date.now()) {
-        const roles: string[] = decoded.realm_roles || [];
-        if (!roles.includes('admin')) {
+        const roles = extractRoles(decoded);
+        if (!isAdminRole(roles)) {
           localStorage.removeItem('kll_admin_token');
           setToken(null);
-          setError('Acesso restrito a administradores');
+          setError('Acesso restrito a administradores e técnicos');
         }
       } else {
         localStorage.removeItem('kll_admin_token');
@@ -81,19 +106,21 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     setError('');
     try {
       const { data } = await axios.post(`${GATEWAY}/api/v1/auth/login`, {
-        identifier, password,
+        emailOrDocument: identifier, password,
       });
-      const decoded = parseJwt(data.access_token);
-      const roles: string[] = decoded?.realm_roles || [];
-      if (!roles.includes('admin')) {
-        setError('Acesso restrito a administradores');
+      // Accept both Keycloak (access_token) and custom JWT (token)
+      const accessToken = data.access_token || data.token;
+      const decoded = parseJwt(accessToken);
+      const roles = extractRoles(decoded);
+      if (!isAdminRole(roles)) {
+        setError('Acesso restrito a administradores e técnicos');
         setLoading(false);
         return;
       }
-      localStorage.setItem('kll_admin_token', data.access_token);
-      setToken(data.access_token);
+      localStorage.setItem('kll_admin_token', accessToken);
+      setToken(accessToken);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Credenciais invalidas');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Credenciais inválidas');
     } finally { setLoading(false); }
   };
 
@@ -112,7 +139,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // Not authenticated → show login
   if (!token) {
     const cpfMode = isCpfMode(identifier);
     return (
@@ -128,7 +154,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
             backdropFilter: 'blur(20px)',
           }}
         >
-          {/* Logo */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box sx={{
               width: 56, height: 56, borderRadius: 3, mx: 'auto', mb: 2,
@@ -233,13 +258,12 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // Authenticated
   const decoded = parseJwt(token);
   const value: AuthContextType = {
     authenticated: true,
     token,
-    username: decoded?.preferred_username || '',
-    roles: decoded?.realm_roles || [],
+    username: extractUsername(decoded),
+    roles: extractRoles(decoded),
     logout,
   };
 

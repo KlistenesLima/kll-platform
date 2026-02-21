@@ -21,7 +21,7 @@ TOKEN_RESPONSE=$(curl -s -X POST "$KEYCLOAK" \
   -d "grant_type=password" \
   -d "client_id=storefront" \
   -d "username=admin" \
-  -d "password=Admin123!")
+  -d "password=REDACTED_SEQ_PASSWORD")
 
 TOKEN="${TOKEN_RESPONSE#*\"access_token\":\"}"
 TOKEN="${TOKEN%%\"*}"

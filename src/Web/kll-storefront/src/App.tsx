@@ -6,6 +6,7 @@ import { useCartStore } from "./store/cartStore";
 import { useFavoritesStore } from "./store/favoritesStore";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import DemoBanner from "./components/DemoBanner";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Search from "./pages/Search";
@@ -18,6 +19,11 @@ import Addresses from "./pages/Addresses";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Favorites from "./pages/Favorites";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import PortfolioPage from "./pages/Portfolio/PortfolioPage";
+import About from "./pages/About";
+import Resume from "./pages/Resume";
+import Docs from "./pages/Docs";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -43,6 +49,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+    <DemoBanner />
       <Toaster position="top-right" />
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -51,6 +58,11 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/portfolio" element={<PortfolioPage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/resume" element={<Resume />} />
+            <Route path="/docs" element={<Docs />} />
             <Route path="/search" element={<Search />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<CartPage />} />

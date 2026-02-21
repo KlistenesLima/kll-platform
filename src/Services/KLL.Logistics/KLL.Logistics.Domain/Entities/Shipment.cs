@@ -54,6 +54,17 @@ public class Shipment : BaseEntity
         SetUpdated();
     }
 
+    public void UpdateStatus(ShipmentStatus newStatus, string description, string? location)
+    {
+        Status = newStatus;
+        if (newStatus == ShipmentStatus.Delivered)
+            DeliveredAt = DateTime.UtcNow;
+        SetUpdated();
+        AddTrackingEvent(description, location ?? DestinationCity);
+        if (newStatus == ShipmentStatus.Delivered)
+            AddDomainEvent(new ShipmentDeliveredEvent(Id, OrderId, TrackingCode));
+    }
+
     public void MarkDelivered()
     {
         Status = ShipmentStatus.Delivered;
@@ -71,7 +82,7 @@ public class Shipment : BaseEntity
 
 public class TrackingEvent
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid Id { get; private set; }
     public string Description { get; private set; }
     public string Location { get; private set; }
     public DateTime Timestamp { get; private set; } = DateTime.UtcNow;

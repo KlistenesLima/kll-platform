@@ -8,10 +8,13 @@ import Transactions from './pages/Transactions';
 import Merchants from './pages/Merchants';
 import Categories from './pages/Categories';
 import System from './pages/System';
+import Users from './pages/Users';
+import Portfolio from './pages/Portfolio';
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/portfolio" element={<Portfolio />} />
       <Route path="/" element={<AdminLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
@@ -21,6 +24,7 @@ export default function App() {
         <Route path="transactions" element={<Transactions />} />
         <Route path="merchants" element={<Merchants />} />
         <Route path="shipments" element={<Shipments />} />
+        <Route path="users" element={<Users />} />
         <Route path="system" element={<System />} />
       </Route>
     </Routes>

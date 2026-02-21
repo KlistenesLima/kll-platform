@@ -13,7 +13,7 @@ public class ProductService : IProductService
 
     public async Task<ProductResponse> CreateAsync(CreateProductRequest req, CancellationToken ct)
     {
-        var product = Product.Create(req.Name, req.Description, req.Price, req.StockQuantity, req.Category, req.ImageUrl);
+        var product = new Product(req.Name, req.Description, req.Price, req.StockQuantity, req.Category, null, req.ImageUrl);
         await _repo.AddAsync(product, ct);
         await _repo.SaveChangesAsync(ct);
         return Map(product);
@@ -40,7 +40,7 @@ public class ProductService : IProductService
     public async Task<ProductResponse> UpdateAsync(Guid id, UpdateProductRequest req, CancellationToken ct)
     {
         var p = await _repo.GetByIdAsync(id, ct) ?? throw new KeyNotFoundException($"Product {id} not found");
-        p.Update(req.Name, req.Description, req.Price, req.Category, req.ImageUrl);
+        p.Update(req.Name, req.Description, req.Price, p.StockQuantity, req.Category, null, req.ImageUrl);
         await _repo.UpdateAsync(p, ct);
         await _repo.SaveChangesAsync(ct);
         return Map(p);
@@ -53,5 +53,5 @@ public class ProductService : IProductService
     }
 
     private static ProductResponse Map(Product p) => new(p.Id, p.Name, p.Description,
-        p.Price.Amount, p.StockQuantity, p.Category, p.ImageUrl, p.IsActive, p.CreatedAt);
+        p.Price, p.StockQuantity, p.Category, p.ImageUrl, p.IsActive, p.CreatedAt);
 }

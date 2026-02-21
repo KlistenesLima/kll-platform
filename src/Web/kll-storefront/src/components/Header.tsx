@@ -178,7 +178,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-dark/95 backdrop-blur-md border-b border-gold/10">
+      <header className="fixed top-[36px] left-0 right-0 z-50 bg-dark/95 backdrop-blur-md border-b border-gold/10">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 h-[72px] flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-1 no-underline shrink-0">
@@ -276,7 +276,7 @@ export default function Header() {
               <>
                 {isAdmin && (
                   <a
-                    href="http://localhost:5173"
+                    href={import.meta.env.VITE_ADMIN_URL || "http://localhost:5173"}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-center w-10 h-10 rounded-full text-text-secondary hover:text-gold no-underline transition-colors duration-200"
@@ -505,7 +505,7 @@ export default function Header() {
 
       {/* ─── Mobile Sidebar ─── */}
       <div
-        className={`fixed top-0 right-0 bottom-0 w-[300px] bg-dark z-[70] lg:hidden border-l border-gold/10 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-y-auto ${
+        className={`fixed top-[36px] right-0 bottom-0 w-[min(300px,85vw)] bg-dark z-[70] lg:hidden border-l border-gold/10 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-y-auto ${
           mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -676,7 +676,7 @@ export default function Header() {
 
               {isAdmin && (
                 <a
-                  href="http://localhost:5173"
+                  href={import.meta.env.VITE_ADMIN_URL || "http://localhost:5173"}
                   target="_blank"
                   rel="noreferrer"
                   className="px-4 py-3 text-[0.85rem] text-text-primary no-underline rounded-lg hover:bg-gold/10 transition-colors duration-200"

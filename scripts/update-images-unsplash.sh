@@ -10,7 +10,7 @@ API="http://localhost:5200"
 echo "[1/3] Autenticando..."
 FULL_RESP=$(curl -s -X POST "http://localhost:8081/realms/kll-platform/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=password&client_id=storefront&username=admin&password=Admin123!")
+  -d "grant_type=password&client_id=storefront&username=admin&password=REDACTED_SEQ_PASSWORD")
 TOKEN="${FULL_RESP#*\"access_token\":\"}"
 TOKEN="${TOKEN%%\"*}"
 

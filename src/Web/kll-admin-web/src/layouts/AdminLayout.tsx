@@ -12,6 +12,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CategoryIcon from '@mui/icons-material/Category';
 import StoreIcon from '@mui/icons-material/Store';
+import PeopleIcon from '@mui/icons-material/People';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -30,6 +31,7 @@ const pageLabels: Record<string, string> = {
   shipments: 'Entregas',
   transactions: 'Transações',
   merchants: 'Merchants',
+  users: 'Usuários',
   system: 'Sistema',
 };
 
@@ -45,6 +47,7 @@ const mainNav: NavItem[] = [
   { label: 'Pedidos', icon: <ShoppingCartIcon />, path: '/orders' },
   { label: 'Produtos', icon: <InventoryIcon />, path: '/products' },
   { label: 'Categorias', icon: <CategoryIcon />, path: '/categories' },
+  { label: 'Usuários', icon: <PeopleIcon />, path: '/users' },
 ];
 
 const financeNav: NavItem[] = [
@@ -219,6 +222,7 @@ export default function AdminLayout() {
       <AppBar
         position="fixed"
         sx={{
+          top: '36px',
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           ml: { sm: `${DRAWER_WIDTH}px` },
           bgcolor: 'background.default',
@@ -310,7 +314,7 @@ export default function AdminLayout() {
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, bgcolor: '#0c1222', borderRight: 'none' },
+            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, bgcolor: '#0c1222', borderRight: 'none', top: '36px', height: 'calc(100vh - 36px)' },
           }}
         >
           {drawer}
@@ -323,6 +327,8 @@ export default function AdminLayout() {
               width: DRAWER_WIDTH,
               bgcolor: '#0c1222',
               borderRight: '1px solid rgba(255,255,255,0.06)',
+              top: '36px',
+              height: 'calc(100vh - 36px)',
             },
           }}
           open
@@ -338,9 +344,9 @@ export default function AdminLayout() {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          mt: '64px',
+          mt: '100px',
           bgcolor: 'background.default',
-          minHeight: 'calc(100vh - 64px)',
+          minHeight: 'calc(100vh - 100px)',
         }}
       >
         <Outlet />

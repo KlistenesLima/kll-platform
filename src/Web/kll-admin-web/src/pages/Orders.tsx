@@ -221,7 +221,7 @@ export default function Orders() {
           </CardContent>
         ) : (
           <>
-            <TableContainer>
+            <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>

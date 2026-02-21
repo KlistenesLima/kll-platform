@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -8,17 +9,24 @@ namespace KLL.Notifications.Worker;
 public class EmailNotificationConsumer : BackgroundService
 {
     private readonly ILogger<EmailNotificationConsumer> _logger;
+    private readonly IConfiguration _config;
     private IConnection? _connection;
     private IModel? _channel;
 
-    public EmailNotificationConsumer(ILogger<EmailNotificationConsumer> logger) => _logger = logger;
+    public EmailNotificationConsumer(ILogger<EmailNotificationConsumer> logger, IConfiguration config)
+    {
+        _logger = logger;
+        _config = config;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
         var factory = new ConnectionFactory
         {
-            HostName = "localhost", Port = 5673,
-            UserName = "kll", Password = "REDACTED_RABBITMQ_PASSWORD"
+            HostName = _config["RabbitMQ:Host"] ?? "localhost",
+            Port = int.Parse(_config["RabbitMQ:Port"] ?? "5672"),
+            UserName = _config["RabbitMQ:User"] ?? "guest",
+            Password = _config["RabbitMQ:Password"] ?? ""
         };
 
         while (!ct.IsCancellationRequested)

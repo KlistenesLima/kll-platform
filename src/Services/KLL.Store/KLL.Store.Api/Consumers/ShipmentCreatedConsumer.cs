@@ -15,6 +15,8 @@ public class ShipmentCreatedConsumer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
+        await Task.Delay(5000, ct); // wait for Kafka to be ready
+
         var consumerConfig = new ConsumerConfig
         {
             BootstrapServers = _config["Kafka:BootstrapServers"] ?? "localhost:39092",
@@ -52,10 +54,15 @@ public class ShipmentCreatedConsumer : BackgroundService
                 }
             }
             catch (OperationCanceledException) { break; }
+            catch (ConsumeException ex) when (ex.Error.Code == ErrorCode.UnknownTopicOrPart)
+            {
+                _logger.LogWarning("Topic 'shipmentcreated' not available yet, retrying in 10s...");
+                await Task.Delay(10000, ct);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error consuming ShipmentCreated event");
-                await Task.Delay(1000, ct);
+                await Task.Delay(3000, ct);
             }
         }
     }

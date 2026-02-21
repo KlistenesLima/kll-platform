@@ -8,7 +8,9 @@ public class StoreDbContextFactory : IDesignTimeDbContextFactory<StoreDbContext>
     public StoreDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<StoreDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Port=5434;Database=kll_store;Username=kll;Password=Kll2025");
+        var connStr = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+            ?? "Host=localhost;Port=5434;Database=kll_store;Username=kll;Password=CHANGE_ME";
+        optionsBuilder.UseNpgsql(connStr);
         return new StoreDbContext(optionsBuilder.Options);
     }
 }

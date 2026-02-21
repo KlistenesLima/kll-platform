@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Confluent.Kafka;
-using KLL.Store.Domain.Events;
+using KLL.BuildingBlocks.Domain.IntegrationEvents;
 using KLL.Store.Application.Interfaces;
 
 namespace KLL.Store.Api.Consumers;
@@ -16,6 +16,8 @@ public class PaymentConfirmedConsumer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
+        await Task.Delay(5000, ct); // wait for Kafka to be ready
+
         var consumerConfig = new ConsumerConfig
         {
             BootstrapServers = _config["Kafka:BootstrapServers"] ?? "localhost:39092",
@@ -27,7 +29,7 @@ public class PaymentConfirmedConsumer : BackgroundService
         using var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
         consumer.Subscribe("paymentconfirmed");
 
-        _logger.LogInformation("PaymentConfirmedConsumer started, listening on 'paymentconfirmed'");
+        _logger.LogInformation("PaymentConfirmedConsumer started");
 
         while (!ct.IsCancellationRequested)
         {
@@ -42,15 +44,20 @@ public class PaymentConfirmedConsumer : BackgroundService
                     using var scope = _serviceProvider.CreateScope();
                     var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
                     await orderService.ConfirmPaymentAsync(evt.OrderId, evt.ChargeId, ct);
-                    _logger.LogInformation("Order {OrderId} payment confirmed with charge {ChargeId}", evt.OrderId, evt.ChargeId);
+                    _logger.LogInformation("Order {OrderId} payment confirmed", evt.OrderId);
                     consumer.Commit(result);
                 }
             }
             catch (OperationCanceledException) { break; }
+            catch (ConsumeException ex) when (ex.Error.Code == ErrorCode.UnknownTopicOrPart)
+            {
+                _logger.LogWarning("Topic 'paymentconfirmed' not available yet, retrying in 10s...");
+                await Task.Delay(10000, ct);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error consuming PaymentConfirmed event");
-                await Task.Delay(1000, ct);
+                await Task.Delay(3000, ct);
             }
         }
     }

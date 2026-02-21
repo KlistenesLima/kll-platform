@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -11,8 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KLL.Pay.Domain\KLL.Pay.Domain.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Domain\KLL.BuildingBlocks.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Infrastructure\KLL.BuildingBlocks.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\KLL.BuildingBlocks.Outbox\KLL.BuildingBlocks.Outbox.csproj" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,7 @@
 using FluentAssertions;
 using KLL.Store.Domain.Entities;
+using KLL.Store.Domain.Enums;
+using KLL.Store.Domain.Exceptions;
 using Xunit;
 
 namespace KLL.Store.UnitTests;
@@ -104,6 +106,209 @@ public class CustomerAddressDomainTests
         addr.UnsetDefault();
 
         addr.IsDefault.Should().BeFalse();
+    }
+}
+
+public class AppUserDomainTests
+{
+    private AppUser CreateTestUser() =>
+        AppUser.Create("João Silva", "joao@test.com", "123.456.789-00", "hashed_password");
+
+    [Fact]
+    public void Create_ShouldSetDefaultValues()
+    {
+        var user = CreateTestUser();
+
+        user.Id.Should().NotBeEmpty();
+        user.FullName.Should().Be("João Silva");
+        user.Email.Should().Be("joao@test.com");
+        user.Document.Should().Be("12345678900");
+        user.PasswordHash.Should().Be("hashed_password");
+        user.Role.Should().Be(UserRole.Cliente);
+        user.Status.Should().Be(UserStatus.PendingEmailConfirmation);
+        user.EmailConfirmationCode.Should().NotBeNullOrEmpty();
+        user.EmailConfirmationCode!.Length.Should().Be(6);
+        user.EmailConfirmationExpiry.Should().NotBeNull();
+        user.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void Create_ShouldNormalizeEmail()
+    {
+        var user = AppUser.Create("Test", "JOAO@TEST.COM", "111.222.333-44", "hash");
+        user.Email.Should().Be("joao@test.com");
+    }
+
+    [Fact]
+    public void Create_ShouldCleanDocument()
+    {
+        var user = AppUser.Create("Test", "a@b.com", "111.222.333-44", "hash");
+        user.Document.Should().Be("11122233344");
+    }
+
+    [Fact]
+    public void ConfirmEmail_ShouldTransitionToPendingApproval()
+    {
+        var user = CreateTestUser();
+        user.ConfirmEmail();
+
+        user.Status.Should().Be(UserStatus.PendingApproval);
+        user.EmailConfirmationCode.Should().BeNull();
+        user.EmailConfirmationExpiry.Should().BeNull();
+    }
+
+    [Fact]
+    public void ConfirmEmail_WhenAlreadyConfirmed_ShouldThrow()
+    {
+        var user = CreateTestUser();
+        user.ConfirmEmail();
+
+        var act = () => user.ConfirmEmail();
+        act.Should().Throw<StoreDomainException>()
+            .WithMessage("*Email já confirmado*");
+    }
+
+    [Fact]
+    public void Approve_ShouldTransitionToActive()
+    {
+        var user = CreateTestUser();
+        user.ConfirmEmail();
+        user.Approve("admin-123");
+
+        user.Status.Should().Be(UserStatus.Active);
+        user.ApprovedAt.Should().NotBeNull();
+        user.ApprovedBy.Should().Be("admin-123");
+    }
+
+    [Fact]
+    public void Approve_WhenNotPendingApproval_ShouldThrow()
+    {
+        var user = CreateTestUser(); // Status = PendingEmailConfirmation
+
+        var act = () => user.Approve("admin-123");
+        act.Should().Throw<StoreDomainException>()
+            .WithMessage("*não está pendente de aprovação*");
+    }
+
+    [Fact]
+    public void Reject_ShouldSetRejectedStatus()
+    {
+        var user = CreateTestUser();
+        user.ConfirmEmail();
+        user.Reject("admin-123");
+
+        user.Status.Should().Be(UserStatus.Rejected);
+        user.ApprovedBy.Should().Be("admin-123");
+    }
+
+    [Fact]
+    public void Activate_ShouldSetActive()
+    {
+        var user = CreateTestUser();
+        user.ConfirmEmail();
+        user.Approve("admin");
+        user.Deactivate();
+
+        user.Activate();
+
+        user.Status.Should().Be(UserStatus.Active);
+    }
+
+    [Fact]
+    public void Deactivate_ShouldSetInactive()
+    {
+        var user = CreateTestUser();
+        user.ConfirmEmail();
+        user.Approve("admin");
+
+        user.Deactivate();
+
+        user.Status.Should().Be(UserStatus.Inactive);
+    }
+
+    [Fact]
+    public void ChangeRole_ShouldUpdateRole()
+    {
+        var user = CreateTestUser();
+
+        user.ChangeRole(UserRole.Administrador);
+
+        user.Role.Should().Be(UserRole.Administrador);
+    }
+
+    [Fact]
+    public void ChangeRole_ToTecnico_ShouldUpdateRole()
+    {
+        var user = CreateTestUser();
+
+        user.ChangeRole(UserRole.Tecnico);
+
+        user.Role.Should().Be(UserRole.Tecnico);
+    }
+
+    [Fact]
+    public void SetPasswordResetCode_ShouldGenerateCode()
+    {
+        var user = CreateTestUser();
+
+        user.SetPasswordResetCode();
+
+        user.PasswordResetCode.Should().NotBeNullOrEmpty();
+        user.PasswordResetCode!.Length.Should().Be(6);
+        user.PasswordResetExpiry.Should().NotBeNull();
+        user.PasswordResetExpiry.Should().BeCloseTo(DateTime.UtcNow.AddMinutes(30), TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void ResetPassword_ShouldUpdateHashAndClearCode()
+    {
+        var user = CreateTestUser();
+        user.SetPasswordResetCode();
+
+        user.ResetPassword("new_hash");
+
+        user.PasswordHash.Should().Be("new_hash");
+        user.PasswordResetCode.Should().BeNull();
+        user.PasswordResetExpiry.Should().BeNull();
+    }
+
+    [Fact]
+    public void GenerateNewEmailConfirmationCode_ShouldRefreshCode()
+    {
+        var user = CreateTestUser();
+        var oldCode = user.EmailConfirmationCode;
+
+        user.GenerateNewEmailConfirmationCode();
+
+        user.EmailConfirmationCode.Should().NotBeNullOrEmpty();
+        user.EmailConfirmationExpiry.Should().NotBeNull();
+        // Code is random, might be same but expiry should be refreshed
+        user.EmailConfirmationExpiry.Should().BeCloseTo(DateTime.UtcNow.AddMinutes(30), TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void FullWorkflow_Register_Confirm_Approve_ShouldWork()
+    {
+        var user = AppUser.Create("Maria Santos", "maria@test.com", "98765432100", "hash");
+        user.Status.Should().Be(UserStatus.PendingEmailConfirmation);
+
+        user.ConfirmEmail();
+        user.Status.Should().Be(UserStatus.PendingApproval);
+
+        user.Approve("admin-1");
+        user.Status.Should().Be(UserStatus.Active);
+        user.ApprovedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void FullWorkflow_Register_Confirm_Reject_ShouldWork()
+    {
+        var user = AppUser.Create("Carlos Lima", "carlos@test.com", "11122233344", "hash");
+
+        user.ConfirmEmail();
+        user.Reject("admin-1");
+
+        user.Status.Should().Be(UserStatus.Rejected);
     }
 }
 

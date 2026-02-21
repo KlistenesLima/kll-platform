@@ -21,13 +21,14 @@ describe("Footer", () => {
   it("renders footer sections", () => {
     renderFooter();
     expect(screen.getByText("Minha Conta")).toBeTruthy();
-    expect(screen.getByText("Categorias")).toBeTruthy();
-    expect(screen.getByText("Rastrear Pedido")).toBeTruthy();
+    expect(screen.getByText("Navegação")).toBeTruthy();
+    expect(screen.getByText("Portfólio")).toBeTruthy();
+    expect(screen.getByText("Contato")).toBeTruthy();
   });
 
   it("renders copyright text", () => {
     renderFooter();
-    expect(screen.getByText(/AUREA Maison/)).toBeTruthy();
+    expect(screen.getByText(/Klístenes Lima/)).toBeTruthy();
   });
 
   it("contains navigation links", () => {

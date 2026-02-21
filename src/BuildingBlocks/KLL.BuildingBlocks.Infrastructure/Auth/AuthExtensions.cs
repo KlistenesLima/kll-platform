@@ -21,8 +21,7 @@ public static class AuthExtensions
                 opt.RequireHttpsMetadata = false;
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidIssuer = validIssuer,
+                    ValidateIssuer = false, // Desabilitado para demo — Keycloak issuer varia entre Docker/localhost/produção
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     RoleClaimType = "realm_roles",
