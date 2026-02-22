@@ -6,7 +6,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import axios from 'axios';
 
-const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
+const GATEWAY = import.meta.env.VITE_API_URL || '';
 
 function parseJwt(token: string): any {
   try {

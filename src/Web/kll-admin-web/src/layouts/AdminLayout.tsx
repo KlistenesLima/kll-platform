@@ -68,7 +68,8 @@ export default function AdminLayout() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { username, logout } = useAuth();
+  const { username, roles, logout } = useAuth();
+  const isAdmin = roles.includes('admin') || roles.includes('Administrador') || roles.includes('Admin');
 
   const currentPage = location.pathname.replace('/', '') || 'dashboard';
   const currentLabel = pageLabels[currentPage] || currentPage;
@@ -134,7 +135,7 @@ export default function AdminLayout() {
 
       {/* Main Navigation */}
       <List sx={{ px: 1.5, pt: 1.5 }}>
-        {mainNav.map(renderNavItem)}
+        {mainNav.filter(item => item.path !== '/users' || isAdmin).map(renderNavItem)}
       </List>
 
       {/* Finance Section */}
