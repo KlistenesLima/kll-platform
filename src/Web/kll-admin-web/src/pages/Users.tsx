@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Paper, Table, TableHead, TableRow, TableCell,
   TableBody, Chip, IconButton, Tabs, Tab, Badge, Dialog,
@@ -13,6 +14,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import type { AppUser } from '../types';
 import { usersApi } from '../services/api';
+import { useAuth } from '../components/AuthProvider';
 
 const statusColors: Record<string, 'default' | 'warning' | 'success' | 'error' | 'info'> = {
   PendingEmailConfirmation: 'default',
@@ -40,6 +42,10 @@ function formatDoc(doc: string) {
 }
 
 export default function Users() {
+  const { roles } = useAuth();
+  const navigate = useNavigate();
+  const isAdmin = roles.includes('admin') || roles.includes('Administrador') || roles.includes('Admin');
+
   const [users, setUsers] = useState<AppUser[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [tab, setTab] = useState(0);
@@ -48,6 +54,10 @@ export default function Users() {
   const [actionDialog, setActionDialog] = useState<{ type: string; user: AppUser } | null>(null);
   const [selectedRole, setSelectedRole] = useState(0);
   const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAdmin) navigate('/dashboard', { replace: true });
+  }, [isAdmin, navigate]);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -98,6 +108,8 @@ export default function Users() {
     deactivate: 'Desativar Usuário',
     role: 'Alterar Role',
   };
+
+  if (!isAdmin) return null;
 
   return (
     <Box>
