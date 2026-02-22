@@ -21,11 +21,9 @@ public class PayHealthController : ControllerBase
     {
         var available = await _krtClient.IsAvailableAsync(ct);
 
-        var methods = new List<string> { "credit_card_sim" };
+        var methods = new List<string> { "credit_card_sim", "pix", "boleto" };
         if (available)
         {
-            methods.Add("pix");
-            methods.Add("boleto");
             methods.Add("credit_card");
         }
 
