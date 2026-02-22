@@ -31,8 +31,9 @@ public static class AuthExtensions
 
         services.AddAuthorization(opt =>
         {
-            opt.AddPolicy("AdminOnly", p => p.RequireRole("admin"));
-            opt.AddPolicy("CustomerOnly", p => p.RequireRole("customer"));
+            opt.AddPolicy("AdminOnly", p => p.RequireRole("admin", "Administrador"));
+            opt.AddPolicy("StaffOnly", p => p.RequireRole("admin", "Administrador", "tecnico", "Tecnico"));
+            opt.AddPolicy("CustomerOnly", p => p.RequireRole("customer", "cliente", "Cliente"));
         });
 
         return services;
@@ -48,5 +49,8 @@ public static class AuthExtensions
         => user.FindFirst(ClaimTypes.Email)?.Value ?? user.FindFirst("email")?.Value;
 
     public static bool IsAdmin(this ClaimsPrincipal user)
-        => user.IsInRole("admin");
+        => user.IsInRole("admin") || user.IsInRole("Administrador");
+
+    public static bool IsStaff(this ClaimsPrincipal user)
+        => user.IsAdmin() || user.IsInRole("tecnico") || user.IsInRole("Tecnico");
 }

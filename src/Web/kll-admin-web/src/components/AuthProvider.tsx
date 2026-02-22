@@ -17,17 +17,20 @@ function parseJwt(token: string): any {
 
 function extractRoles(decoded: any): string[] {
   const roles: string[] = [];
-  // Keycloak tokens
-  if (decoded?.realm_roles) roles.push(...decoded.realm_roles);
+  // Keycloak tokens (array) or custom JWT (string)
+  const rawRealm = decoded?.realm_roles;
+  if (rawRealm) {
+    const realmArr = Array.isArray(rawRealm) ? rawRealm : [rawRealm];
+    roles.push(...realmArr);
+  }
   // Custom JWT: role claim (plain) or ClaimTypes.Role
   const customRole = decoded?.role ||
     decoded?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || '';
   if (customRole) {
     roles.push(customRole);
-    // Map Administrador/Tecnico to 'admin' for backwards compat
-    if (customRole === 'Administrador' || customRole === 'Tecnico') {
-      if (!roles.includes('admin')) roles.push('admin');
-    }
+    // Only Administrador maps to 'admin'; Tecnico maps to 'tecnico'
+    if (customRole === 'Administrador' && !roles.includes('admin')) roles.push('admin');
+    if (customRole === 'Tecnico' && !roles.includes('tecnico')) roles.push('tecnico');
   }
   return roles;
 }
@@ -37,8 +40,9 @@ function extractUsername(decoded: any): string {
     decoded?.name || decoded?.preferred_username || decoded?.email || '';
 }
 
-function isAdminRole(roles: string[]): boolean {
-  return roles.includes('admin') || roles.includes('Administrador') || roles.includes('Tecnico');
+function canAccessPanel(roles: string[]): boolean {
+  return roles.includes('admin') || roles.includes('Administrador') ||
+    roles.includes('tecnico') || roles.includes('Tecnico');
 }
 
 function formatIdentifier(value: string): string {
@@ -87,10 +91,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       const decoded = parseJwt(token);
       if (decoded && decoded.exp * 1000 > Date.now()) {
         const roles = extractRoles(decoded);
-        if (!isAdminRole(roles)) {
+        if (!canAccessPanel(roles)) {
           localStorage.removeItem('kll_admin_token');
           setToken(null);
-          setError('Acesso restrito a administradores e técnicos');
+          setError('Acesso restrito à equipe administrativa');
         }
       } else {
         localStorage.removeItem('kll_admin_token');
@@ -112,8 +116,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       const accessToken = data.access_token || data.token;
       const decoded = parseJwt(accessToken);
       const roles = extractRoles(decoded);
-      if (!isAdminRole(roles)) {
-        setError('Acesso restrito a administradores e técnicos');
+      if (!canAccessPanel(roles)) {
+        setError('Acesso restrito à equipe administrativa');
         setLoading(false);
         return;
       }

@@ -6,7 +6,7 @@ namespace KLL.Store.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/upload")]
-[Authorize(Policy = "AdminOnly")]
+[Authorize(Policy = "StaffOnly")]
 public class UploadController : ControllerBase
 {
     private readonly IImageUploadService _uploadService;

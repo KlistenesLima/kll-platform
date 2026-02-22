@@ -9,7 +9,7 @@ namespace KLL.Store.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/users")]
-[Authorize(Roles = "Admin,Administrador")]
+[Authorize(Policy = "AdminOnly")]
 public class UsersController : ControllerBase
 {
     private readonly IMediator _mediator;

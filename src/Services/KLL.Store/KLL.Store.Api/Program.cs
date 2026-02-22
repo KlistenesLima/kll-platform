@@ -75,7 +75,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("AdminOnly", p => p.RequireRole("admin", "Administrador"));
+    opt.AddPolicy("StaffOnly", p => p.RequireRole("admin", "Administrador", "tecnico", "Tecnico"));
+    opt.AddPolicy("CustomerOnly", p => p.RequireRole("customer", "cliente", "Cliente"));
+});
 
 // Database
 builder.Services.AddDbContext<StoreDbContext>(opt =>
@@ -253,6 +258,19 @@ using (var scope = app.Services.CreateScope())
         admin.ChangeRole(UserRole.Administrador);
         await userRepo.AddAsync(admin);
         Log.Information("[KLL.Store] Admin seed created: admin@aureamaison.com.br / Admin@KLL2026");
+    }
+
+    // Seed tecnico user
+    var existingTecnico = await userRepo.GetByEmailAsync("tecnico01@aureamaison.com.br");
+    if (existingTecnico == null)
+    {
+        var tecnico = AppUser.Create("Técnico AUREA", "tecnico01@aureamaison.com.br", "99999999999",
+            BCrypt.Net.BCrypt.HashPassword("Tech@KLL2026"));
+        tecnico.ConfirmEmail();
+        tecnico.Approve("SYSTEM_SEED");
+        tecnico.ChangeRole(UserRole.Tecnico);
+        await userRepo.AddAsync(tecnico);
+        Log.Information("[KLL.Store] Tecnico seed created: tecnico01@aureamaison.com.br / Tech@KLL2026");
     }
 
     // Seed demo users for admin testing

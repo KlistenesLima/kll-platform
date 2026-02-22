@@ -15,12 +15,12 @@ function extractUser(decoded: any): User {
   const fullName = decoded?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
     decoded?.name || decoded?.preferred_username || "";
 
-  // Build realm_roles for backward compat with Keycloak tokens
-  const realmRoles: string[] = decoded?.realm_roles || [];
-  if (role && !realmRoles.includes(role)) {
-    // Map custom roles to admin check
-    if (role === "Administrador" || role === "Tecnico") realmRoles.push("admin");
-  }
+  // Normalize realm_roles: Keycloak sends array, custom JWT sends string
+  const rawRealm = decoded?.realm_roles;
+  const realmRoles: string[] = Array.isArray(rawRealm) ? rawRealm : rawRealm ? [rawRealm] : [];
+  // Only Administrador maps to admin; Tecnico stays as tecnico
+  if (role === "Administrador" && !realmRoles.includes("admin")) realmRoles.push("admin");
+  if (role === "Tecnico" && !realmRoles.includes("tecnico")) realmRoles.push("tecnico");
 
   return {
     sub: decoded?.sub || "",
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const user = extractUser(decoded);
     const avatarUrl = localStorage.getItem("kll_avatar_url") || null;
     const isAdmin = user.realm_roles.includes("admin") ||
-      user.role === "Administrador" || user.role === "Tecnico";
+      user.role === "Administrador";
     set({ token, user, isAuthenticated: true, isAdmin, avatarUrl });
   },
   logout: () => {

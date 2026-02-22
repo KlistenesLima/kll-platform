@@ -72,6 +72,13 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResult>
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+        var realmRole = role switch
+        {
+            UserRole.Administrador => "admin",
+            UserRole.Tecnico => "tecnico",
+            _ => "cliente"
+        };
+
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
@@ -80,7 +87,8 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResult>
             new Claim(ClaimTypes.Name, fullName),
             new Claim(ClaimTypes.Role, role.ToString()),
             new Claim("document", document),
-            new Claim("role", role.ToString())
+            new Claim("role", role.ToString()),
+            new Claim("realm_roles", realmRole)
         };
 
         var token = new JwtSecurityToken(
