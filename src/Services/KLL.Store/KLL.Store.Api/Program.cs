@@ -270,6 +270,7 @@ using (var scope = app.Services.CreateScope())
         tecnico.Approve("SYSTEM_SEED");
         tecnico.ChangeRole(UserRole.Tecnico);
         await userRepo.AddAsync(tecnico);
+        await db.SaveChangesAsync();
         Log.Information("[KLL.Store] Tecnico seed created: tecnico01@aureamaison.com.br / Tech@KLL2026");
     }
 
