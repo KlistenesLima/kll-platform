@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Product, Order, Merchant, Transaction, Shipment, Category, AppUser } from '../types';
 
-const GATEWAY = import.meta.env.VITE_API_URL || 'http://localhost:5100';
+const GATEWAY = import.meta.env.VITE_API_URL || '';
 const api = axios.create({ baseURL: GATEWAY, timeout: 10000 });
 
 api.interceptors.request.use((config) => {

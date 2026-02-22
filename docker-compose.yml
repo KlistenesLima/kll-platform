@@ -54,7 +54,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
       KrtBank__ApiKey: ${KRT_API_KEY:?Set KRT_API_KEY in .env}
-      KrtBank__BaseUrl: "http://krt-gateway:5000"
+      KrtBank__BaseUrl: "http://krt-gateway:80"
       ConnectionStrings__DefaultConnection: "Host=shared-postgres;Port=5432;Database=kll_pay;Username=kll;Password=kll"
       Redis__Configuration: "shared-redis:6379,defaultDatabase=1"
       Kafka__BootstrapServers: "shared-kafka:9092"
