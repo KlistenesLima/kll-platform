@@ -110,7 +110,7 @@ const megaColumns = [
 ];
 
 export default function Header() {
-  const { isAuthenticated, user, isAdmin, logout, avatarUrl, setAvatarUrl } = useAuthStore();
+  const { isAuthenticated, user, isAdmin, isStaff, logout, avatarUrl, setAvatarUrl } = useAuthStore();
   const { itemCount } = useCartStore();
   const { count: favCount } = useFavoritesStore();
   const [query, setQuery] = useState("");
@@ -274,7 +274,7 @@ export default function Header() {
 
             {isAuthenticated ? (
               <>
-                {isAdmin && (
+                {isStaff && (
                   <a
                     href={import.meta.env.VITE_ADMIN_URL || "http://localhost:5173"}
                     target="_blank"
@@ -674,7 +674,7 @@ export default function Header() {
                 )}
               </Link>
 
-              {isAdmin && (
+              {isStaff && (
                 <a
                   href={import.meta.env.VITE_ADMIN_URL || "http://localhost:5173"}
                   target="_blank"
