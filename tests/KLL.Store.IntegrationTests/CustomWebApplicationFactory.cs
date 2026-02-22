@@ -69,10 +69,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     .Build();
                 opt.AddPolicy("AdminOnly", p => p
                     .AddAuthenticationSchemes("Test")
-                    .RequireRole("admin"));
+                    .RequireRole("admin", "Administrador"));
+                opt.AddPolicy("StaffOnly", p => p
+                    .AddAuthenticationSchemes("Test")
+                    .RequireRole("admin", "Administrador", "tecnico", "Tecnico"));
                 opt.AddPolicy("CustomerOnly", p => p
                     .AddAuthenticationSchemes("Test")
-                    .RequireRole("customer"));
+                    .RequireRole("customer", "cliente", "Cliente"));
             });
         });
     }

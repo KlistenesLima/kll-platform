@@ -44,7 +44,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "StaffOnly")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryRequest req)
     {
         var cat = new Category(req.Name, req.Description, req.ImageUrl, req.ParentCategoryId);
@@ -54,7 +54,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "StaffOnly")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCategoryRequest req)
     {
         var cat = await _repo.GetByIdAsync(id);
@@ -66,7 +66,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "StaffOnly")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var cat = await _repo.GetByIdAsync(id);

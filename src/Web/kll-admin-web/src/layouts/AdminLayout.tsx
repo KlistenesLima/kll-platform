@@ -69,7 +69,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { username, roles, logout } = useAuth();
-  const isAdmin = roles.includes('admin') || roles.includes('Administrador') || roles.includes('Admin');
+  const isAdmin = roles.includes('admin') || roles.includes('Administrador');
 
   const currentPage = location.pathname.replace('/', '') || 'dashboard';
   const currentLabel = pageLabels[currentPage] || currentPage;

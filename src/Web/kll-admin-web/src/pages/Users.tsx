@@ -44,7 +44,7 @@ function formatDoc(doc: string) {
 export default function Users() {
   const { roles } = useAuth();
   const navigate = useNavigate();
-  const isAdmin = roles.includes('admin') || roles.includes('Administrador') || roles.includes('Admin');
+  const isAdmin = roles.includes('admin') || roles.includes('Administrador');
 
   const [users, setUsers] = useState<AppUser[]>([]);
   const [pendingCount, setPendingCount] = useState(0);

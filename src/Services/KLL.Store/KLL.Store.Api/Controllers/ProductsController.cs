@@ -86,7 +86,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "StaffOnly")]
     public async Task<IActionResult> Create([FromBody] CreateProductReq req)
     {
         var product = new KLL.Store.Domain.Entities.Product(req.Name, req.Description, req.Price, req.StockQuantity, req.Category, req.CategoryId, req.ImageUrl);
@@ -96,7 +96,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "StaffOnly")]
     public async Task<IActionResult> Update(Guid id, [FromBody] CreateProductReq req)
     {
         var product = await _repo.GetByIdAsync(id);
@@ -107,7 +107,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "StaffOnly")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var product = await _repo.GetByIdAsync(id);
