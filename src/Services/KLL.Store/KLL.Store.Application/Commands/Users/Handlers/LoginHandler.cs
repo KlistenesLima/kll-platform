@@ -64,7 +64,8 @@ public class LoginHandler : IRequestHandler<LoginCommand, LoginResult>
 
     private string GenerateJwtToken(Guid userId, string email, string fullName, UserRole role, string document)
     {
-        var jwtKey = _configuration["Jwt:Key"] ?? "KLL-Store-Super-Secret-Key-2026-Minimum-32-Chars!";
+        var jwtKey = _configuration["Jwt:Key"]
+            ?? throw new InvalidOperationException("JWT Key not configured");
         var jwtIssuer = _configuration["Jwt:Issuer"] ?? "KLL.Store";
         var jwtAudience = _configuration["Jwt:Audience"] ?? "KLL.Platform";
         var jwtExpiryMinutes = int.TryParse(_configuration["Jwt:ExpiryMinutes"], out var exp) ? exp : 480;

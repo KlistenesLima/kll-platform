@@ -16,10 +16,10 @@ Todos os secrets foram removidos dos arquivos rastreados e do histórico Git. O 
 - [x] Busca de senhas no histórico completo (todas as branches)
 - Resultado: **Secrets encontrados e LIMPOS com git-filter-repo**
 - Secrets removidos do histórico:
-  - `Kll2025` (PostgreSQL password) → `REDACTED_DB_PASSWORD`
-  - `kll123` (RabbitMQ password) → `REDACTED_RABBITMQ_PASSWORD`
-  - `Admin123!` (Seq admin / Keycloak demo user password) → `REDACTED_SEQ_PASSWORD`
-  - `krt-dev-key-2026` (KRT Bank integration key) → `REDACTED_API_KEY`
+  - `[REDACTED]` (PostgreSQL password) → `REDACTED_DB_PASSWORD`
+  - `[REDACTED]` (RabbitMQ password) → `REDACTED_RABBITMQ_PASSWORD`
+  - `[REDACTED]` (Seq admin / Keycloak demo user password) → `REDACTED_SEQ_PASSWORD`
+  - `[REDACTED]` (KRT Bank integration key) → `REDACTED_API_KEY`
 - Verificação final: **ZERO** ocorrências em todo o histórico
 
 ### 2. Secrets em Arquivos Atuais
@@ -65,7 +65,7 @@ Todos os secrets foram removidos dos arquivos rastreados e do histórico Git. O 
 
 | # | Severidade | Descrição | Ação Tomada |
 |---|-----------|-----------|-------------|
-| 1 | CRITICAL | Secrets reais (Kll2025, kll123, Admin123!, krt-dev-key-2026) no histórico Git — centenas de ocorrências | Histórico limpo com `git-filter-repo --replace-text` |
+| 1 | CRITICAL | Secrets reais ([REDACTED], [REDACTED], [REDACTED], [REDACTED]) no histórico Git — centenas de ocorrências | Histórico limpo com `git-filter-repo --replace-text` |
 | 2 | HIGH | `src/Web/kll-admin-web/.env` rastreado pelo Git | Removido do tracking com `git rm --cached` |
 | 3 | MEDIUM | launchSettings.json (5 arquivos) rastreados pelo Git | Removidos do tracking com `git rm --cached` |
 | 4 | MEDIUM | .gitignore não cobria .env.*, *.pem, *.key, launchSettings.json, appsettings.Development.json | .gitignore atualizado com cobertura completa |

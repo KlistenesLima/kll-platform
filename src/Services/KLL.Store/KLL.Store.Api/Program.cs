@@ -36,7 +36,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Auth — JWT (dual: Keycloak + custom JWT)
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "KLL-Store-Super-Secret-Key-2026-Minimum-32-Chars!";
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("JWT Key not configured");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "KLL.Store";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "KLL.Platform";
 var keycloakAuthority = builder.Configuration["Keycloak:Authority"] ?? "http://localhost:8083/realms/kll-platform";
@@ -257,7 +258,7 @@ using (var scope = app.Services.CreateScope())
         admin.Approve("SYSTEM_SEED");
         admin.ChangeRole(UserRole.Administrador);
         await userRepo.AddAsync(admin);
-        Log.Information("[KLL.Store] Admin seed created: admin@aureamaison.com.br / Admin@KLL2026");
+        Log.Information("[KLL.Store] Admin seed created: admin@aureamaison.com.br");
     }
 
     // Seed tecnico user
@@ -271,7 +272,7 @@ using (var scope = app.Services.CreateScope())
         tecnico.ChangeRole(UserRole.Tecnico);
         await userRepo.AddAsync(tecnico);
         await db.SaveChangesAsync();
-        Log.Information("[KLL.Store] Tecnico seed created: tecnico01@aureamaison.com.br / Tech@KLL2026");
+        Log.Information("[KLL.Store] Tecnico seed created: tecnico01@aureamaison.com.br");
     }
 
     // Seed demo users for admin testing

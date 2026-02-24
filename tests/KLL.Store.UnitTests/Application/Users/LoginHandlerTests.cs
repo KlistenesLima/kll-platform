@@ -22,7 +22,7 @@ public class LoginHandlerTests
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Jwt:Key"] = "KLL-Store-Super-Secret-Key-2026-Minimum-32-Chars!",
+                ["Jwt:Key"] = "Test-Only-Secret-Key-Not-For-Production-Min32Chars!",
                 ["Jwt:Issuer"] = "KLL.Store",
                 ["Jwt:Audience"] = "KLL.Platform",
                 ["Jwt:ExpiryMinutes"] = "480"
