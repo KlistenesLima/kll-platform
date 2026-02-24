@@ -28,8 +28,8 @@ services:
     container_name: kll-store-api
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Docker}
-      Email__SmtpPassword: "${SMTP_PASSWORD:-mdpg gyum rzqg czed}"
-      Email__FromAddress: "klisteneswar3@gmail.com"
+      Email__SmtpPassword: "${SMTP_PASSWORD:?Set SMTP_PASSWORD in .env}"
+      Email__FromAddress: "${EMAIL_FROM_ADDRESS:?Set EMAIL_FROM_ADDRESS in .env}"
       ConnectionStrings__DefaultConnection: "Host=shared-postgres;Port=5432;Database=kll_store;Username=kll;Password=kll"
       Redis__Configuration: "shared-redis:6379,defaultDatabase=1"
       Kafka__BootstrapServers: "shared-kafka:9092"

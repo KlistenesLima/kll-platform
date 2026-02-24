@@ -16,7 +16,8 @@ public class GmailEmailService : IEmailService
 
     public GmailEmailService(IConfiguration configuration, ILogger<GmailEmailService> logger)
     {
-        _fromEmail = configuration["Email:FromAddress"] ?? "klisteneswar3@gmail.com";
+        _fromEmail = configuration["Email:FromAddress"]
+            ?? throw new InvalidOperationException("Email:FromAddress not configured. Set it in appsettings or environment variables.");
         _fromName = configuration["Email:FromName"] ?? "AUREA Maison";
         _password = configuration["Email:SmtpPassword"] ?? "";
         _logger = logger;
