@@ -354,7 +354,7 @@ export default function Checkout() {
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: "2rem", alignItems: "start" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8 items-start">
           {/* Left Column */}
           <div style={{ background: "#1a1a2e", borderRadius: 16, padding: "2rem", border: "1px solid rgba(201,169,98,0.1)" }}>
             {/* STEP 1 - Address */}
@@ -374,7 +374,7 @@ export default function Checkout() {
                     </select>
                   </div>
                 )}
-                <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: "1rem", marginBottom: "1rem" }}>
+                <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-4 mb-4">
                   <div><label style={labelStyle}>CEP</label>
                     <input required value={form.zipCode} onChange={(e) => setForm({ ...form, zipCode: formatCep(e.target.value) })} style={inputStyle} placeholder="00000-000" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
                   </div>
@@ -382,7 +382,7 @@ export default function Checkout() {
                     <input required value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} style={inputStyle} placeholder="Nome da rua" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
                   </div>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "120px 1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+                <div className="grid grid-cols-1 sm:grid-cols-[120px_1fr_1fr] gap-4 mb-4">
                   <div><label style={labelStyle}>Numero</label>
                     <input required value={form.number} onChange={(e) => setForm({ ...form, number: e.target.value })} style={inputStyle} placeholder="123" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
                   </div>
@@ -393,7 +393,7 @@ export default function Checkout() {
                     <input required value={form.neighborhood} onChange={(e) => setForm({ ...form, neighborhood: e.target.value })} style={inputStyle} placeholder="Bairro" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
                   </div>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 80px", gap: "1rem", marginBottom: "2rem" }}>
+                <div className="grid grid-cols-[1fr_80px] gap-4 mb-8">
                   <div><label style={labelStyle}>Cidade</label>
                     <input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} style={inputStyle} placeholder="Cidade" onFocus={(e) => e.currentTarget.style.borderColor = "#c9a962"} onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
                   </div>
@@ -515,7 +515,7 @@ export default function Checkout() {
                       background: "transparent", color: "#c9a962", cursor: "pointer", fontFamily: "'Poppins', sans-serif",
                       fontSize: "0.85rem", marginBottom: "1.5rem"
                     }}>Preencher automaticamente (Demo)</button>
-                    <div style={{ display: "flex", gap: "1rem" }}>
+                    <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
                       <button onClick={() => setStep(2)} style={{ padding: "1rem 1.5rem", border: "2px solid rgba(201,169,98,0.2)", borderRadius: 12, background: "transparent", color: "#b8b8c7", cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}>Voltar</button>
                       <button onClick={handleCardSubmit} disabled={loading || card.number.replace(/\D/g, "").length < 16}
                         style={{
@@ -705,8 +705,8 @@ export default function Checkout() {
             )}
           </div>
 
-          {/* Right Column - Order Summary (sticky) */}
-          <div style={{ background: "#1a1a2e", borderRadius: 16, padding: "1.5rem", border: "1px solid rgba(201,169,98,0.1)", position: "sticky", top: 90 }}>
+          {/* Right Column - Order Summary (sticky on desktop) */}
+          <div className="lg:sticky lg:top-[90px]" style={{ background: "#1a1a2e", borderRadius: 16, padding: "1.5rem", border: "1px solid rgba(201,169,98,0.1)" }}>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.2rem", fontWeight: 600, color: "#fff", marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: 10 }}>
               <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#c9a962" strokeWidth="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
               Resumo do Pedido

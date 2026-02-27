@@ -113,7 +113,7 @@ export default function Users() {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>Usuários</Typography>
+      <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>Usuários</Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
 
@@ -140,15 +140,16 @@ export default function Users() {
             <CircularProgress sx={{ color: '#c9a962' }} />
           </Box>
         ) : (
+          <Box sx={{ overflowX: 'auto' }}>
           <Table size="small">
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: 600 }}>Nome</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>CPF</TableCell>
+                <TableCell sx={{ fontWeight: 600, display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: 600, display: { xs: 'none', md: 'table-cell' } }}>CPF</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Criado em</TableCell>
+                <TableCell sx={{ fontWeight: 600, display: { xs: 'none', md: 'table-cell' } }}>Criado em</TableCell>
                 <TableCell sx={{ fontWeight: 600, textAlign: 'center' }}>Ações</TableCell>
               </TableRow>
             </TableHead>
@@ -163,8 +164,8 @@ export default function Users() {
               {filteredUsers.map((user) => (
                 <TableRow key={user.id} hover>
                   <TableCell>{user.fullName}</TableCell>
-                  <TableCell sx={{ fontSize: 13 }}>{user.email}</TableCell>
-                  <TableCell sx={{ fontSize: 13 }}>{formatDoc(user.document)}</TableCell>
+                  <TableCell sx={{ fontSize: 13, display: { xs: 'none', sm: 'table-cell' } }}>{user.email}</TableCell>
+                  <TableCell sx={{ fontSize: 13, display: { xs: 'none', md: 'table-cell' } }}>{formatDoc(user.document)}</TableCell>
                   <TableCell>
                     <Chip label={roleLabels[user.role] || user.role} size="small"
                       sx={{ fontSize: 11, fontWeight: 600,
@@ -179,7 +180,7 @@ export default function Users() {
                       color={statusColors[user.status] || 'default'}
                       sx={{ fontSize: 11, fontWeight: 600 }} />
                   </TableCell>
-                  <TableCell sx={{ fontSize: 12, color: 'text.secondary' }}>
+                  <TableCell sx={{ fontSize: 12, color: 'text.secondary', display: { xs: 'none', md: 'table-cell' } }}>
                     {new Date(user.createdAt).toLocaleDateString('pt-BR')}
                   </TableCell>
                   <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
@@ -229,6 +230,7 @@ export default function Users() {
               ))}
             </TableBody>
           </Table>
+          </Box>
         )}
       </Paper>
 

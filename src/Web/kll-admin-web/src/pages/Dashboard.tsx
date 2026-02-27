@@ -246,9 +246,9 @@ export default function Dashboard() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1, mb: 3 }}>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
             {getGreeting()}, Admin
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.3 }}>
@@ -264,7 +264,7 @@ export default function Dashboard() {
 
       {/* KPI Cards */}
       <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-        <Box sx={{ flex: '1 1 180px', minWidth: 180 }}>
+        <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: { xs: 0, sm: 160 }, maxWidth: { xs: 'calc(50% - 8px)', sm: 'none' } }}>
           <KpiCard
             title="Receita do Mes"
             value={stats ? formatCurrency(stats.totalRevenue) : '...'}
@@ -274,7 +274,7 @@ export default function Dashboard() {
             loading={loading}
           />
         </Box>
-        <Box sx={{ flex: '1 1 180px', minWidth: 180 }}>
+        <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: { xs: 0, sm: 160 }, maxWidth: { xs: 'calc(50% - 8px)', sm: 'none' } }}>
           <KpiCard
             title="Pedidos"
             value={stats?.totalOrders ?? 0}
@@ -284,7 +284,7 @@ export default function Dashboard() {
             loading={loading}
           />
         </Box>
-        <Box sx={{ flex: '1 1 180px', minWidth: 180 }}>
+        <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: { xs: 0, sm: 160 }, maxWidth: { xs: 'calc(50% - 8px)', sm: 'none' } }}>
           <KpiCard
             title="Ticket Medio"
             value={stats ? formatCurrency(stats.averageTicket) : '...'}
@@ -294,7 +294,7 @@ export default function Dashboard() {
             loading={loading}
           />
         </Box>
-        <Box sx={{ flex: '1 1 180px', minWidth: 180 }}>
+        <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: { xs: 0, sm: 160 }, maxWidth: { xs: 'calc(50% - 8px)', sm: 'none' } }}>
           <KpiCard
             title="Clientes"
             value={stats?.totalCustomers ?? 0}
@@ -304,7 +304,7 @@ export default function Dashboard() {
             loading={loading}
           />
         </Box>
-        <Box sx={{ flex: '1 1 180px', minWidth: 180 }}>
+        <Box sx={{ flex: '1 1 calc(50% - 8px)', minWidth: { xs: 0, sm: 160 }, maxWidth: { xs: 'calc(50% - 8px)', sm: 'none' } }}>
           <KpiCard
             title="Alertas"
             value={`${stats?.lowStockProducts ?? 0} + ${stats?.pendingOrders ?? 0}`}

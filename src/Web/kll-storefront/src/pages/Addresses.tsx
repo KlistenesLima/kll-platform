@@ -104,7 +104,7 @@ export default function Addresses() {
     <div style={{ minHeight: "100vh", background: "#0f0f1a", padding: "2rem 1rem" }}>
       <div style={{ maxWidth: 700, margin: "0 auto" }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem", marginBottom: "2rem" }}>
           <div>
             <Link to="/profile" style={{
               fontSize: "0.8rem", color: "#6c6c7e", textDecoration: "none",
@@ -120,7 +120,7 @@ export default function Addresses() {
           {addresses.length < 5 && !showForm && (
             <button onClick={openCreate} style={{
               display: "flex", alignItems: "center", gap: 8, padding: "0.6rem 1.25rem",
-              background: "linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)",
+              minHeight: 44, background: "linear-gradient(135deg, #c9a962 0%, #a68b4b 100%)",
               border: "none", borderRadius: 10, color: "#0f0f1a", fontSize: "0.8rem", fontWeight: 600,
               cursor: "pointer", fontFamily: "'Poppins', sans-serif", textTransform: "uppercase",
               letterSpacing: "1px", boxShadow: "0 2px 8px rgba(201,169,98,0.2)"
@@ -161,7 +161,7 @@ export default function Addresses() {
                 onBlur={(e) => e.currentTarget.style.borderColor = "rgba(201,169,98,0.2)"} />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: "1rem", marginBottom: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
               <div>
                 <label style={labelStyle}>Rua</label>
                 <input required value={form.street} onChange={(e) => setForm({...form, street: e.target.value})}
@@ -178,7 +178,7 @@ export default function Addresses() {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
               <div>
                 <label style={labelStyle}>Complemento</label>
                 <input value={form.complement} onChange={(e) => setForm({...form, complement: e.target.value})}
@@ -195,7 +195,7 @@ export default function Addresses() {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 140px", gap: "1rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(80px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
               <div>
                 <label style={labelStyle}>Cidade</label>
                 <input required value={form.city} onChange={(e) => setForm({...form, city: e.target.value})}
@@ -219,9 +219,9 @@ export default function Addresses() {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: "0.75rem" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
               <button type="submit" disabled={saving} style={{
-                flex: 1, padding: "0.75rem", border: "none", borderRadius: 10, cursor: "pointer",
+                flex: 1, minWidth: 120, padding: "0.75rem", minHeight: 44, border: "none", borderRadius: 10, cursor: "pointer",
                 background: saving ? "#555" : "linear-gradient(135deg, #c9a962, #a68b4b)",
                 color: "#0f0f1a", fontWeight: 700, fontSize: "0.85rem", fontFamily: "'Poppins', sans-serif",
                 textTransform: "uppercase", letterSpacing: "1px"
@@ -229,7 +229,7 @@ export default function Addresses() {
                 {saving ? "Salvando..." : editId ? "Atualizar" : "Adicionar"}
               </button>
               <button type="button" onClick={() => { setShowForm(false); setEditId(null); }} style={{
-                padding: "0.75rem 1.5rem", border: "1px solid rgba(201,169,98,0.2)", borderRadius: 10,
+                padding: "0.75rem 1.5rem", minHeight: 44, border: "1px solid rgba(201,169,98,0.2)", borderRadius: 10,
                 background: "transparent", color: "#9898ab", cursor: "pointer",
                 fontSize: "0.85rem", fontFamily: "'Poppins', sans-serif"
               }}>
@@ -295,12 +295,12 @@ export default function Addresses() {
               </p>
 
               <div style={{
-                display: "flex", gap: "0.5rem", marginTop: "1rem", paddingTop: "0.75rem",
+                display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "1rem", paddingTop: "0.75rem",
                 borderTop: "1px solid rgba(201,169,98,0.06)"
               }}>
                 <button onClick={() => openEdit(addr)} style={{
-                  display: "flex", alignItems: "center", gap: 6, padding: "0.4rem 0.85rem",
-                  background: "rgba(201,169,98,0.08)", border: "1px solid rgba(201,169,98,0.15)",
+                  display: "flex", alignItems: "center", gap: 6, padding: "0.55rem 0.85rem",
+                  minHeight: 44, background: "rgba(201,169,98,0.08)", border: "1px solid rgba(201,169,98,0.15)",
                   borderRadius: 6, color: "#c9a962", fontSize: "0.75rem", cursor: "pointer",
                   fontFamily: "'Poppins', sans-serif"
                 }}>
@@ -309,8 +309,8 @@ export default function Addresses() {
                 </button>
                 {!addr.isDefault && (
                   <button onClick={() => handleSetDefault(addr.id)} style={{
-                    display: "flex", alignItems: "center", gap: 6, padding: "0.4rem 0.85rem",
-                    background: "rgba(255,255,255,0.03)", border: "1px solid rgba(201,169,98,0.1)",
+                    display: "flex", alignItems: "center", gap: 6, padding: "0.55rem 0.85rem",
+                    minHeight: 44, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(201,169,98,0.1)",
                     borderRadius: 6, color: "#9898ab", fontSize: "0.75rem", cursor: "pointer",
                     fontFamily: "'Poppins', sans-serif"
                   }}>
@@ -319,8 +319,8 @@ export default function Addresses() {
                   </button>
                 )}
                 <button onClick={() => handleDelete(addr.id)} style={{
-                  display: "flex", alignItems: "center", gap: 6, padding: "0.4rem 0.85rem",
-                  background: "rgba(244,67,54,0.06)", border: "1px solid rgba(244,67,54,0.15)",
+                  display: "flex", alignItems: "center", gap: 6, padding: "0.55rem 0.85rem",
+                  minHeight: 44, background: "rgba(244,67,54,0.06)", border: "1px solid rgba(244,67,54,0.15)",
                   borderRadius: 6, color: "#f44336", fontSize: "0.75rem", cursor: "pointer",
                   fontFamily: "'Poppins', sans-serif", marginLeft: "auto"
                 }}>
