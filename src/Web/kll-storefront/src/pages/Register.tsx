@@ -145,10 +145,10 @@ export default function Register() {
   };
 
   return (
-    <div style={{ minHeight: "calc(100vh - 72px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{ minHeight: "calc(100vh - 72px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
       <div style={{
         background: "rgba(26,26,46,0.6)", border: "1px solid rgba(201,169,98,0.1)",
-        borderRadius: 24, padding: "2.5rem", width: "100%", maxWidth: 480,
+        borderRadius: 24, padding: "clamp(1.25rem, 5vw, 2.5rem)", width: "100%", maxWidth: 480,
         boxShadow: "0 16px 64px rgba(0,0,0,0.4)", backdropFilter: "blur(20px)"
       }}>
         {/* Header */}
@@ -209,7 +209,7 @@ export default function Register() {
                   required autoComplete="new-password" placeholder="Mínimo 8 caracteres"
                   style={{ ...inputStyle, paddingRight: "3rem" }} onFocus={onFocus} onBlur={onBlur} />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 4, color: showPassword ? "#c9a962" : "#6c6c7e", display: "flex", alignItems: "center" }}>
+                  style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: "0.6rem", minWidth: 44, minHeight: 44, color: showPassword ? "#c9a962" : "#6c6c7e", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                 </button>
               </div>
@@ -232,7 +232,7 @@ export default function Register() {
                   required autoComplete="new-password" placeholder="Repita a senha"
                   style={{ ...inputStyle, paddingRight: "3rem" }} onFocus={onFocus} onBlur={onBlur} />
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: 4, color: showConfirm ? "#c9a962" : "#6c6c7e", display: "flex", alignItems: "center" }}>
+                  style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", padding: "0.6rem", minWidth: 44, minHeight: 44, color: showConfirm ? "#c9a962" : "#6c6c7e", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   {showConfirm ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
                 </button>
               </div>
@@ -249,14 +249,14 @@ export default function Register() {
             <p style={{ textAlign: "center", color: "#8888a0", fontSize: "0.85rem", marginBottom: "1.5rem" }}>
               Enviamos um código de 6 dígitos para <strong style={{ color: "#c9a962" }}>{email}</strong>
             </p>
-            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: "clamp(4px, 1.5vw, 8px)", marginBottom: "1.5rem" }}>
               {otpDigits.map((digit, idx) => (
                 <input key={idx} ref={(el) => { otpRefs.current[idx] = el; }}
                   type="text" inputMode="numeric" maxLength={1} value={digit}
                   onChange={(e) => handleOtpChange(idx, e.target.value)}
                   onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                   style={{
-                    width: 48, height: 56, textAlign: "center", fontSize: "1.5rem", fontWeight: 700,
+                    width: "clamp(38px, 11vw, 48px)", height: "clamp(48px, 13vw, 56px)", textAlign: "center", fontSize: "clamp(1.1rem, 4vw, 1.5rem)", fontWeight: 700,
                     color: "#c9a962", background: "rgba(255,255,255,0.03)",
                     border: `1px solid ${digit ? "rgba(201,169,98,0.4)" : "rgba(201,169,98,0.12)"}`,
                     borderRadius: 10, outline: "none", fontFamily: "'Poppins', sans-serif"

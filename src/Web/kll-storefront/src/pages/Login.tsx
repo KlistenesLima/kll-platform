@@ -67,11 +67,11 @@ export default function Login() {
   return (
     <div style={{
       minHeight: "calc(100vh - 72px)", display: "flex", alignItems: "center",
-      justifyContent: "center", padding: "2rem"
+      justifyContent: "center", padding: "1rem"
     }}>
       <div style={{
         background: "rgba(26,26,46,0.6)", border: "1px solid rgba(201,169,98,0.1)",
-        borderRadius: 24, padding: "3rem 2.5rem", width: "100%", maxWidth: 420,
+        borderRadius: 24, padding: "clamp(1.5rem, 6vw, 3rem) clamp(1.25rem, 5vw, 2.5rem)", width: "100%", maxWidth: 420,
         boxShadow: "0 16px 64px rgba(0,0,0,0.4)", backdropFilter: "blur(20px)"
       }}>
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
@@ -125,9 +125,9 @@ export default function Login() {
                 onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(201,169,98,0.12)"; e.currentTarget.style.boxShadow = "none"; }} />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
                 style={{
-                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                  background: "none", border: "none", cursor: "pointer", padding: 4,
-                  color: showPassword ? "#c9a962" : "#6c6c7e", transition: "color 0.2s",
+                  position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer", padding: "0.6rem",
+                  minWidth: 44, minHeight: 44, color: showPassword ? "#c9a962" : "#6c6c7e", transition: "color 0.2s",
                   display: "flex", alignItems: "center", justifyContent: "center"
                 }}>
                 {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}

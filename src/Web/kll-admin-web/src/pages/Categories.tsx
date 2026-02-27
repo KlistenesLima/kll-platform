@@ -134,12 +134,15 @@ export default function Categories() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>Categorias</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>Categorias</Typography>
           <Typography variant="body2" color="text.secondary">Gerenciamento de categorias</Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>Nova Categoria</Button>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}
+          sx={{ alignSelf: { xs: 'flex-start', sm: 'auto' } }}>
+          Nova Categoria
+        </Button>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>Erro ao carregar categorias.</Alert>}

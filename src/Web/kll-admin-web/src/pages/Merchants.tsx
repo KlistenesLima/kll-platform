@@ -18,22 +18,22 @@ export default function Merchants() {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>Merchants</Typography>
+      <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>Merchants</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Gerenciamento de lojistas</Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>Erro ao carregar merchants.</Alert>}
 
       <Card>
-        <TableContainer>
+        <TableContainer sx={{ overflowX: 'auto' }}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Nome</TableCell>
-                <TableCell>CNPJ</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>API Key</TableCell>
+                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>CNPJ</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Email</TableCell>
+                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>API Key</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Cadastro</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Cadastro</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -50,9 +50,9 @@ export default function Merchants() {
               ) : merchants.map(m => (
                 <TableRow key={m.id} hover>
                   <TableCell sx={{ fontWeight: 600 }}>{m.name}</TableCell>
-                  <TableCell>{m.document}</TableCell>
-                  <TableCell>{m.email}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{m.document}</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{m.email}</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: 11 }}>
                         {m.apiKey.slice(0, 16)}...
@@ -68,7 +68,7 @@ export default function Merchants() {
                     <Chip label={m.isActive ? 'Ativo' : 'Inativo'} size="small"
                       color={m.isActive ? 'success' : 'default'} />
                   </TableCell>
-                  <TableCell>{new Date(m.createdAt).toLocaleDateString('pt-BR')}</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{new Date(m.createdAt).toLocaleDateString('pt-BR')}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

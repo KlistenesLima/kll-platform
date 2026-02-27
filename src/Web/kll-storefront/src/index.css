@@ -91,6 +91,10 @@ a:hover { color: #d4b87a; }
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 
 /* ============================================
    RESPONSIVE — Global mobile adjustments
@@ -104,7 +108,31 @@ a:hover { color: #d4b87a; }
 
 /* Ensure minimum touch targets on touch devices */
 @media (hover: none) and (pointer: coarse) {
-  button, a, [role="button"], input[type="submit"] {
+  button, a, [role="button"], input[type="submit"], input[type="button"] {
     min-height: 44px;
+  }
+  /* Inputs should also be tall enough to tap comfortably */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="search"],
+  select,
+  textarea {
+    min-height: 44px;
+  }
+}
+
+/* Very small phones (< 380px): reduce spacing and font sizes */
+@media (max-width: 380px) {
+  body {
+    padding-top: 40px;
+  }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  /* Tighten page-level padding so cards don't overflow */
+  [style*="padding: 2rem"] {
+    padding: 0.75rem !important;
   }
 }

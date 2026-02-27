@@ -179,7 +179,7 @@ export default function Orders() {
             placeholder="Buscar por ID do pedido ou cliente..."
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(0); }}
-            sx={{ minWidth: 320 }}
+            sx={{ minWidth: { xs: 0, sm: 320 }, flex: { xs: '1 1 100%', sm: '0 0 auto' } }}
             InputProps={{
               startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
             }}

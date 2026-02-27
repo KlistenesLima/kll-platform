@@ -166,7 +166,7 @@ export default function Shipments() {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>Entregas</Typography>
+      <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>Entregas</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         {totalCount} envio(s) registrados
       </Typography>
@@ -197,12 +197,12 @@ export default function Shipments() {
             placeholder="Buscar por código de rastreio ou pedido..."
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(0); }}
-            sx={{ minWidth: 320 }}
+            sx={{ minWidth: { xs: 0, sm: 280 }, flex: { xs: '1 1 100%', sm: '1 1 280px' } }}
             InputProps={{
               startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
             }}
           />
-          <FormControl size="small" sx={{ minWidth: 180 }}>
+          <FormControl size="small" sx={{ minWidth: { xs: 0, sm: 180 }, flex: { xs: '1 1 calc(50% - 8px)', sm: '0 0 180px' } }}>
             <InputLabel>Status</InputLabel>
             <Select value={statusFilter} label="Status" onChange={e => { setStatusFilter(e.target.value); setPage(0); }}>
               <MenuItem value="all">Todos</MenuItem>
@@ -211,7 +211,8 @@ export default function Shipments() {
               ))}
             </Select>
           </FormControl>
-          <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchShipments} disabled={loading}>
+          <Button variant="outlined" startIcon={<RefreshIcon />} onClick={fetchShipments} disabled={loading}
+            sx={{ flex: { xs: '1 1 calc(50% - 8px)', sm: '0 0 auto' } }}>
             Atualizar
           </Button>
         </CardContent>
@@ -235,16 +236,16 @@ export default function Shipments() {
           </CardContent>
         ) : (
           <>
-            <TableContainer>
+            <TableContainer sx={{ overflowX: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600 }}>Rastreio</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Pedido</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Destino</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', sm: 'table-cell' } }}>Pedido</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', md: 'table-cell' } }}>Destino</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Destinatário</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Previsão</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', md: 'table-cell' } }}>Destinatário</TableCell>
+                    <TableCell sx={{ fontWeight: 600, display: { xs: 'none', lg: 'table-cell' } }}>Previsão</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Ações</TableCell>
                   </TableRow>
                 </TableHead>
@@ -265,17 +266,17 @@ export default function Shipments() {
                             </Tooltip>
                           </Box>
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                           <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: 13, cursor: 'pointer', color: 'primary.main' }}>
                             {shipment.orderId.slice(0, 8)}...
                           </Typography>
                         </TableCell>
-                        <TableCell>{shipment.destinationCity}</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{shipment.destinationCity}</TableCell>
                         <TableCell>
                           <Chip label={st.label} size="small" color={st.color} icon={getStatusIcon(shipment.status)} />
                         </TableCell>
-                        <TableCell>{shipment.recipientName}</TableCell>
-                        <TableCell>{formatDate(shipment.estimatedDelivery)}</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{shipment.recipientName}</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>{formatDate(shipment.estimatedDelivery)}</TableCell>
                         <TableCell>
                           <Button size="small" variant="text" startIcon={<VisibilityIcon />} onClick={() => handleViewDetails(shipment)}>
                             Detalhes

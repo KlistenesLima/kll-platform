@@ -77,12 +77,12 @@ export default function Transactions() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>Transações</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 700, fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>Transações</Typography>
           <Typography variant="body2" color="text.secondary">Todos os pagamentos processados</Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Tooltip title="Atualizar"><IconButton onClick={() => refetch()}><RefreshIcon /></IconButton></Tooltip>
           <Button variant="outlined" onClick={() => setMerchantOpen(true)}>Novo Merchant</Button>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setChargeOpen(true)}>Nova Cobrança</Button>
@@ -120,14 +120,16 @@ export default function Transactions() {
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <TextField select size="small" label="Tipo" value={filterType}
-            onChange={e => { setFilterType(e.target.value); setPage(0); }} sx={{ minWidth: 160 }}>
+            onChange={e => { setFilterType(e.target.value); setPage(0); }}
+            sx={{ minWidth: { xs: 0, sm: 160 }, flex: { xs: '1 1 calc(50% - 8px)', sm: '0 0 160px' } }}>
             <MenuItem value="">Todos</MenuItem>
             <MenuItem value="Pix">PIX</MenuItem>
             <MenuItem value="Boleto">Boleto</MenuItem>
             <MenuItem value="CreditCard">Cartão</MenuItem>
           </TextField>
           <TextField select size="small" label="Status" value={filterStatus}
-            onChange={e => { setFilterStatus(e.target.value); setPage(0); }} sx={{ minWidth: 160 }}>
+            onChange={e => { setFilterStatus(e.target.value); setPage(0); }}
+            sx={{ minWidth: { xs: 0, sm: 160 }, flex: { xs: '1 1 calc(50% - 8px)', sm: '0 0 160px' } }}>
             <MenuItem value="">Todos</MenuItem>
             <MenuItem value="Pending">Pendente</MenuItem>
             <MenuItem value="Confirmed">Confirmado</MenuItem>
@@ -141,16 +143,16 @@ export default function Transactions() {
 
       {/* Transactions Table */}
       <Card>
-        <TableContainer>
+        <TableContainer sx={{ overflowX: 'auto' }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>ID</TableCell>
                 <TableCell>Tipo</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell align="right">Valor</TableCell>
-                <TableCell>Charge ID</TableCell>
-                <TableCell>Data</TableCell>
+                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Charge ID</TableCell>
+                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Data</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -160,16 +162,16 @@ export default function Transactions() {
                 <TableRow><TableCell colSpan={6} align="center">Nenhuma transação encontrada</TableCell></TableRow>
               ) : filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(tx => (
                 <TableRow key={tx.id} hover>
-                  <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>{tx.id.slice(0, 8)}...</TableCell>
+                  <TableCell sx={{ fontFamily: 'monospace', fontSize: 12, display: { xs: 'none', sm: 'table-cell' } }}>{tx.id.slice(0, 8)}...</TableCell>
                   <TableCell><Chip label={typeLabel[tx.type] || tx.type} size="small" color={typeColor[tx.type] || 'default'} /></TableCell>
                   <TableCell><Chip label={statusLabel[tx.status] || tx.status} size="small" color={statusColor[tx.status] || 'default'} /></TableCell>
                   <TableCell align="right" sx={{ fontWeight: 600 }}>
                     R$ {tx.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </TableCell>
-                  <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>
+                  <TableCell sx={{ fontFamily: 'monospace', fontSize: 12, display: { xs: 'none', md: 'table-cell' } }}>
                     {tx.bankChargeId ? tx.bankChargeId.slice(0, 8) + '...' : '—'}
                   </TableCell>
-                  <TableCell>{new Date(tx.createdAt).toLocaleString('pt-BR')}</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{new Date(tx.createdAt).toLocaleString('pt-BR')}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

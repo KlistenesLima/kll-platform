@@ -122,7 +122,7 @@ export default function Profile() {
           </div>
 
           {/* Campos */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
               <label style={labelStyle}>Primeiro Nome</label>
               <input value={firstName} onChange={(e) => setFirstName(e.target.value)}

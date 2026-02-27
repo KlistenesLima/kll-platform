@@ -343,11 +343,13 @@ export default function AdminLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           mt: '100px',
           bgcolor: 'background.default',
           minHeight: 'calc(100vh - 100px)',
+          minWidth: 0,
+          overflow: 'hidden',
         }}
       >
         <Outlet />

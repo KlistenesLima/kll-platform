@@ -80,16 +80,16 @@ export default function System() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, mb: 3 }}>
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 700, color: '#fff' }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: '#fff', fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
             Status do Sistema
           </Typography>
           <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.45)', mt: 0.5 }}>
             Monitoramento em tempo real dos serviços KLL Platform
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
           {lastUpdate && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{
@@ -104,7 +104,7 @@ export default function System() {
               <Typography sx={{ fontSize: 13, color: GREEN, fontWeight: 600, fontFamily: 'monospace' }}>
                 LIVE
               </Typography>
-              <Typography sx={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+              <Typography sx={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace', display: { xs: 'none', sm: 'block' } }}>
                 {lastUpdate.toLocaleTimeString('pt-BR')}
               </Typography>
             </Box>
