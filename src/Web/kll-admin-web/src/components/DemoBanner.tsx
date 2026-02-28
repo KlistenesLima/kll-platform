@@ -72,25 +72,25 @@ export default function DemoBanner() {
       transition: 'opacity 0.5s ease',
     }}>
       <div style={{
-        display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 16px', maxWidth: '1440px', margin: '0 auto', gap: '8px',
+        display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'space-between',
+        padding: '4px 8px', maxWidth: '1440px', margin: '0 auto', gap: '4px',
       }}>
         {/* Left — Briefcase + Text */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c9a962' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#c9a962', minWidth: 0 }}>
           <BriefcaseIcon />
-          <span style={{
+          <span className="banner-text" style={{
             color: '#c9a962', fontSize: '13px', fontWeight: 500,
             fontFamily: 'Poppins, sans-serif', letterSpacing: '0.3px',
             whiteSpace: 'nowrap',
           }}>
-            Case de Portf&oacute;lio &mdash;{' '}
+            Portf&oacute;lio &mdash;{' '}
             <span style={{ color: '#fff', fontWeight: 600 }}>Kl&iacute;stenes Lima</span>
-            <span className="title-suffix" style={{ display: 'inline' }}>, Senior Full Stack Engineer (.NET)</span>
+            <span className="title-suffix">, Senior Full Stack Engineer (.NET)</span>
           </span>
         </div>
 
         {/* Right — Icon Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
           {links.map((link) => (
             <a
               key={link.label}
@@ -100,7 +100,7 @@ export default function DemoBanner() {
               title={link.label}
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '4px 10px', borderRadius: '20px',
+                padding: '2px 6px', borderRadius: '20px',
                 color: 'rgba(201,169,98,0.7)', textDecoration: 'none',
                 transition: 'all 0.3s', fontSize: '11px',
                 fontFamily: 'Poppins, sans-serif', fontWeight: 500,
@@ -115,7 +115,7 @@ export default function DemoBanner() {
               }}
             >
               {link.icon}
-              <span className="link-label" style={{ display: 'inline' }}>{link.label}</span>
+              <span className="link-label">{link.label}</span>
             </a>
           ))}
         </div>
@@ -128,9 +128,16 @@ export default function DemoBanner() {
       }} />
 
       <style>{`
+        body { padding-top: 30px; }
         @media (max-width: 768px) {
           .title-suffix { display: none !important; }
           .link-label { display: none !important; }
+          .banner-text { font-size: 11px !important; }
+          body { padding-top: 28px; }
+        }
+        @media (max-width: 480px) {
+          .banner-text { font-size: 10px !important; }
+          body { padding-top: 26px; }
         }
       `}</style>
     </div>

@@ -36,7 +36,7 @@
 html { scroll-behavior: smooth; }
 
 body {
-  padding-top: 36px;
+  padding-top: 34px;
   font-family: 'Poppins', sans-serif;
   background: #0f0f1a;
   color: #e0e0e0;
@@ -100,10 +100,10 @@ a:hover { color: #d4b87a; }
    RESPONSIVE — Global mobile adjustments
    ============================================ */
 @media (max-width: 768px) {
-  body { padding-top: 50px; }
+  body { padding-top: 30px; }
 }
 @media (max-width: 480px) {
-  body { padding-top: 44px; }
+  body { padding-top: 28px; }
 }
 
 /* Ensure minimum touch targets on touch devices */
@@ -127,7 +127,7 @@ a:hover { color: #d4b87a; }
 /* Very small phones (< 380px): reduce spacing and font sizes */
 @media (max-width: 380px) {
   body {
-    padding-top: 40px;
+    padding-top: 26px;
   }
   h1 { font-size: 1.5rem; }
   h2 { font-size: 1.25rem; }
