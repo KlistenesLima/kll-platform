@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 
-const BriefcaseIcon = () => (
+const PortfolioIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+    <path d="M9 22V6h6v16" />
+    <path d="M4 6h16" />
   </svg>
 );
 
@@ -13,7 +14,7 @@ const LinkedInIcon = () => (
   </svg>
 );
 
-const CvIcon = () => (
+const PersonIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
   </svg>
@@ -49,11 +50,11 @@ interface BannerLink {
 }
 
 const links: BannerLink[] = [
-  { href: 'https://www.linkedin.com/in/klistenes-de-lima-leite-257209194/', icon: <LinkedInIcon />, label: 'LinkedIn' },
-  { href: 'https://store.klisteneslima.dev/resume', icon: <CvIcon />, label: 'Curr\u00edculo' },
-  { href: 'https://github.com/KlistenesLima/kll-platform', icon: <GitHubIcon />, label: 'GitHub' },
-  { href: 'https://store.klisteneslima.dev/docs', icon: <DocIcon />, label: 'Docs' },
-  { href: 'https://store.klisteneslima.dev/about', icon: <InfoIcon />, label: 'Sobre' },
+  { href: 'https://linkedin.com/in/klisteneslima', icon: <LinkedInIcon />, label: 'LinkedIn' },
+  { href: 'https://store.klisteneslima.dev/about', icon: <PersonIcon />, label: 'Sobre' },
+  { href: 'https://github.com/KlistenesLima', icon: <GitHubIcon />, label: 'GitHub' },
+  { href: 'https://store.klisteneslima.dev/docs', icon: <DocIcon />, label: 'Documentação' },
+  { href: 'https://store.klisteneslima.dev/portfolio', icon: <InfoIcon />, label: 'Portfólio' },
 ];
 
 export default function DemoBanner() {
@@ -65,81 +66,105 @@ export default function DemoBanner() {
   }, []);
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
-      background: 'linear-gradient(90deg, #1a1a2e 0%, #16213e 100%)',
-      opacity: visible ? 1 : 0,
-      transition: 'opacity 0.5s ease',
-    }}>
-      <div style={{
-        display: 'flex', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'space-between',
-        padding: '4px 8px', maxWidth: '1440px', margin: '0 auto', gap: '4px',
-      }}>
-        {/* Left — Briefcase + Text */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#c9a962', minWidth: 0 }}>
-          <BriefcaseIcon />
-          <span className="banner-text" style={{
-            color: '#c9a962', fontSize: '13px', fontWeight: 500,
-            fontFamily: 'Poppins, sans-serif', letterSpacing: '0.3px',
-            whiteSpace: 'nowrap',
-          }}>
-            Portf&oacute;lio &mdash;{' '}
-            <span style={{ color: '#fff', fontWeight: 600 }}>Kl&iacute;stenes Lima</span>
-            <span className="title-suffix">, Senior Full Stack Engineer (.NET)</span>
-          </span>
-        </div>
-
-        {/* Right — Icon Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
-          {links.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={link.label}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '2px 6px', borderRadius: '20px',
-                color: 'rgba(201,169,98,0.7)', textDecoration: 'none',
-                transition: 'all 0.3s', fontSize: '11px',
-                fontFamily: 'Poppins, sans-serif', fontWeight: 500,
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.color = '#c9a962';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.color = 'rgba(201,169,98,0.7)';
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              {link.icon}
-              <span className="link-label">{link.label}</span>
-            </a>
-          ))}
+    <>
+      <div
+        className="portfolio-banner"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+          borderBottom: '1px solid rgba(201, 169, 98, 0.3)',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.5s ease',
+        }}
+      >
+        <div className="pb-inner" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: '12px', padding: '8px 16px',
+          fontFamily: "'Plus Jakarta Sans', 'Poppins', sans-serif",
+          fontSize: '13px', color: '#e0e0e0', flexWrap: 'wrap',
+        }}>
+          <div className="pb-text" style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
+            <span style={{ color: '#c9a962', display: 'flex', alignItems: 'center' }}>
+              <PortfolioIcon />
+            </span>
+            <span>
+              <span className="pb-prefix">Case de Portfólio — </span>
+              <span style={{ color: '#c9a962', fontWeight: 600 }}>Klístenes Lima</span>
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {links.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={link.label}
+                className="pb-link"
+              >
+                {link.icon}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Bottom border */}
-      <div style={{
-        height: '1px',
-        background: 'linear-gradient(90deg, transparent, rgba(201,169,98,0.5), transparent)',
-      }} />
-
       <style>{`
-        body { padding-top: 30px; }
-        @media (max-width: 768px) {
-          .title-suffix { display: none !important; }
-          .link-label { display: none !important; }
-          .banner-text { font-size: 11px !important; }
+        body { padding-top: 34px; }
+        .pb-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.08);
+          color: #a0a0b0;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        .pb-link:hover {
+          background: rgba(201, 169, 98, 0.2);
+          color: #c9a962;
+        }
+        .pb-link svg {
+          width: 16px;
+          height: 16px;
+        }
+        @media (max-width: 600px) {
+          .pb-inner {
+            padding: 6px 12px !important;
+            gap: 8px !important;
+            font-size: 12px !important;
+          }
+          .pb-text {
+            font-size: 11px;
+          }
+          .pb-prefix {
+            display: none !important;
+          }
+          .pb-link {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 6px !important;
+          }
+          .pb-link svg {
+            width: 14px !important;
+            height: 14px !important;
+          }
+          body { padding-top: 30px; }
+        }
+        @media (max-width: 380px) {
+          .pb-inner {
+            padding: 4px 8px !important;
+            gap: 6px !important;
+          }
+          .pb-link {
+            width: 26px !important;
+            height: 26px !important;
+          }
           body { padding-top: 28px; }
         }
-        @media (max-width: 480px) {
-          .banner-text { font-size: 10px !important; }
-          body { padding-top: 26px; }
-        }
       `}</style>
-    </div>
+    </>
   );
 }

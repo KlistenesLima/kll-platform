@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const BriefcaseIcon = () => (
+const PortfolioIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+    <path d="M9 22V6h6v16" />
+    <path d="M4 6h16" />
   </svg>
 );
 
 const LinkedInIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+
+const PersonIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
   </svg>
 );
 
@@ -26,7 +33,6 @@ const DocIcon = () => (
     <polyline points="14 2 14 8 20 8" />
     <line x1="16" y1="13" x2="8" y2="13" />
     <line x1="16" y1="17" x2="8" y2="17" />
-    <polyline points="10 9 9 9 8 9" />
   </svg>
 );
 
@@ -45,18 +51,12 @@ interface BannerLink {
   external: boolean;
 }
 
-const CvIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-  </svg>
-);
-
 const links: BannerLink[] = [
-  { href: 'https://www.linkedin.com/in/klistenes-de-lima-leite-257209194/', icon: <LinkedInIcon />, label: 'LinkedIn', external: true },
-  { href: '/resume', icon: <CvIcon />, label: 'Currículo', external: false },
-  { href: 'https://github.com/KlistenesLima/kll-platform', icon: <GitHubIcon />, label: 'GitHub', external: true },
-  { href: '/docs', icon: <DocIcon />, label: 'Docs', external: false },
-  { href: '/about', icon: <InfoIcon />, label: 'Sobre', external: false },
+  { href: 'https://linkedin.com/in/klisteneslima', icon: <LinkedInIcon />, label: 'LinkedIn', external: true },
+  { href: '/about', icon: <PersonIcon />, label: 'Sobre', external: false },
+  { href: 'https://github.com/KlistenesLima', icon: <GitHubIcon />, label: 'GitHub', external: true },
+  { href: '/docs', icon: <DocIcon />, label: 'Documentação', external: false },
+  { href: '/portfolio', icon: <InfoIcon />, label: 'Portfólio', external: false },
 ];
 
 export default function DemoBanner() {
@@ -68,54 +68,113 @@ export default function DemoBanner() {
   }, []);
 
   return (
-    <div
-      className={`fixed top-0 left-0 right-0 z-[9999] transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
-      style={{ background: 'linear-gradient(90deg, #1a1a2e 0%, #16213e 100%)' }}
-    >
-      <div className="flex flex-row items-center justify-between px-2 sm:px-4 py-1 sm:py-1.5 max-w-screen-2xl mx-auto gap-1">
-        {/* Left — Briefcase + Text */}
-        <div className="flex items-center gap-1.5 sm:gap-2 text-[#c9a962] min-w-0">
-          <BriefcaseIcon />
-          <span className="text-[10px] sm:text-[13px] font-medium tracking-wide whitespace-nowrap"
-            style={{ fontFamily: 'Poppins, sans-serif' }}>
-            Portfólio —{' '}
-            <span className="text-white font-semibold">Klístenes Lima</span>
-            <span className="hidden md:inline">, Senior Full Stack Engineer (.NET)</span>
-          </span>
-        </div>
-
-        {/* Right — Icon Links */}
-        <div className="flex items-center gap-0 sm:gap-2 flex-shrink-0">
-          {links.map((link) =>
-            link.external ? (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full text-[#c9a962]/70 hover:text-[#c9a962] hover:bg-white/5 transition-all duration-300"
-                title={link.label}
-              >
-                {link.icon}
-                <span className="text-[11px] font-medium hidden sm:inline">{link.label}</span>
-              </a>
-            ) : (
-              <Link
-                key={link.label}
-                to={link.href}
-                className="group relative flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full text-[#c9a962]/70 hover:text-[#c9a962] hover:bg-white/5 transition-all duration-300"
-                title={link.label}
-              >
-                {link.icon}
-                <span className="text-[11px] font-medium hidden sm:inline">{link.label}</span>
-              </Link>
-            )
-          )}
+    <>
+      <div
+        className="portfolio-banner"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+          borderBottom: '1px solid rgba(201, 169, 98, 0.3)',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.5s ease',
+        }}
+      >
+        <div className="pb-inner" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: '12px', padding: '8px 16px',
+          fontFamily: "'Plus Jakarta Sans', 'Poppins', sans-serif",
+          fontSize: '13px', color: '#e0e0e0', flexWrap: 'wrap',
+        }}>
+          <div className="pb-text" style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
+            <span style={{ color: '#c9a962', display: 'flex', alignItems: 'center' }}>
+              <PortfolioIcon />
+            </span>
+            <span>
+              <span className="pb-prefix">Case de Portfólio — </span>
+              <span style={{ color: '#c9a962', fontWeight: 600 }}>Klístenes Lima</span>
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {links.map((link) =>
+              link.external ? (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={link.label}
+                  className="pb-link"
+                >
+                  {link.icon}
+                </a>
+              ) : (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  title={link.label}
+                  className="pb-link"
+                >
+                  {link.icon}
+                </Link>
+              )
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Bottom border */}
-      <div className="h-px bg-gradient-to-r from-transparent via-[#c9a962]/50 to-transparent" />
-    </div>
+      <style>{`
+        .pb-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.08);
+          color: #a0a0b0;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        .pb-link:hover {
+          background: rgba(201, 169, 98, 0.2);
+          color: #c9a962;
+        }
+        .pb-link svg {
+          width: 16px;
+          height: 16px;
+        }
+        @media (max-width: 600px) {
+          .pb-inner {
+            padding: 6px 12px !important;
+            gap: 8px !important;
+            font-size: 12px !important;
+          }
+          .pb-text {
+            font-size: 11px;
+          }
+          .pb-prefix {
+            display: none !important;
+          }
+          .pb-link {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 6px !important;
+          }
+          .pb-link svg {
+            width: 14px !important;
+            height: 14px !important;
+          }
+        }
+        @media (max-width: 380px) {
+          .pb-inner {
+            padding: 4px 8px !important;
+            gap: 6px !important;
+          }
+          .pb-link {
+            width: 26px !important;
+            height: 26px !important;
+          }
+        }
+      `}</style>
+    </>
   );
 }
