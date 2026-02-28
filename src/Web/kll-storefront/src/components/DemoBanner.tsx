@@ -53,10 +53,10 @@ interface BannerLink {
 
 const links: BannerLink[] = [
   { href: 'https://linkedin.com/in/klisteneslima', icon: <LinkedInIcon />, label: 'LinkedIn', external: true },
-  { href: '/about', icon: <PersonIcon />, label: 'Sobre', external: false },
+  { href: '/portfolio', icon: <PersonIcon />, label: 'Sobre', external: false },
   { href: 'https://github.com/KlistenesLima', icon: <GitHubIcon />, label: 'GitHub', external: true },
   { href: '/docs', icon: <DocIcon />, label: 'Documentação', external: false },
-  { href: '/portfolio', icon: <InfoIcon />, label: 'Portfólio', external: false },
+  { href: '/about', icon: <InfoIcon />, label: 'Portfólio', external: false },
 ];
 
 export default function DemoBanner() {

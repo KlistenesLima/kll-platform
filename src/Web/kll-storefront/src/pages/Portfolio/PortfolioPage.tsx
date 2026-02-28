@@ -268,7 +268,7 @@ function useAnimatedCounter(end: number, duration = 2000, suffix = "") {
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
 const TITLES = [
-  "Senior Full Stack Engineer (.NET)",
+  "Senior Software Engineer | .NET Specialist",
   "Sistemas Distribuidos",
   "Arquitetura Backend",
   "Domain-Driven Design",
@@ -277,28 +277,36 @@ const TITLES = [
 
 const TECH_STACK = [
   {
-    title: "Backend",
-    items: [".NET 8", "ASP.NET Core", "C#", "EF Core", "Dapper", "Minimal APIs", "Web API", "LINQ"],
+    title: "Backend & Runtime",
+    items: ["C# 12", ".NET 8", "ASP.NET Core", "EF Core 8", "Dapper", "MediatR", "SignalR", "Polly", "Hangfire", "gRPC"],
   },
   {
     title: "Architecture",
-    items: ["DDD", "Clean Architecture", "CQRS", "Event-Driven", "Microservices", "REST", "gRPC"],
+    items: ["Clean Architecture", "DDD", "CQRS", "Event-Driven", "Saga Pattern", "Outbox Pattern", "ACL", "Event Sourcing", "API Gateway (YARP)"],
+  },
+  {
+    title: "Financial Systems",
+    items: ["PIX / Boleto / Cartão", "Fraud Detection", "QR Code EMV", "Virtual Cards", "KYC", "Conciliação"],
   },
   {
     title: "Messaging",
-    items: ["RabbitMQ", "Kafka"],
+    items: ["Apache Kafka", "RabbitMQ", "Event Bus", "Dead Letter Queues", "Idempotent Consumers"],
   },
   {
     title: "Databases",
-    items: ["SQL Server", "PostgreSQL", "MySQL", "MongoDB", "Redis"],
+    items: ["PostgreSQL 16", "SQL Server", "MongoDB 7", "Redis 7"],
   },
   {
     title: "Cloud & DevOps",
-    items: ["Azure", "AWS", "Docker", "Kubernetes", "GitHub Actions", "GitLab CI/CD", "Azure DevOps"],
+    items: ["AWS EC2", "Docker (26+)", "Nginx", "GitHub Actions", "Linux / Ubuntu", "Let's Encrypt"],
+  },
+  {
+    title: "Security",
+    items: ["JWT", "Keycloak 23", "OAuth 2.0 / OIDC", "RBAC", "Rate Limiting"],
   },
   {
     title: "Frontend",
-    items: ["TypeScript", "React", "Angular", "Vue.js", "Tailwind", "Bootstrap"],
+    items: ["Angular 17", "React 18", "TypeScript 5", "Tailwind CSS", "MUI v5", "Zustand"],
   },
 ];
 
@@ -312,10 +320,24 @@ interface ExperienceItem {
 
 const EXPERIENCE: ExperienceItem[] = [
   {
+    company: "Projetos Independentes",
+    role: "Senior Software Engineer",
+    period: "2024 - Presente",
+    current: true,
+    bullets: [
+      "Ecossistema fintech completo: KRT Bank + KLL Platform integrados via microsservicos",
+      "Processamento de pagamentos em tempo real (PIX, Boleto, Cartao) com saga pattern",
+      "26 containers Docker em producao na AWS EC2",
+      "3 frontends (Angular 17 + React 18) com RBAC para 5 tipos de usuario",
+      "Event-driven architecture com Kafka + RabbitMQ e outbox pattern",
+      "Auditoria de seguranca completa e 244+ testes automatizados",
+    ],
+  },
+  {
     company: "Qintess",
     role: "Senior Software Engineer .NET",
     period: "Mar 2025 - Atual",
-    current: true,
+    current: false,
     bullets: [
       "Lideranca tecnica na arquitetura e evolucao de sistemas criticos governamentais e de saude",
       "Modelagem DDD, APIs resilientes, workflows de mensageria assincrona com RabbitMQ",
@@ -593,7 +615,7 @@ export default function PortfolioPage() {
   /* --- Animated counters --- */
   const years = useAnimatedCounter(7, 2000, "+");
   const systems = useAnimatedCounter(2, 1500);
-  const containers = useAnimatedCounter(25, 2200);
+  const containers = useAnimatedCounter(26, 2200);
   const tests = useAnimatedCounter(389, 2500);
 
   /* --- Nav items --- */
@@ -736,18 +758,7 @@ export default function PortfolioPage() {
               }}
             >
               <div className="w-full h-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
-                <svg viewBox="0 0 120 120" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#c9a962" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#c9a962" stopOpacity="0.1" />
-                    </linearGradient>
-                  </defs>
-                  <rect width="120" height="120" fill="url(#avatarGrad)" />
-                  <circle cx="60" cy="45" r="22" fill="none" stroke="#c9a962" strokeWidth="1.5" opacity="0.6" />
-                  <path d="M30 105 C30 80, 90 80, 90 105" fill="none" stroke="#c9a962" strokeWidth="1.5" opacity="0.6" />
-                  <text x="60" y="112" textAnchor="middle" fill="#c9a962" fontSize="10" opacity="0.5" fontFamily="monospace">KLL</text>
-                </svg>
+                <img src="/foto-perfil.png" alt="Klístenes Lima" className="w-full h-full object-cover object-top" />
               </div>
             </div>
             <div
