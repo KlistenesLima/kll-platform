@@ -83,7 +83,7 @@ export default function DemoBanner() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           gap: '12px', padding: '8px 16px',
           fontFamily: "'Plus Jakarta Sans', 'Poppins', sans-serif",
-          fontSize: '13px', color: '#e0e0e0', flexWrap: 'wrap',
+          fontSize: '13px', color: '#e0e0e0', flexWrap: 'nowrap',
         }}>
           <div className="pb-text" style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
             <span style={{ color: '#c9a962', display: 'flex', alignItems: 'center' }}>
@@ -95,7 +95,7 @@ export default function DemoBanner() {
               <span style={{ color: '#c9a962', fontWeight: 600 }}>Klístenes Lima</span>
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="pb-links" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             {links.map((link) =>
               link.external ? (
                 <a
@@ -151,8 +151,9 @@ export default function DemoBanner() {
         }
         @media (max-width: 600px) {
           .pb-inner {
-            padding: 6px 12px !important;
-            gap: 8px !important;
+            justify-content: space-between !important;
+            padding: 6px 10px !important;
+            gap: 6px !important;
             font-size: 12px !important;
           }
           .pb-text {
@@ -164,24 +165,39 @@ export default function DemoBanner() {
           .pb-prefix-short {
             display: inline !important;
           }
-          .pb-link {
-            width: 28px !important;
-            height: 28px !important;
-            border-radius: 6px !important;
-          }
-          .pb-link svg {
-            width: 14px !important;
-            height: 14px !important;
-          }
-        }
-        @media (max-width: 380px) {
-          .pb-inner {
-            padding: 4px 8px !important;
-            gap: 6px !important;
+          .pb-links {
+            gap: 4px !important;
           }
           .pb-link {
             width: 26px !important;
             height: 26px !important;
+            border-radius: 6px !important;
+            min-height: auto !important;
+            min-width: auto !important;
+          }
+          .pb-link svg {
+            width: 13px !important;
+            height: 13px !important;
+          }
+        }
+        @media (max-width: 380px) {
+          .pb-inner {
+            padding: 4px 6px !important;
+            gap: 4px !important;
+          }
+          .pb-text {
+            font-size: 10px !important;
+          }
+          .pb-links {
+            gap: 3px !important;
+          }
+          .pb-link {
+            width: 24px !important;
+            height: 24px !important;
+          }
+          .pb-link svg {
+            width: 12px !important;
+            height: 12px !important;
           }
         }
       `}</style>
