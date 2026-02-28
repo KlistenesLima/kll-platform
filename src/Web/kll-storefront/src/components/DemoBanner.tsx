@@ -72,20 +72,20 @@ export default function DemoBanner() {
       className={`fixed top-0 left-0 right-0 z-[9999] transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
       style={{ background: 'linear-gradient(90deg, #1a1a2e 0%, #16213e 100%)' }}
     >
-      <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-between px-4 py-1.5 max-w-screen-2xl mx-auto gap-1 sm:gap-0">
+      <div className="flex flex-row items-center justify-between px-2 sm:px-4 py-1 sm:py-1.5 max-w-screen-2xl mx-auto gap-1">
         {/* Left — Briefcase + Text */}
-        <div className="flex items-center gap-2 text-[#c9a962]">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[#c9a962] min-w-0">
           <BriefcaseIcon />
-          <span className="text-xs sm:text-[13px] font-medium tracking-wide text-center sm:text-left whitespace-nowrap"
+          <span className="text-[10px] sm:text-[13px] font-medium tracking-wide whitespace-nowrap"
             style={{ fontFamily: 'Poppins, sans-serif' }}>
-            Case de Portfólio —{' '}
+            Portfólio —{' '}
             <span className="text-white font-semibold">Klístenes Lima</span>
             <span className="hidden md:inline">, Senior Full Stack Engineer (.NET)</span>
           </span>
         </div>
 
         {/* Right — Icon Links */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-0 sm:gap-2 flex-shrink-0">
           {links.map((link) =>
             link.external ? (
               <a
@@ -93,7 +93,7 @@ export default function DemoBanner() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[#c9a962]/70 hover:text-[#c9a962] hover:bg-white/5 transition-all duration-300"
+                className="group relative flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full text-[#c9a962]/70 hover:text-[#c9a962] hover:bg-white/5 transition-all duration-300"
                 title={link.label}
               >
                 {link.icon}
@@ -103,7 +103,7 @@ export default function DemoBanner() {
               <Link
                 key={link.label}
                 to={link.href}
-                className="group relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[#c9a962]/70 hover:text-[#c9a962] hover:bg-white/5 transition-all duration-300"
+                className="group relative flex items-center gap-1.5 px-1.5 sm:px-2.5 py-1 rounded-full text-[#c9a962]/70 hover:text-[#c9a962] hover:bg-white/5 transition-all duration-300"
                 title={link.label}
               >
                 {link.icon}
