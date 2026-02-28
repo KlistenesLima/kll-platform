@@ -88,7 +88,8 @@ export default function DemoBanner() {
               <PortfolioIcon />
             </span>
             <span>
-              <span className="pb-prefix">Case de Portfólio — </span>
+              <span className="pb-prefix-full">Case de Portfólio — </span>
+              <span className="pb-prefix-short">Portfólio — </span>
               <span style={{ color: '#c9a962', fontWeight: 600 }}>Klístenes Lima</span>
             </span>
           </div>
@@ -130,6 +131,12 @@ export default function DemoBanner() {
           width: 16px;
           height: 16px;
         }
+        .pb-prefix-full {
+          display: inline;
+        }
+        .pb-prefix-short {
+          display: none;
+        }
         @media (max-width: 600px) {
           .pb-inner {
             padding: 6px 12px !important;
@@ -139,8 +146,11 @@ export default function DemoBanner() {
           .pb-text {
             font-size: 11px;
           }
-          .pb-prefix {
+          .pb-prefix-full {
             display: none !important;
+          }
+          .pb-prefix-short {
+            display: inline !important;
           }
           .pb-link {
             width: 28px !important;
